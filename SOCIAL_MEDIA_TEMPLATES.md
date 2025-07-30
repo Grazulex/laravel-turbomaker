@@ -1,12 +1,12 @@
 # Social Media Templates
 
-This document provides templates for sharing Laravel Devtoolbox on social media platforms.
+This document provides templates for sharing Laravel Turbomaker on social media platforms.
 
 ## Twitter/X Templates
 
 ### General Announcement
 ```
-🚀 Check out Laravel Devtoolbox - Swiss-army artisan CLI for Laravel! 
+🚀 Check out Laravel Turbomaker - Swiss-army artisan CLI for Laravel! 
 
 ✨ Deep Laravel project scanner
 🔍 Route/controller/model introspection  
@@ -17,12 +17,12 @@ Perfect for Laravel developers and teams!
 
 #Laravel #PHP #DevTools #CLI #OpenSource
 
-https://github.com/grazulex/laravel-devtoolbox
+https://github.com/grazulex/laravel-turbomaker
 ```
 
 ### Feature Highlight
 ```
-🎯 Laravel Devtoolbox makes debugging Laravel apps incredibly easy!
+🎯 Laravel Turbomaker makes debugging Laravel apps incredibly easy!
 
 Scan, inspect, debug, and explore every aspect of your Laravel application from the command line.
 
@@ -30,12 +30,12 @@ Zero configuration, maximum insight!
 
 #Laravel #PHP #DevTools #Developer
 
-https://github.com/grazulex/laravel-devtoolbox
+https://github.com/grazulex/laravel-turbomaker
 ```
 
 ### Tutorial/Guide
 ```
-📖 Want to understand your Laravel app better? Laravel Devtoolbox has you covered!
+📖 Want to understand your Laravel app better? Laravel Turbomaker has you covered!
 
 ✅ Deep project scanning
 ✅ Route introspection
@@ -47,7 +47,7 @@ Get insights in minutes!
 
 #Laravel #PHP #Tutorial #DevTools
 
-https://github.com/grazulex/laravel-devtoolbox
+https://github.com/grazulex/laravel-turbomaker
 ```
 
 ## LinkedIn Templates
@@ -61,7 +61,7 @@ Key features:
 
 ### Professional Announcement
 ```
-Excited to share Laravel Devtoolbox - a powerful CLI toolkit for Laravel developers!
+Excited to share Laravel Turbomaker - a powerful CLI toolkit for Laravel developers!
 
 Key features:
 → Deep Laravel project scanning
@@ -83,7 +83,7 @@ What debugging tools do you use for Laravel development? Share your thoughts!
 ```
 The Laravel community continues to amaze me! 
 
-Just discovered Laravel Devtoolbox - a Swiss-army knife CLI tool that helps you scan, inspect, debug, and explore every aspect of your Laravel application.
+Just discovered Laravel Turbomaker - a Swiss-army knife CLI tool that helps you scan, inspect, debug, and explore every aspect of your Laravel application.
 
 Features like deep project scanning and dead code detection are game-changers for maintaining clean application architecture.
 
@@ -98,9 +98,9 @@ What Laravel debugging tools have improved your development workflow recently?
 
 ### r/laravel
 ```
-**Laravel Devtoolbox - Swiss-army CLI for Laravel Development**
+**Laravel Turbomaker - Swiss-army CLI for Laravel Development**
 
-I wanted to share Laravel Devtoolbox, a comprehensive CLI toolkit that helps you understand and debug your Laravel applications.
+I wanted to share Laravel Turbomaker, a comprehensive CLI toolkit that helps you understand and debug your Laravel applications.
 
 **Key Features:**
 - Deep Laravel project scanner
@@ -120,7 +120,7 @@ I wanted to share Laravel Devtoolbox, a comprehensive CLI toolkit that helps you
 
 Perfect for anyone looking to gain better insights into their Laravel application architecture and performance.
 
-GitHub: https://github.com/grazulex/laravel-devtoolbox
+GitHub: https://github.com/grazulex/laravel-turbomaker
 
 Has anyone used this or similar Laravel debugging tools? What's your experience?
 ```

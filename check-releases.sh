@@ -61,4 +61,4 @@ fi
 
 print_message $BLUE "═══════════════════════════════════════"
 print_message $GREEN "🎯 Pour créer une release : ./release.sh <version> [notes]"
-print_message $GREEN "🌐 Packagist : https://packagist.org/packages/grazulex/laravel-devtoolbox"
+print_message $GREEN "🌐 Packagist : https://packagist.org/packages/grazulex/laravel-turbomaker"

@@ -1,246 +1,139 @@
-# Laravel Devtoolbox
+# Laravel TurboMaker
 
-<img src="new_logo.png" alt="Laravel Devtoolbox" width="200">
+<img src="new_logo.png" alt="Laravel TDDraft" width="200">
 
-Swiss-army artisan CLI for Laravel — Scan, inspect, debug, and explore every aspect of your Laravel application from the command line.
+Supercharge your Laravel development workflow with instant module scaffolding.
 
-[![Latest Version](https://img.shields.io/packagist/v/grazulex/laravel-devtoolbox.svg?style=flat-square)](https://packagist.org/packages/grazulex/laravel-devtoolbox)
-[![Total Downloads](https://img.shields.io/packagist/dt/grazulex/laravel-devtoolbox.svg?style=flat-square)](https://packagist.org/packages/grazulex/laravel-devtoolbox)
-[![License](https://img.shields.io/github/license/grazulex/laravel-devtoolbox.svg?style=flat-square)](https://github.com/Grazulex/laravel-devtoolbox/blob/main/LICENSE.md)
-[![PHP Version](https://img.shields.io/badge/php-8.3%2B-777bb4?style=flat-square&logo=php)](https://php.net/)
-[![Laravel Version](https://img.shields.io/badge/laravel-11.x%20%7C%2012.x-ff2d20?style=flat-square&logo=laravel)](https://laravel.com/)
-[![Tests](https://img.shields.io/github/actions/workflow/status/grazulex/laravel-devtoolbox/tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/Grazulex/laravel-devtoolbox/actions)
+[![Latest Version](https://img.shields.io/packagist/v/grazulex/laravel-turbomaker.svg?style=flat-square)](https://packagist.org/packages/grazulex/laravel-turbomaker)
+[![Total Downloads](https://img.shields.io/packagist/dt/grazulex/laravel-turbomaker.svg?style=flat-square)](https://packagist.org/packages/grazulex/laravel-turbomaker)
+[![License](https://img.shields.io/github/license/grazulex/laravel-turbomaker.svg?style=flat-square)](https://github.com/Grazulex/laravel-turbomaker/blob/main/LICENSE.md)
+[![PHP Version](https://img.shields.io/packagist/php-v/grazulex/laravel-turbomaker.svg?style=flat-square)](https://php.net/)
+[![Laravel Version](https://img.shields.io/badge/laravel-12.x-ff2d20?style=flat-square&logo=laravel)](https://laravel.com/)
+[![Tests](https://img.shields.io/github/actions/workflow/status/grazulex/laravel-turbomaker/tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/Grazulex/laravel-turbomaker/actions)
 [![Code Style](https://img.shields.io/badge/code%20style-pint-000000?style=flat-square&logo=laravel)](https://github.com/laravel/pint)
 
 
+---
+
+Laravel **TurboMaker** is a productivity-focused package designed to **save hours of repetitive setup work**.  
+With a single command, you can scaffold complete modules (models, migrations, controllers, routes, tests, views, policies, factories...) following **Laravel best practices**.
+
+---
+
 ## ✨ Features
 
-Laravel Devtoolbox provides comprehensive analysis tools for Laravel applications:
+- **⚡ One-command scaffolding** – Generate a full CRUD or API module instantly.
+- **📦 Complete structure** – Models, controllers, migrations, requests, resources, views & tests.
+- **🔒 Security ready** – Generates Policies and authentication hooks out of the box.
+- **🧪 Built-in testing** – Pest tests automatically generated for each action.
+- **🔌 Extensible** – Add your own templates or modify the defaults.
+- **🌐 API & Web ready** – Separate API Resources & Controllers when needed.
 
-- **🔎 Deep Application Scanning** - Complete analysis of models, routes, services, and more
-- **🧠 Model Introspection** - Analyze Eloquent models, relationships, and usage patterns
-- **🛣️ Route Analysis** - Inspect routes, detect unused ones, and analyze middleware
-- **📦 Service Container Analysis** - Examine bindings, singletons, and providers
-- **⚙️ Environment Auditing** - Compare configuration files and detect inconsistencies
-- **🔄 SQL Query Tracing** - Monitor and analyze database queries for specific routes
-- **📊 Multiple Export Formats** - JSON, Markdown, Mermaid diagrams, and more
-- **🛠 Developer Experience** - Rich console output with actionable insights
+---
 
 ## 📦 Installation
 
-Install via Composer as a development dependency:
-
 ```bash
-composer require --dev grazulex/laravel-devtoolbox
+composer require --dev grazulex/laravel-turbomaker
 ```
 
-**Requirements:**
+**Requirements**:
 - PHP 8.3+
-- Laravel 11.0+ | 12.0+
+- Laravel 11.x | 12.x
+
+---
 
 ## 🚀 Quick Start
 
+### Scaffold a complete module
 ```bash
-# See all available commands
-php artisan list dev:
-
-# Enhanced application overview (new!)
-php artisan dev:about+ --extended --performance
-
-# Quick health check of your application
-php artisan dev:scan --all
-
-# Find where a model is used
-php artisan dev:model:where-used App\Models\User
-
-# Detect unused routes
-php artisan dev:routes:unused
-
-# Find routes by controller (reverse lookup - new!)
-php artisan dev:routes:where UserController
-
-# Generate model relationship diagram
-php artisan dev:model:graph --format=mermaid --output=models.mmd
-
-# Trace SQL queries for a route
-php artisan dev:sql:trace --route=dashboard
-
-# Analyze SQL queries for N+1 problems (new!)
-php artisan dev:sql:duplicates --route=users.index --threshold=3
-
-# Monitor logs in real-time (new!)
-php artisan dev:log:tail --follow --level=error
-
-# Compare environment files
-php artisan dev:env:diff --against=.env.example
-
-# Analyze database column usage
-php artisan dev:db:column-usage --unused-only
-
-# Security scan for unprotected routes
-php artisan dev:security:unprotected-routes --critical-only
-
-# Analyze container bindings (new!)
-php artisan dev:container:bindings --show-resolved
-
-# Service provider performance analysis (new!)
-php artisan dev:providers:timeline --slow-threshold=100
+php artisan turbo:make Blog
 ```
+This generates:
+- `App\Models\Blog`
+- Migrations, Factory, Seeder
+- Controller + Resource Controller
+- FormRequest classes (Store/Update)
+- Routes (web & api)
+- Blade views (index, create, edit, show)
+- Pest tests (Feature & Unit)
+- Policy for access control
+
+### Scaffold only API + tests
+```bash
+php artisan turbo:make Blog --api --tests
+```
+
+### Add relationships automatically
+```bash
+php artisan turbo:make Post --belongs-to=User --has-many=Comment
+```
+
+---
 
 ## 🔍 Available Commands
 
-### General Scanning & Analysis
-- `dev:scan` - Comprehensive application analysis with multiple scanner types
-- `dev:about+` - Enhanced version of Laravel's about command with extended information
+- `turbo:make {name}` – Generate a full Laravel module
+- `turbo:view {name}` – Generate only the views for a module
+- `turbo:api {name}` – Scaffold only API Resources & Controllers
+- `turbo:test {name}` – Generate Pest tests for an existing module
 
-### Model Analysis
-- `dev:models` - List and analyze all Eloquent models
-- `dev:model:where-used` - Find where specific models are used
-- `dev:model:graph` - Generate model relationship diagrams
-
-### Route Analysis  
-- `dev:routes` - Inspect application routes
-- `dev:routes:unused` - Detect potentially unused routes
-- `dev:routes:where` - Find routes by controller/method (reverse lookup)
-
-### Database Analysis
-- `dev:db:column-usage` - Analyze database column usage across the Laravel application codebase
-- `dev:sql:trace` - Trace SQL queries for specific routes
-- `dev:sql:duplicates` - Analyze SQL queries for N+1 problems, duplicates, and performance issues
-
-### Security Analysis
-- `dev:security:unprotected-routes` - Scan for routes that are not protected by authentication middleware
-
-### Service & Container Analysis
-- `dev:services` - Examine service container bindings
-- `dev:container:bindings` - Analyze container bindings, singletons, and dependency injection mappings
-- `dev:providers:timeline` - Analyze service provider boot timeline and performance
-- `dev:commands` - List and analyze artisan commands
-
-### Middleware Analysis
-- `dev:middleware` - Analyze middleware classes and usage
-- `dev:middlewares:where-used` - Find where specific middleware is used
-
-### View Analysis
-- `dev:views` - Scan Blade templates and views
-
-### Environment & Logging
-- `dev:env:diff` - Compare environment configuration files
-- `dev:log:tail` - Monitor Laravel logs with real-time filtering and pattern matching
-
-## 📊 Export Formats
-
-All commands support multiple output formats:
-
-| Format | Usage | Best For |
-|--------|-------|----------|
-| **Array/Table** | `--format=array` (default) | Interactive development |
-| **JSON** | `--format=json` | Automation, CI/CD |
-| **Count** | `--format=count` | Quick metrics |
-| **Mermaid** | `--format=mermaid` | Documentation, diagrams |
-
-### Save to Files
-
-```bash
-# Export to JSON
-php artisan dev:models --format=json --output=models.json
-
-# Generate Mermaid diagram
-php artisan dev:model:graph --format=mermaid --output=relationships.mmd
-
-# Save comprehensive scan
-php artisan dev:scan --all --format=json --output=app-analysis.json
-```
+---
 
 ## 🛠 Configuration
 
-Publish the configuration file to customize behavior:
-
+Publish configuration:
 ```bash
-php artisan vendor:publish --tag=devtoolbox-config
+php artisan vendor:publish --tag=turbomaker-config
 ```
+Customize:
+- Default folders
+- Test generation options
+- API vs Web routes
+- Templates used for scaffolding
 
-This creates `config/devtoolbox.php` where you can customize:
-- Default output formats
-- Scanner-specific options
-- Performance settings
-- Export configurations
+---
 
 ## 📚 Documentation
 
-- **[Complete Documentation](docs/)** - Comprehensive guides and references
-- **[Getting Started](docs/getting-started.md)** - Quick start guide
-- **[Commands Reference](docs/commands/)** - Detailed command documentation
-- **[Configuration](docs/configuration.md)** - Configuration options
-- **[Examples](examples/)** - Practical usage examples
+- **[Getting Started](docs/getting-started.md)**  
+- **[Command Reference](docs/commands.md)**  
+- **[Custom Templates](docs/custom-templates.md)**  
 
-## 🔧 Examples & Automation
+---
 
-### Daily Development Workflow
+## 🔧 Examples
 
+### CRUD with policies & views
 ```bash
-# Check application health
-php artisan dev:scan --all --format=count
-
-# Find cleanup opportunities
-php artisan dev:routes:unused
-php artisan dev:env:diff
+php artisan turbo:make Product --policies --views
 ```
 
-### CI/CD Integration
-
+### Module with API only + factories & seeders
 ```bash
-# Quality gates in CI
-UNUSED_ROUTES=$(php artisan dev:routes:unused --format=count | jq '.count')
-if [ $UNUSED_ROUTES -gt 10 ]; then
-  echo "Too many unused routes: $UNUSED_ROUTES"
-  exit 1
-fi
+php artisan turbo:make Order --api --factory --seeder
 ```
 
-### Documentation Generation
-
-```bash
-# Generate project documentation
-php artisan dev:models --format=json --output=docs/models.json
-php artisan dev:model:graph --format=mermaid --output=docs/relationships.mmd
-php artisan dev:routes --format=json --output=docs/routes.json
-```
-
-See the [examples directory](examples/) for complete automation scripts and CI/CD configurations.
-
-## 🔍 Use Cases
-
-- **🔍 Code Reviews** - Generate comprehensive application overviews
-- **📊 Performance Analysis** - Identify slow queries and bottlenecks  
-- **🧹 Technical Debt** - Find unused routes, orphaned models, and inconsistencies
-- **📖 Documentation** - Auto-generate up-to-date application structure docs
-- **⚡ CI/CD Quality Gates** - Automated quality checks and thresholds
-- **🎯 Onboarding** - Help new team members understand application structure
+---
 
 ## 🆕 Version Compatibility
 
-| Laravel Devtoolbox | PHP Version | Laravel Version | Status |
-|-------------------|-------------|-----------------|---------|
-| 1.x              | 8.3+        | 11.x \| 12.x   | ✅ Active |
+| TurboMaker | PHP | Laravel |
+|------------|-----|---------|
+| 1.x        | 8.3+ | 11.x \| 12.x |
 
-> **Note:** This package now fully supports both Laravel 11 and Laravel 12, ensuring compatibility across the latest LTS and current releases.
+---
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
-
-## 📄 License
-
-Laravel Devtoolbox is open-sourced software licensed under the [MIT license](LICENSE.md).
+We welcome contributions! See our [Contributing Guide](CONTRIBUTING.md).
 
 ---
 
 <div align="center">
   <p>Made with ❤️ for the Laravel community</p>
   <p>
-    <a href="https://github.com/grazulex/laravel-devtoolbox/issues">Report Issues</a> •
-    <a href="https://github.com/grazulex/laravel-devtoolbox/discussions">Discussions</a> •
-    <a href="https://github.com/grazulex/laravel-devtoolbox/wiki">Wiki</a>
+    <a href="https://github.com/grazulex/laravel-turbomaker/issues">Report Issues</a> •
+    <a href="https://github.com/grazulex/laravel-turbomaker/discussions">Discussions</a>
   </p>
 </div>

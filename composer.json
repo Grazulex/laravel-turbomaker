@@ -1,9 +1,9 @@
 {
-    "name": "grazulex/laravel-devtoolbox",
-    "description": "Swiss-army artisan CLI for Laravel — Scan, inspect, debug, and explore every aspect of your Laravel application from the command line.",
+    "name": "grazulex/laravel-turbomaker",
+    "description": "Laravel TurboMaker is a productivity-focused package designed to supercharge your Laravel development workflow. With a single command, you can scaffold complete modules (models, migrations, controllers, routes, tests, views, and more) following best practices. It saves hours of repetitive setup work, so you can focus on building features faster.",
     "keywords": [
         "laravel",
-        "devtools",
+        "turbomaker",
         "cli",
         "artisan",
         "debug",
@@ -13,7 +13,7 @@
         "pest"
     ],
     "type": "library",
-    "homepage": "https://github.com/grazulex/laravel-devtoolbox",
+    "homepage": "https://github.com/grazulex/laravel-turbomaker",
     "require": {
         "php": "^8.3",
         "illuminate/support": "^11.0|^12.0",
@@ -36,7 +36,7 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Grazulex\\LaravelDevtoolbox\\": "src/"
+            "Grazulex\\LaravelTurbomaker\\": "src/"
         }
     },
     "autoload-dev": {
@@ -47,7 +47,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Grazulex\\LaravelDevtoolbox\\LaravelDevtoolboxServiceProvider"
+                "Grazulex\\LaravelTurbomaker\\LaravelTurbomakerServiceProvider"
             ]
         }
     },
@@ -59,10 +59,10 @@
         }
     ],
     "support": {
-        "issues": "https://github.com/Grazulex/laravel-devtoolbox/issues",
-        "source": "https://github.com/Grazulex/laravel-devtoolbox",
-        "wiki": "https://github.com/Grazulex/laravel-devtoolbox/wiki",
-        "forum": "https://github.com/Grazulex/laravel-devtoolbox/discussions"
+        "issues": "https://github.com/Grazulex/laravel-turbomaker/issues",
+        "source": "https://github.com/Grazulex/laravel-turbomaker",
+        "wiki": "https://github.com/Grazulex/laravel-turbomaker/wiki",
+        "forum": "https://github.com/Grazulex/laravel-turbomaker/discussions"
     },
     "scripts": {
         "test": [

@@ -1,0 +1,52 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\{{ request_store_class }};
+use App\Http\Requests\{{ request_update_class }};
+use App\Http\Resources\{{ resource_class }};
+use App\Models\{{ class }};
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+
+final class {{ controller_class }} extends Controller
+{
+    public function index(Request $request): AnonymousResourceCollection
+    {
+        ${{ variables }} = {{ class }}::paginate(15);
+
+        return {{ resource_class }}::collection(${{ variables }});
+    }
+
+    public function store({{ request_store_class }} $request): JsonResponse
+    {
+        ${{ model_variable }} = {{ class }}::create($request->validated());
+
+        return (new {{ resource_class }}(${{ model_variable }}))
+            ->response()
+            ->setStatusCode(201);
+    }
+
+    public function show({{ class }} ${{ model_variable }}): {{ resource_class }}
+    {
+        return new {{ resource_class }}(${{ model_variable }});
+    }
+
+    public function update({{ request_update_class }} $request, {{ class }} ${{ model_variable }}): {{ resource_class }}
+    {
+        ${{ model_variable }}->update($request->validated());
+
+        return new {{ resource_class }}(${{ model_variable }});
+    }
+
+    public function destroy({{ class }} ${{ model_variable }}): JsonResponse
+    {
+        ${{ model_variable }}->delete();
+
+        return response()->json(null, 204);
+    }
+}

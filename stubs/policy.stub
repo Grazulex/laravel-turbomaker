@@ -1,0 +1,36 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Policies;
+
+use App\Models\{{ class }};
+use App\Models\User;
+
+final class {{ policy_class }}
+{
+    public function viewAny(User $user): bool
+    {
+        return true;
+    }
+
+    public function view(User $user, {{ class }} ${{ model_variable }}): bool
+    {
+        return true;
+    }
+
+    public function create(User $user): bool
+    {
+        return true;
+    }
+
+    public function update(User $user, {{ class }} ${{ model_variable }}): bool
+    {
+        return true;
+    }
+
+    public function delete(User $user, {{ class }} ${{ model_variable }}): bool
+    {
+        return true;
+    }
+}

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Grazulex\LaravelTurbomaker;
 
+use Grazulex\LaravelTurbomaker\Console\Commands\TurboMakeCommand;
 use Illuminate\Support\ServiceProvider;
 
 final class LaravelTurbomakerServiceProvider extends ServiceProvider
@@ -26,6 +27,10 @@ final class LaravelTurbomakerServiceProvider extends ServiceProvider
 
         // Register alias
         $this->app->alias(TurbomakerManager::class, 'turbomaker');
+
+        // Register commands in the container
+        $this->app->singleton(TurboMakeCommand::class);
+        $this->app->bind('command.turbo.make', TurboMakeCommand::class);
     }
 
     /**
@@ -41,7 +46,7 @@ final class LaravelTurbomakerServiceProvider extends ServiceProvider
 
             // Register commands
             $this->commands([
-                //
+                TurboMakeCommand::class,
             ]);
         }
 

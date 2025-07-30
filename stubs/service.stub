@@ -1,0 +1,62 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ namespace }};
+
+use {{ model_namespace }}\{{ class }};
+use {{ request_namespace }}\{{ request_store_class }};
+use {{ request_namespace }}\{{ request_update_class }};
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
+
+final class {{ service_class }}
+{
+    public function getAll(): Collection
+    {
+        return {{ class }}::all();
+    }
+
+    public function getPaginated(int $perPage = 15): LengthAwarePaginator
+    {
+        return {{ class }}::paginate($perPage);
+    }
+
+    public function findById(int $id): ?{{ class }}
+    {
+        return {{ class }}::find($id);
+    }
+
+    public function findByIdOrFail(int $id): {{ class }}
+    {
+        return {{ class }}::findOrFail($id);
+    }
+
+    public function create({{ request_store_class }} $request): {{ class }}
+    {
+        return {{ class }}::create([
+            'name' => $request->name,
+{{ service_fillable }}
+        ]);
+    }
+
+    public function update({{ class }} ${{ model_variable }}, {{ request_update_class }} $request): {{ class }}
+    {
+        ${{ model_variable }}->update([
+            'name' => $request->name,
+{{ service_fillable }}
+        ]);
+
+        return ${{ model_variable }}->fresh();
+    }
+
+    public function delete({{ class }} ${{ model_variable }}): bool
+    {
+        return ${{ model_variable }}->delete();
+    }
+
+    public function search(string $term): Collection
+    {
+        return {{ class }}::where('name', 'like', "%{$term}%")->get();
+    }
+}

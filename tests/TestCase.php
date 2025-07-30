@@ -37,6 +37,28 @@ abstract class TestCase extends Orchestra
             'database' => ':memory:',
             'prefix' => '',
         ]);
+
+        // Create necessary directories for testing
+        $directories = [
+            $app->basePath('app/Models'),
+            $app->basePath('app/Http/Controllers'),
+            $app->basePath('app/Http/Controllers/Api'),
+            $app->basePath('app/Http/Requests'),
+            $app->basePath('app/Http/Resources'),
+            $app->basePath('app/Policies'),
+            $app->basePath('database/factories'),
+            $app->basePath('database/seeders'),
+            $app->basePath('database/migrations'),
+            $app->basePath('tests/Feature'),
+            $app->basePath('tests/Unit'),
+            $app->basePath('resources/views'),
+        ];
+
+        foreach ($directories as $directory) {
+            if (! is_dir($directory)) {
+                mkdir($directory, 0755, true);
+            }
+        }
     }
 
     protected function getPackageProviders($app)

@@ -28,6 +28,11 @@ return [
         'include_metadata' => env('TURBOMAKER_INCLUDE_METADATA', true),
         'show_progress' => env('TURBOMAKER_SHOW_PROGRESS', true),
         'output_path' => env('TURBOMAKER_OUTPUT_PATH', storage_path('turbomaker')),
+        'generate_tests' => env('TURBOMAKER_GENERATE_TESTS', true),
+        'generate_factory' => env('TURBOMAKER_GENERATE_FACTORY', true),
+        'generate_seeder' => env('TURBOMAKER_GENERATE_SEEDER', false),
+        'generate_policies' => env('TURBOMAKER_GENERATE_POLICIES', false),
+        'generate_api_resources' => env('TURBOMAKER_GENERATE_API_RESOURCES', true),
     ],
 
     /*

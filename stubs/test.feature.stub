@@ -1,0 +1,56 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Feature;
+
+use App\Models\{{ class }};
+use Tests\TestCase;
+
+final class {{ test_feature_class }} extends TestCase
+{
+    public function test_can_create_{{ snake_name }}(): void
+    {
+        $data = [
+            'name' => 'Test {{ studly_name }}',
+        ];
+
+        $response = $this->post(route('{{ kebab_name }}.store'), $data);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('{{ table_name }}', $data);
+    }
+
+    public function test_can_view_{{ snake_name }}(): void
+    {
+        ${{ model_variable }} = {{ class }}::factory()->create();
+
+        $response = $this->get(route('{{ kebab_name }}.show', ${{ model_variable }}));
+
+        $response->assertOk();
+        $response->assertSee(${{ model_variable }}->name);
+    }
+
+    public function test_can_update_{{ snake_name }}(): void
+    {
+        ${{ model_variable }} = {{ class }}::factory()->create();
+        $data = [
+            'name' => 'Updated {{ studly_name }}',
+        ];
+
+        $response = $this->put(route('{{ kebab_name }}.update', ${{ model_variable }}), $data);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('{{ table_name }}', $data);
+    }
+
+    public function test_can_delete_{{ snake_name }}(): void
+    {
+        ${{ model_variable }} = {{ class }}::factory()->create();
+
+        $response = $this->delete(route('{{ kebab_name }}.destroy', ${{ model_variable }}));
+
+        $response->assertRedirect();
+        $this->assertDatabaseMissing('{{ table_name }}', ['id' => ${{ model_variable }}->id]);
+    }
+}

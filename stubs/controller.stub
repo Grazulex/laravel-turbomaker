@@ -1,0 +1,64 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\{{ request_store_class }};
+use App\Http\Requests\{{ request_update_class }};
+use App\Models\{{ class }};
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
+
+final class {{ controller_class }} extends Controller
+{
+    public function index(Request $request): View
+    {
+        ${{ variables }} = {{ class }}::paginate(15);
+
+        return view('{{ kebab_name }}.index', compact('{{ variables }}'));
+    }
+
+    public function create(): View
+    {
+        return view('{{ kebab_name }}.create');
+    }
+
+    public function store({{ request_store_class }} $request): RedirectResponse
+    {
+        ${{ model_variable }} = {{ class }}::create($request->validated());
+
+        return redirect()
+            ->route('{{ kebab_name }}.show', ${{ model_variable }})
+            ->with('success', '{{ studly_name }} created successfully.');
+    }
+
+    public function show({{ class }} ${{ model_variable }}): View
+    {
+        return view('{{ kebab_name }}.show', compact('{{ model_variable }}'));
+    }
+
+    public function edit({{ class }} ${{ model_variable }}): View
+    {
+        return view('{{ kebab_name }}.edit', compact('{{ model_variable }}'));
+    }
+
+    public function update({{ request_update_class }} $request, {{ class }} ${{ model_variable }}): RedirectResponse
+    {
+        ${{ model_variable }}->update($request->validated());
+
+        return redirect()
+            ->route('{{ kebab_name }}.show', ${{ model_variable }})
+            ->with('success', '{{ studly_name }} updated successfully.');
+    }
+
+    public function destroy({{ class }} ${{ model_variable }}): RedirectResponse
+    {
+        ${{ model_variable }}->delete();
+
+        return redirect()
+            ->route('{{ kebab_name }}.index')
+            ->with('success', '{{ studly_name }} deleted successfully.');
+    }
+}

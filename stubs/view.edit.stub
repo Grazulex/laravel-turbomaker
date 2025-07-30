@@ -1,0 +1,33 @@
+@extends('layouts.app')
+
+@section('content')
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">Edit {{ studly_name }}</div>
+                <div class="card-body">
+                    <form method="POST" action="{{ route('{{ kebab_name }}.update', ${{ snake_name }}) }}">
+                        @csrf
+                        @method('PUT')
+                        
+                        <div class="form-group mb-3">
+                            <label for="name">Name</label>
+                            <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name', ${{ snake_name }}->name) }}" required>
+                            @error('name')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <button type="submit" class="btn btn-primary">Update {{ studly_name }}</button>
+                            <a href="{{ route('{{ kebab_name }}.index') }}" class="btn btn-secondary">Cancel</a>
+                            <a href="{{ route('{{ kebab_name }}.show', ${{ snake_name }}) }}" class="btn btn-info">View</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection

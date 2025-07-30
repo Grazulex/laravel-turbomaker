@@ -1,0 +1,21 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ namespace }};
+
+use {{ model_namespace }}\{{ class }};
+use {{ request_namespace }}\{{ request_update_class }};
+
+final class {{ action_class }}
+{
+    public function execute({{ class }} ${{ model_variable }}, {{ request_update_class }} $request): {{ class }}
+    {
+        ${{ model_variable }}->update([
+            'name' => $request->name,
+{{ action_fillable }}
+        ]);
+
+        return ${{ model_variable }}->fresh();
+    }
+}

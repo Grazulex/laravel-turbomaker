@@ -1,0 +1,38 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Unit;
+
+use App\Models\{{ class }};
+use Tests\TestCase;
+
+final class {{ test_unit_class }} extends TestCase
+{
+    public function test_{{ snake_name }}_has_fillable_attributes(): void
+    {
+        ${{ model_variable }} = new {{ class }}();
+        
+        $expected = [{{ fillable }}];
+        
+        $this->assertEquals($expected, ${{ model_variable }}->getFillable());
+    }
+
+    public function test_{{ snake_name }}_can_be_created(): void
+    {
+        ${{ model_variable }} = {{ class }}::factory()->create([
+            'name' => 'Test {{ studly_name }}',
+        ]);
+
+        $this->assertInstanceOf({{ class }}::class, ${{ model_variable }});
+        $this->assertEquals('Test {{ studly_name }}', ${{ model_variable }}->name);
+    }
+
+    public function test_{{ snake_name }}_has_timestamps(): void
+    {
+        ${{ model_variable }} = {{ class }}::factory()->create();
+
+        $this->assertNotNull(${{ model_variable }}->created_at);
+        $this->assertNotNull(${{ model_variable }}->updated_at);
+    }
+}

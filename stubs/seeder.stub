@@ -1,0 +1,16 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Database\Seeders;
+
+use App\Models\{{ class }};
+use Illuminate\Database\Seeder;
+
+final class {{ seeder_class }} extends Seeder
+{
+    public function run(): void
+    {
+        {{ class }}::factory()->count(10)->create();
+    }
+}

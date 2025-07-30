@@ -1,0 +1,26 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ namespace }};
+
+use {{ model_namespace }}\{{ class }};
+use Illuminate\Database\Eloquent\Collection;
+
+final class {{ action_class }}
+{
+    public function execute(int $id): ?{{ class }}
+    {
+        return {{ class }}::find($id);
+    }
+
+    public function executeAll(): Collection
+    {
+        return {{ class }}::all();
+    }
+
+    public function executePaginated(int $perPage = 15): \Illuminate\Pagination\LengthAwarePaginator
+    {
+        return {{ class }}::paginate($perPage);
+    }
+}

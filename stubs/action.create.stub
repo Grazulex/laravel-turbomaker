@@ -1,0 +1,19 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ namespace }};
+
+use {{ model_namespace }}\{{ class }};
+use {{ request_namespace }}\{{ request_store_class }};
+
+final class {{ action_class }}
+{
+    public function execute({{ request_store_class }} $request): {{ class }}
+    {
+        return {{ class }}::create([
+            'name' => $request->name,
+{{ action_fillable }}
+        ]);
+    }
+}

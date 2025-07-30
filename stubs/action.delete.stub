@@ -1,0 +1,15 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ namespace }};
+
+use {{ model_namespace }}\{{ class }};
+
+final class {{ action_class }}
+{
+    public function execute({{ class }} ${{ model_variable }}): bool
+    {
+        return ${{ model_variable }}->delete();
+    }
+}

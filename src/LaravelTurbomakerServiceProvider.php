@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Grazulex\LaravelTurbomaker;
 
+use Grazulex\LaravelTurbomaker\Console\Commands\TurboApiCommand;
 use Grazulex\LaravelTurbomaker\Console\Commands\TurboMakeCommand;
+use Grazulex\LaravelTurbomaker\Console\Commands\TurboTestCommand;
+use Grazulex\LaravelTurbomaker\Console\Commands\TurboViewCommand;
 use Illuminate\Support\ServiceProvider;
 
 final class LaravelTurbomakerServiceProvider extends ServiceProvider
@@ -30,7 +33,9 @@ final class LaravelTurbomakerServiceProvider extends ServiceProvider
 
         // Register commands in the container
         $this->app->singleton(TurboMakeCommand::class);
-        $this->app->bind('command.turbo.make', TurboMakeCommand::class);
+        $this->app->singleton(TurboViewCommand::class);
+        $this->app->singleton(TurboApiCommand::class);
+        $this->app->singleton(TurboTestCommand::class);
     }
 
     /**
@@ -47,6 +52,9 @@ final class LaravelTurbomakerServiceProvider extends ServiceProvider
             // Register commands
             $this->commands([
                 TurboMakeCommand::class,
+                TurboViewCommand::class,
+                TurboApiCommand::class,
+                TurboTestCommand::class,
             ]);
         }
 

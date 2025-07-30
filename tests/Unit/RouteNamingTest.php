@@ -2,7 +2,16 @@
 
 declare(strict_types=1);
 
+use Illuminate\Support\Str;
+
 it('verifies stub templates use plural kebab case routing', function () {
+    $stubsDir = __DIR__ . '/../../stubs';
+    
+    if (!is_dir($stubsDir)) {
+        $this->markTestSkipped('Stubs directory not found');
+        return;
+    }
+    
     $stubFiles = [
         'view.create.stub',
         'view.edit.stub', 
@@ -12,7 +21,7 @@ it('verifies stub templates use plural kebab case routing', function () {
     ];
     
     foreach ($stubFiles as $stubFile) {
-        $stubPath = base_path("stubs/{$stubFile}");
+        $stubPath = "{$stubsDir}/{$stubFile}";
         
         if (file_exists($stubPath)) {
             $content = file_get_contents($stubPath);
@@ -27,11 +36,27 @@ it('verifies stub templates use plural kebab case routing', function () {
     }
 });
 
-it('checks route naming consistency in stub files', function () {
-    $stubsDir = base_path('stubs');
+it('tests route naming logic with Laravel helpers', function () {
+    // Test the logic that generates plural kebab case route names
+    $testCases = [
+        'User' => 'users',
+        'BlogPost' => 'blog-posts',
+        'ProductCategory' => 'product-categories',
+        'ApiToken' => 'api-tokens',
+    ];
+    
+    foreach ($testCases as $input => $expected) {
+        $result = Str::kebab(Str::plural($input));
+        expect($result)->toBe($expected);
+    }
+});
+
+it('validates route consistency across stub files', function () {
+    $stubsDir = __DIR__ . '/../../stubs';
     
     if (!is_dir($stubsDir)) {
         $this->markTestSkipped('Stubs directory not found');
+        return;
     }
     
     $files = glob($stubsDir . '/*.stub');

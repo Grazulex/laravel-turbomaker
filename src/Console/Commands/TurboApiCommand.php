@@ -111,7 +111,7 @@ final class TurboApiCommand extends Command
         $this->info('🎯 Next steps:');
 
         $instructions = new \Grazulex\LaravelTurbomaker\Support\PostGenerationInstructions();
-        
+
         // Check Laravel 11 API routes requirements
         $laravel11Instructions = \Grazulex\LaravelTurbomaker\Support\Laravel11Helper::getApiRouteInstructions();
         foreach ($laravel11Instructions as $instruction) {

@@ -6,12 +6,12 @@ it('formats model class name correctly', function () {
     // Test the logic that would be used in getModelClass
     $name = 'User';
     $expectedClass = "App\\Models\\{$name}";
-    
+
     expect($expectedClass)->toBe('App\\Models\\User');
-    
+
     $name = 'BlogPost';
     $expectedClass = "App\\Models\\{$name}";
-    
+
     expect($expectedClass)->toBe('App\\Models\\BlogPost');
 });
 
@@ -19,7 +19,7 @@ it('validates model existence logic', function () {
     // Test the logic for checking if a class exists
     // We test with a known class that should exist
     expect(class_exists('Exception'))->toBeTrue();
-    
+
     // Test with a class that definitely doesn't exist
     expect(class_exists('App\\Models\\NonExistentModelForTesting'))->toBeFalse();
 });

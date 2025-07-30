@@ -15,7 +15,7 @@ final class {{ test_feature_class }} extends TestCase
             'name' => 'Test {{ studly_name }}',
         ];
 
-        $response = $this->post(route('{{ kebab_name }}.store'), $data);
+        $response = $this->post(route('{{ plural_kebab }}.store'), $data);
 
         $response->assertRedirect();
         $this->assertDatabaseHas('{{ table_name }}', $data);
@@ -25,7 +25,7 @@ final class {{ test_feature_class }} extends TestCase
     {
         ${{ model_variable }} = {{ class }}::factory()->create();
 
-        $response = $this->get(route('{{ kebab_name }}.show', ${{ model_variable }}));
+        $response = $this->get(route('{{ plural_kebab }}.show', ${{ model_variable }}));
 
         $response->assertOk();
         $response->assertSee(${{ model_variable }}->name);
@@ -38,7 +38,7 @@ final class {{ test_feature_class }} extends TestCase
             'name' => 'Updated {{ studly_name }}',
         ];
 
-        $response = $this->put(route('{{ kebab_name }}.update', ${{ model_variable }}), $data);
+        $response = $this->put(route('{{ plural_kebab }}.update', ${{ model_variable }}), $data);
 
         $response->assertRedirect();
         $this->assertDatabaseHas('{{ table_name }}', $data);
@@ -48,7 +48,7 @@ final class {{ test_feature_class }} extends TestCase
     {
         ${{ model_variable }} = {{ class }}::factory()->create();
 
-        $response = $this->delete(route('{{ kebab_name }}.destroy', ${{ model_variable }}));
+        $response = $this->delete(route('{{ plural_kebab }}.destroy', ${{ model_variable }}));
 
         $response->assertRedirect();
         $this->assertDatabaseMissing('{{ table_name }}', ['id' => ${{ model_variable }}->id]);

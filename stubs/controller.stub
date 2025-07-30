@@ -1,12 +1,8 @@
 <?php
 
-declare(strict_types=1);        return redi        ret        return redirect()
-            ->route('{{ plural_kebab }}.index')
-            ->with('success', '{{ class }} deleted successfully.'); redirect()
-            ->route('{{ plural_kebab }}.show', ${{ model_variable }})
-            ->with('success', '{{ class }} updated successfully.');t()
-            ->route('{{ plural_kebab }}.show', ${{ model_variable }})
-            ->with('success', '{{ class }} created successfully.');amespace App\Http\Controllers;
+declare(strict_types=1);
+
+namespace App\Http\Controllers;
 
 use App\Http\Requests\{{ request_store_class }};
 use App\Http\Requests\{{ request_update_class }};
@@ -34,7 +30,7 @@ final class {{ controller_class }} extends Controller
         ${{ model_variable }} = {{ class }}::create($request->validated());
 
         return redirect()
-            ->route('{{ kebab_name }}.show', ${{ model_variable }})
+            ->route('{{ plural_kebab }}.show', ${{ model_variable }})
             ->with('success', '{{ studly_name }} created successfully.');
     }
 
@@ -53,7 +49,7 @@ final class {{ controller_class }} extends Controller
         ${{ model_variable }}->update($request->validated());
 
         return redirect()
-            ->route('{{ kebab_name }}.show', ${{ model_variable }})
+            ->route('{{ plural_kebab }}.show', ${{ model_variable }})
             ->with('success', '{{ studly_name }} updated successfully.');
     }
 
@@ -62,7 +58,7 @@ final class {{ controller_class }} extends Controller
         ${{ model_variable }}->delete();
 
         return redirect()
-            ->route('{{ kebab_name }}.index')
+            ->route('{{ plural_kebab }}.index')
             ->with('success', '{{ studly_name }} deleted successfully.');
     }
 }

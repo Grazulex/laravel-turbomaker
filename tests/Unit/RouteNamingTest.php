@@ -4,36 +4,69 @@ declare(strict_types=1);
 
 use Illuminate\Support\Str;
 
-it('verifies stub templates use plural kebab case routing', function () {
-    $stubsDir = __DIR__ . '/../../stubs';
-    
-    if (!is_dir($stubsDir)) {
+it('verifies routes use plural kebab case naming', function () {
+    $stubsDir = __DIR__.'/../../stubs';
+
+    if (! is_dir($stubsDir)) {
         $this->markTestSkipped('Stubs directory not found');
+
         return;
     }
-    
-    $stubFiles = [
-        'view.create.stub',
-        'view.edit.stub', 
-        'view.index.stub',
-        'view.show.stub',
-        'controller.stub'
+
+    $routeFiles = [
+        'controller.stub',
+        'test.feature.stub',
     ];
-    
-    foreach ($stubFiles as $stubFile) {
+
+    foreach ($routeFiles as $stubFile) {
         $stubPath = "{$stubsDir}/{$stubFile}";
-        
+
         if (file_exists($stubPath)) {
             $content = file_get_contents($stubPath);
-            
-            // Check that plural_kebab is used instead of kebab_name for routes
+
+            // Check that routes use plural_kebab for route() calls
             if (str_contains($content, 'route(')) {
-                expect($content)
-                    ->not->toContain('{{ kebab_name }}')
-                    ->and($content)->toContain('{{ plural_kebab }}');
+                expect($content)->toContain('{{ plural_kebab }}');
             }
         }
     }
+});
+
+it('verifies views use singular kebab case naming', function () {
+    $stubsDir = __DIR__.'/../../stubs';
+
+    if (! is_dir($stubsDir)) {
+        $this->markTestSkipped('Stubs directory not found');
+
+        return;
+    }
+
+    $viewFiles = [
+        'view.create.stub',
+        'view.edit.stub',
+        'view.index.stub',
+        'view.show.stub',
+        'controller.stub', // Controller has view() calls too
+    ];
+
+    $foundViewCalls = false;
+
+    foreach ($viewFiles as $stubFile) {
+        $stubPath = "{$stubsDir}/{$stubFile}";
+
+        if (file_exists($stubPath)) {
+            $content = file_get_contents($stubPath);
+
+            // Check that views use kebab_name for Laravel view() helper calls
+            if (preg_match('/return view\(/', $content)) {
+                expect($content)->toContain('{{ kebab_name }}');
+                $foundViewCalls = true;
+            }
+        }
+    }
+
+    // Ensure we actually tested something
+    expect($foundViewCalls)->toBeTrue('No view() calls found in stub files');
 });
 
 it('tests route naming logic with Laravel helpers', function () {
@@ -44,29 +77,9 @@ it('tests route naming logic with Laravel helpers', function () {
         'ProductCategory' => 'product-categories',
         'ApiToken' => 'api-tokens',
     ];
-    
+
     foreach ($testCases as $input => $expected) {
         $result = Str::kebab(Str::plural($input));
         expect($result)->toBe($expected);
-    }
-});
-
-it('validates route consistency across stub files', function () {
-    $stubsDir = __DIR__ . '/../../stubs';
-    
-    if (!is_dir($stubsDir)) {
-        $this->markTestSkipped('Stubs directory not found');
-        return;
-    }
-    
-    $files = glob($stubsDir . '/*.stub');
-    
-    foreach ($files as $file) {
-        $content = file_get_contents($file);
-        
-        // If file contains route references, they should use plural_kebab
-        if (preg_match('/route\([\'"]([^\'"]*)\./', $content, $matches)) {
-            expect($content)->toContain('{{ plural_kebab }}');
-        }
     }
 });

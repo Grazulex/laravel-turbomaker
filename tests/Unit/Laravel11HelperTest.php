@@ -6,15 +6,15 @@ use Grazulex\LaravelTurbomaker\Support\Laravel11Helper;
 
 it('provides correct API route instructions structure', function () {
     $instructions = Laravel11Helper::getApiRouteInstructions();
-    
+
     expect($instructions)->toBeArray();
-    
+
     // Each instruction should have the required structure
     foreach ($instructions as $instruction) {
         expect($instruction)->toHaveKey('type');
         expect($instruction)->toHaveKey('message');
         expect($instruction)->toHaveKey('command');
-        
+
         expect($instruction['type'])->toBeString();
         expect($instruction['message'])->toBeString();
         expect($instruction['command'])->toBeString();

@@ -45,74 +45,146 @@ composer require --dev grazulex/laravel-turbomaker
 
 ## 🚀 Quick Start
 
-### Scaffold a complete module
+### Generate Complete Module
 ```bash
-php artisan turbo:make Blog
-```
-This generates:
-- `App\Models\Blog`
-- Migrations, Factory, Seeder
-- Controller + Resource Controller
-- FormRequest classes (Store/Update)
-- Routes (web & api)
-- Blade views (index, create, edit, show)
-- Pest tests (Feature & Unit)
-- Policy for access control
-
-### Scaffold only API + tests
-```bash
-php artisan turbo:make Blog --api --tests
+php artisan turbo:make Post
 ```
 
-### Add relationships automatically
+**What's Generated:**
+- **Model**: `app/Models/Post.php` with relationships
+- **Controllers**: Web & API controllers with CRUD operations
+- **Migrations**: Database table with proper columns and indexes
+- **Form Requests**: Validation for Store/Update operations
+- **API Resources**: JSON transformations for API responses
+- **Views**: Complete CRUD views (index, create, edit, show)
+- **Routes**: Both web and API routes automatically added
+- **Tests**: Feature and unit tests using Pest framework
+- **Factory**: Model factory for testing and seeding
+
+### API-First Development
 ```bash
-php artisan turbo:make Post --belongs-to=User --has-many=Comment
+php artisan turbo:api Product --tests --policies
 ```
+Generates API-only components (no views) with authentication and authorization.
+
+### Add Relationships
+```bash
+php artisan turbo:make Comment --belongs-to=Post --belongs-to=User
+```
+Automatically handles foreign keys, model relationships, and form integration.
 
 ---
 
 ## 🔍 Available Commands
 
-- `turbo:make {name}` – Generate a full Laravel module
-- `turbo:view {name}` – Generate only the views for a module
-- `turbo:api {name}` – Scaffold only API Resources & Controllers
-- `turbo:test {name}` – Generate Pest tests for an existing module
+### Core Commands
+
+| Command | Purpose | Example |
+|---------|---------|---------|
+| `turbo:make {name}` | Generate complete module | `turbo:make Post --tests --factory` |
+| `turbo:api {name}` | API-only module | `turbo:api Product --policies --tests` |
+| `turbo:view {name}` | Views only | `turbo:view Product` |
+| `turbo:test {name}` | Tests only | `turbo:test User --feature --unit` |
+
+### Key Options
+
+| Option | Description | Components |
+|--------|-------------|------------|
+| `--tests` | Generate Pest tests | Feature & Unit tests |
+| `--factory` | Generate model factory | Database factories |
+| `--seeder` | Generate seeder | Database seeders |
+| `--policies` | Generate policies | Authorization policies |
+| `--actions` | Generate action classes | Action pattern classes |
+| `--services` | Generate service classes | Service layer |
+| `--rules` | Generate validation rules | Custom validation |
+| `--observers` | Generate model observers | Model event handling |
+
+### Relationship Options
+
+| Option | Example | Result |
+|--------|---------|---------|
+| `--belongs-to=User` | Post belongs to User | Foreign key & relationship |
+| `--has-many=Comment` | Post has many Comments | Relationship method |
+| `--has-one=Profile` | User has one Profile | One-to-one relationship |
 
 ---
 
 ## 🛠 Configuration
 
-Publish configuration:
+TurboMaker can be configured to match your project's needs:
+
 ```bash
 php artisan vendor:publish --tag=turbomaker-config
 ```
-Customize:
-- Default folders
-- Test generation options
-- API vs Web routes
-- Templates used for scaffolding
+
+**Key Configuration Options:**
+- **Default generation options** - Control what gets generated automatically
+- **File paths** - Customize where files are created
+- **Model settings** - UUIDs, soft deletes, traits
+- **Database options** - Foreign keys, constraints, table naming
+- **Testing framework** - Pest or PHPUnit configuration
+- **View settings** - Layout, CSS framework, pagination
+
+See the [Configuration Guide](docs/configuration.md) for complete details and team setup examples.
 
 ---
 
 ## 📚 Documentation
 
-- **[Getting Started](docs/getting-started.md)**  
-- **[Command Reference](docs/commands.md)**  
-- **[Custom Templates](docs/custom-templates.md)**  
+- **[Getting Started](docs/getting-started.md)** - Setup and your first module
+- **[Command Reference](docs/commands.md)** - Complete command documentation  
+- **[Working with Relationships](docs/relationships.md)** - Model relationships guide
+- **[Custom Templates](docs/custom-templates.md)** - Customize generated code
+- **[Configuration](docs/configuration.md)** - Configure TurboMaker settings
+- **[Advanced Usage](docs/advanced-usage.md)** - Complex patterns and enterprise features
 
 ---
 
 ## 🔧 Examples
 
-### CRUD with policies & views
+### Complete CRUD Module
 ```bash
-php artisan turbo:make Product --policies --views
+php artisan turbo:make Product --policies --tests --factory --seeder
 ```
 
-### Module with API only + factories & seeders
+### API-Only Development
 ```bash
-php artisan turbo:make Order --api --factory --seeder
+php artisan turbo:api Product --tests --factory --policies
 ```
+
+### Relationships Made Easy
+```bash
+php artisan turbo:make Post --belongs-to=User --has-many=Comment --tests
+```
+
+### Views Only (for existing models)
+```bash
+php artisan turbo:view Product
+```
+
+### Comprehensive Module with All Features
+```bash
+php artisan turbo:make Order \
+    --belongs-to=User \
+    --has-many=OrderItem \
+    --policies \
+    --tests \
+    --factory \
+    --seeder \
+    --actions \
+    --services \
+    --rules \
+    --observers
+```
+
+## 📁 Real-World Examples
+
+Explore complete working examples in the [examples directory](examples/):
+
+- **[Blog System](examples/blog-system/)** - User, Post, Comment relationships with authentication
+- **[API-Only Application](examples/api-only/)** - REST API with Sanctum authentication
+- **[E-commerce Platform](examples/ecommerce/)** - Complex multi-level relationships
+- **[Custom Templates](examples/custom-templates/)** - Template customization examples
 
 ---
 

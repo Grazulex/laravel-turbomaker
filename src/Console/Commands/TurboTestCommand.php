@@ -38,17 +38,18 @@ final class TurboTestCommand extends Command
         // Validate flags
         if ($this->option('unit') && $this->option('feature')) {
             $this->error('❌ Cannot use both --unit and --feature flags. Choose one or neither for both types.');
+
             return Command::FAILURE;
         }
 
         $this->info("🚀 TurboMaker: Generating tests for {$name}...");
-        
+
         if ($this->option('unit')) {
             $this->line('📋 Generating unit tests only');
         } elseif ($this->option('feature')) {
             $this->line('🧪 Generating feature tests only');
         }
-        
+
         $this->newLine();
 
         $context = $this->buildContext($name);
@@ -63,8 +64,9 @@ final class TurboTestCommand extends Command
             $this->info("✅ Tests for {$name} generated successfully!");
 
             return Command::SUCCESS;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error("❌ Error generating tests: {$e->getMessage()}");
+
             return Command::FAILURE;
         }
     }

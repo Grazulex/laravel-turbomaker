@@ -104,17 +104,60 @@ final class TurboMakeCommand extends Command
         $this->newLine();
         $this->info('🎯 Next steps:');
 
-        Str::studly($name);
-        Str::snake(Str::plural($name));
+        $instructions = new \Grazulex\LaravelTurbomaker\Support\PostGenerationInstructions();
 
-        $this->line('  1. Run migrations: <fg=cyan>php artisan migrate</>');
-        $this->line('  2. Check your routes: <fg=cyan>php artisan route:list</>');
+        // Always need to run migrations
+        $instructions->addMigrationReminder();
+
+        // Check what was generated and add relevant instructions
+        if ($this->option('observers')) {
+            $instructions->addObserverRegistration($name.'Observer', $name);
+        }
+
+        if ($this->option('policies')) {
+            $instructions->addPolicyRegistration($name.'Policy', $name);
+        }
+
+        if ($this->option('seeder')) {
+            $instructions->addSeederReminder($name.'Seeder');
+        }
+
+        // Add route registration
+        $route = Str::kebab(Str::plural($name));
+        $instructions->addInstruction(
+            'route_registration',
+            'Add resource routes to your routes/web.php or routes/api.php:',
+            "Route::resource('{$route}', \\App\\Http\\Controllers\\{$name}Controller::class);"
+        );
+
+        $stepNumber = 1;
+        foreach ($instructions->getInstructions() as $instruction) {
+            $this->line("  {$stepNumber}. {$instruction['message']}");
+            if ($instruction['command']) {
+                $this->line("     <fg=cyan>{$instruction['command']}</>");
+            }
+            $stepNumber++;
+        }
+
+        // Standard steps
+        $this->line("  {$stepNumber}. Check your routes: <fg=cyan>php artisan route:list</>");
 
         if (! $this->option('api')) {
             $route = Str::kebab(Str::plural($name));
-            $this->line("  3. Visit: <fg=cyan>http://your-app/{$route}</>");
+            $this->line('  '.($stepNumber + 1).". Visit: <fg=cyan>http://your-app/{$route}</>");
         }
 
-        $this->line('  4. Customize the generated files as needed');
+        $this->line('  '.($stepNumber + 2).'. Customize the generated files as needed');
+
+        // Special warnings for important registrations
+        if ($this->option('observers')) {
+            $this->newLine();
+            $this->warn('⚠️  IMPORTANT: Don\'t forget to register your Observer in AppServiceProvider!');
+        }
+
+        if ($this->option('policies')) {
+            $this->newLine();
+            $this->warn('⚠️  IMPORTANT: Don\'t forget to register your Policy in AuthServiceProvider!');
+        }
     }
 }

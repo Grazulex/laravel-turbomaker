@@ -4,56 +4,57 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 final class NewCommandsTest extends TestCase
 {
-    /** @test */
-    public function turbo_view_command_is_registered()
+    #[Test]
+    public function turbo_view_command_is_registered(): void
     {
         $this->artisan('list')
             ->expectsOutputToContain('turbo:view')
             ->assertExitCode(0);
     }
 
-    /** @test */
-    public function turbo_api_command_is_registered()
+    #[Test]
+    public function turbo_api_command_is_registered(): void
     {
         $this->artisan('list')
             ->expectsOutputToContain('turbo:api')
             ->assertExitCode(0);
     }
 
-    /** @test */
-    public function turbo_test_command_is_registered()
+    #[Test]
+    public function turbo_test_command_is_registered(): void
     {
         $this->artisan('list')
             ->expectsOutputToContain('turbo:test')
             ->assertExitCode(0);
     }
 
-    /** @test */
-    public function turbo_make_command_is_still_registered()
+    #[Test]
+    public function turbo_make_command_is_still_registered(): void
     {
         $this->artisan('list')
             ->expectsOutputToContain('turbo:make')
             ->assertExitCode(0);
     }
 
-    /** @test */
-    public function turbo_test_validates_conflicting_flags()
+    #[Test]
+    public function turbo_test_validates_conflicting_flags(): void
     {
         $this->artisan('turbo:test', [
             'name' => 'Product',
             '--unit' => true,
-            '--feature' => true
+            '--feature' => true,
         ])
             ->expectsOutput('❌ Cannot use both --unit and --feature flags. Choose one or neither for both types.')
             ->assertExitCode(1);
     }
 
-    /** @test */
-    public function turbo_commands_show_help_when_called_without_arguments()
+    #[Test]
+    public function turbo_commands_show_help_when_called_without_arguments(): void
     {
         $this->artisan('turbo:view --help')
             ->expectsOutputToContain('Generate only the views for a Laravel module')

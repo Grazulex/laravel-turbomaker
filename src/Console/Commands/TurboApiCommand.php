@@ -103,12 +103,56 @@ final class TurboApiCommand extends Command
         $this->newLine();
         $this->info('🎯 Next steps:');
 
-        $this->line('  1. Run migrations: <fg=cyan>php artisan migrate</>');
-        $this->line('  2. Check your API routes: <fg=cyan>php artisan route:list --path=api</>');
+        $instructions = new \Grazulex\LaravelTurbomaker\Support\PostGenerationInstructions();
 
+        // Always need to run migrations for API
+        $instructions->addMigrationReminder();
+
+        // Check what was generated and add relevant instructions
+        if ($this->option('observers')) {
+            $instructions->addObserverRegistration($name.'Observer', $name);
+        }
+
+        if ($this->option('policies')) {
+            $instructions->addPolicyRegistration($name.'Policy', $name);
+        }
+
+        if ($this->option('seeder')) {
+            $instructions->addSeederReminder($name.'Seeder');
+        }
+
+        // Add API route registration
         $route = Str::kebab(Str::plural($name));
-        $this->line("  3. Test your API: <fg=cyan>GET /api/{$route}</>");
-        $this->line('  4. Configure API authentication if needed');
-        $this->line('  5. Customize the generated files as needed');
+        $instructions->addInstruction(
+            'route_registration',
+            'Add API routes to your routes/api.php:',
+            "Route::apiResource('{$route}', \\App\\Http\\Controllers\\{$name}Controller::class);"
+        );
+
+        $stepNumber = 1;
+        foreach ($instructions->getInstructions() as $instruction) {
+            $this->line("  {$stepNumber}. {$instruction['message']}");
+            if ($instruction['command']) {
+                $this->line("     <fg=cyan>{$instruction['command']}</>");
+            }
+            $stepNumber++;
+        }
+
+        // API-specific steps
+        $this->line("  {$stepNumber}. Check your API routes: <fg=cyan>php artisan route:list --path=api</>");
+        $this->line('  '.($stepNumber + 1).". Test your API: <fg=cyan>GET /api/{$route}</>");
+        $this->line('  '.($stepNumber + 2).'. Configure API authentication if needed');
+        $this->line('  '.($stepNumber + 3).'. Customize the generated files as needed');
+
+        // Special warnings for important registrations
+        if ($this->option('observers')) {
+            $this->newLine();
+            $this->warn('⚠️  IMPORTANT: Don\'t forget to register your Observer in AppServiceProvider!');
+        }
+
+        if ($this->option('policies')) {
+            $this->newLine();
+            $this->warn('⚠️  IMPORTANT: Don\'t forget to register your Policy in AuthServiceProvider!');
+        }
     }
 }

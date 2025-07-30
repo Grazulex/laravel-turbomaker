@@ -1,0 +1,32 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ namespace }};
+
+use Closure;
+use Illuminate\Contracts\Validation\ValidationRule;
+use {{ model_namespace }}\{{ class }};
+
+final class {{ rule_class }} implements ValidationRule
+{
+    public function __construct(
+        private ?int $ignoreId = null
+    ) {}
+
+    /**
+     * Run the validation rule.
+     */
+    public function validate(string $attribute, mixed $value, Closure $fail): void
+    {
+        $query = {{ class }}::where($attribute, $value);
+        
+        if ($this->ignoreId) {
+            $query->where('id', '!=', $this->ignoreId);
+        }
+        
+        if ($query->exists()) {
+            $fail("The {$attribute} has already been taken.");
+        }
+    }
+}

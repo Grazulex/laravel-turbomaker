@@ -46,6 +46,8 @@ abstract class BaseGenerator
             '{{ test_unit_class }}' => $context['test_unit_class'],
             '{{ action_class }}' => $context['action_class'] ?? '',
             '{{ service_class }}' => $context['service_class'] ?? '',
+            '{{ rule_class }}' => $context['rule_class'] ?? '',
+            '{{ observer_class }}' => $context['observer_class'] ?? '',
             '{{ table_name }}' => $context['table_name'],
             '{{ studly_name }}' => $context['studly_name'],
             '{{ snake_name }}' => $context['snake_name'],

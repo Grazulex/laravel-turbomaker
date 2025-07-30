@@ -145,9 +145,75 @@ final class TurboMakeCommandTest extends TestCase
         $this->assertStringContainsString('protected $fillable', $modelContent);
     }
 
+    public function test_turbo_make_with_rules_only(): void
+    {
+        $this->artisan('turbo:make RuleModel --rules --force')
+            ->assertExitCode(0);
+
+        $this->assertFileExists(app_path('Rules/ExistsRuleModelRule.php'));
+        $this->assertFileExists(app_path('Rules/UniqueRuleModelRule.php'));
+    }
+
+    public function test_turbo_make_with_observers_only(): void
+    {
+        $this->artisan('turbo:make ObserverModel --observers --force')
+            ->assertExitCode(0);
+
+        $this->assertFileExists(app_path('Observers/ObserverModelObserver.php'));
+    }
+
+    public function test_generated_rule_has_correct_structure(): void
+    {
+        $this->artisan('turbo:make RuleTest --rules --force')
+            ->assertExitCode(0);
+
+        $ruleContent = File::get(app_path('Rules/ExistsRuleTestRule.php'));
+
+        // Check namespace
+        $this->assertStringContainsString('namespace App\Rules;', $ruleContent);
+
+        // Check imports
+        $this->assertStringContainsString('use App\Models\RuleTest;', $ruleContent);
+        $this->assertStringContainsString('use Illuminate\Contracts\Validation\ValidationRule;', $ruleContent);
+
+        // Check class name
+        $this->assertStringContainsString('final class ExistsRuleTestRule implements ValidationRule', $ruleContent);
+
+        // Check method
+        $this->assertStringContainsString('public function validate(string $attribute, mixed $value, Closure $fail): void', $ruleContent);
+
+        // Check logic
+        $this->assertStringContainsString('RuleTest::where(\'id\', $value)->exists()', $ruleContent);
+    }
+
+    public function test_generated_observer_has_correct_structure(): void
+    {
+        $this->artisan('turbo:make ObserverTest --observers --force')
+            ->assertExitCode(0);
+
+        $observerContent = File::get(app_path('Observers/ObserverTestObserver.php'));
+
+        // Check namespace
+        $this->assertStringContainsString('namespace App\Observers;', $observerContent);
+
+        // Check imports
+        $this->assertStringContainsString('use App\Models\ObserverTest;', $observerContent);
+
+        // Check class name
+        $this->assertStringContainsString('final class ObserverTestObserver', $observerContent);
+
+        // Check key methods
+        $this->assertStringContainsString('public function creating(ObserverTest $observerTest): void', $observerContent);
+        $this->assertStringContainsString('public function created(ObserverTest $observerTest): void', $observerContent);
+        $this->assertStringContainsString('public function updating(ObserverTest $observerTest): void', $observerContent);
+        $this->assertStringContainsString('public function updated(ObserverTest $observerTest): void', $observerContent);
+        $this->assertStringContainsString('public function deleting(ObserverTest $observerTest): void', $observerContent);
+        $this->assertStringContainsString('public function deleted(ObserverTest $observerTest): void', $observerContent);
+    }
+
     public function test_turbo_make_with_all_options(): void
     {
-        $this->artisan('turbo:make CompleteModel --api --views --policies --factory --seeder --tests --actions --services --belongs-to=User --has-many=Posts --has-one=Profile --force')
+        $this->artisan('turbo:make CompleteModel --api --views --policies --factory --seeder --tests --actions --services --rules --observers --belongs-to=User --has-many=Posts --has-one=Profile --force')
             ->assertExitCode(0);
 
         // Check Actions are created
@@ -158,6 +224,16 @@ final class TurboMakeCommandTest extends TestCase
 
         // Check Service is created
         $this->assertFileExists(app_path('Services/CompleteModelService.php'));
+
+        // Check Rules are created
+        $this->assertFileExists(app_path('Rules/ExistsCompleteModelRule.php'));
+        $this->assertFileExists(app_path('Rules/UniqueCompleteModelRule.php'));
+
+        // Check Observer is created
+        $this->assertFileExists(app_path('Observers/CompleteModelObserver.php'));
+
+        // Check Policy is created
+        $this->assertFileExists(app_path('Policies/CompleteModelPolicy.php'));
     }
 
     public function test_turbo_make_with_actions_only(): void

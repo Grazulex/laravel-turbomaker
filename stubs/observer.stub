@@ -1,0 +1,98 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ namespace }};
+
+use {{ model_namespace }}\{{ class }};
+
+final class {{ observer_class }}
+{
+    /**
+     * Handle the {{ class }} "creating" event.
+     */
+    public function creating({{ class }} ${{ model_variable }}): void
+    {
+        // Logic before creating the model
+    }
+
+    /**
+     * Handle the {{ class }} "created" event.
+     */
+    public function created({{ class }} ${{ model_variable }}): void
+    {
+        // Logic after the model has been created
+    }
+
+    /**
+     * Handle the {{ class }} "updating" event.
+     */
+    public function updating({{ class }} ${{ model_variable }}): void
+    {
+        // Logic before updating the model
+    }
+
+    /**
+     * Handle the {{ class }} "updated" event.
+     */
+    public function updated({{ class }} ${{ model_variable }}): void
+    {
+        // Logic after the model has been updated
+    }
+
+    /**
+     * Handle the {{ class }} "saving" event.
+     */
+    public function saving({{ class }} ${{ model_variable }}): void
+    {
+        // Logic before saving the model (create or update)
+    }
+
+    /**
+     * Handle the {{ class }} "saved" event.
+     */
+    public function saved({{ class }} ${{ model_variable }}): void
+    {
+        // Logic after the model has been saved (create or update)
+    }
+
+    /**
+     * Handle the {{ class }} "deleting" event.
+     */
+    public function deleting({{ class }} ${{ model_variable }}): void
+    {
+        // Logic before deleting the model
+    }
+
+    /**
+     * Handle the {{ class }} "deleted" event.
+     */
+    public function deleted({{ class }} ${{ model_variable }}): void
+    {
+        // Logic after the model has been deleted
+    }
+
+    /**
+     * Handle the {{ class }} "restoring" event.
+     */
+    public function restoring({{ class }} ${{ model_variable }}): void
+    {
+        // Logic before restoring the model
+    }
+
+    /**
+     * Handle the {{ class }} "restored" event.
+     */
+    public function restored({{ class }} ${{ model_variable }}): void
+    {
+        // Logic after the model has been restored
+    }
+
+    /**
+     * Handle the {{ class }} "force deleted" event.
+     */
+    public function forceDeleted({{ class }} ${{ model_variable }}): void
+    {
+        // Logic after the model has been force deleted
+    }
+}

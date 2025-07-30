@@ -45,6 +45,8 @@ final class CommandRegistrationTest extends TestCase
         $this->assertTrue($definition->hasOption('tests'));
         $this->assertTrue($definition->hasOption('actions'));
         $this->assertTrue($definition->hasOption('services'));
+        $this->assertTrue($definition->hasOption('rules'));
+        $this->assertTrue($definition->hasOption('observers'));
         $this->assertTrue($definition->hasOption('belongs-to'));
         $this->assertTrue($definition->hasOption('has-many'));
         $this->assertTrue($definition->hasOption('has-one'));

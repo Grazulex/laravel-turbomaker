@@ -21,6 +21,8 @@ final class TurboMakeCommand extends Command
                             {--tests : Generate tests}
                             {--actions : Generate action classes}
                             {--services : Generate service classes}
+                            {--rules : Generate validation rules}
+                            {--observers : Generate model observers}
                             {--belongs-to=* : Add belongs-to relationships}
                             {--has-many=* : Add has-many relationships}
                             {--has-one=* : Add has-one relationships}
@@ -72,6 +74,8 @@ final class TurboMakeCommand extends Command
             'generate_tests' => $this->option('tests') || config('turbomaker.defaults.generate_tests', true),
             'generate_actions' => $this->option('actions'),
             'generate_services' => $this->option('services'),
+            'generate_rules' => $this->option('rules'),
+            'generate_observers' => $this->option('observers'),
             'belongs_to' => $this->option('belongs-to') ?: [],
             'has_many' => $this->option('has-many') ?: [],
             'has_one' => $this->option('has-one') ?: [],

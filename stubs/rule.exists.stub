@@ -1,0 +1,22 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ namespace }};
+
+use Closure;
+use Illuminate\Contracts\Validation\ValidationRule;
+use {{ model_namespace }}\{{ class }};
+
+final class {{ rule_class }} implements ValidationRule
+{
+    /**
+     * Run the validation rule.
+     */
+    public function validate(string $attribute, mixed $value, Closure $fail): void
+    {
+        if (!{{ class }}::where('id', $value)->exists()) {
+            $fail("The selected {$attribute} does not exist.");
+        }
+    }
+}

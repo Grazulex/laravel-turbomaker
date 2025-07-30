@@ -42,7 +42,7 @@ final class TurboApiCommand extends Command
         $name = $this->argument('name');
         $options = $this->getGenerationOptions();
 
-        $this->info("🚀 Generating API module: {$name}");
+        $this->info("🚀 TurboMaker: Generating API module for {$name}...");
         $this->newLine();
 
         try {
@@ -52,13 +52,13 @@ final class TurboApiCommand extends Command
             $this->displayNextSteps($name);
 
             $this->newLine();
-            $this->info("✅ API module '{$name}' generated successfully!");
+            $this->info("🎯 API module for {$name} generated successfully!");
 
-            return self::SUCCESS;
+            return Command::SUCCESS;
         } catch (Exception $e) {
-            $this->error("❌ Failed to generate API module: {$e->getMessage()}");
+            $this->error("❌ Error generating API module: {$e->getMessage()}");
 
-            return self::FAILURE;
+            return Command::FAILURE;
         }
     }
 
@@ -66,6 +66,13 @@ final class TurboApiCommand extends Command
     {
         return [
             'api_only' => true,
+            'generate_api' => true,
+            'generate_controllers' => true,
+            'generate_models' => true,
+            'generate_migrations' => true,
+            'generate_requests' => true,
+            'generate_resources' => true,
+            'generate_routes' => true,
             'generate_views' => false, // No views for API
             'generate_policies' => $this->option('policies'),
             'generate_factory' => $this->option('factory'),
@@ -104,6 +111,16 @@ final class TurboApiCommand extends Command
         $this->info('🎯 Next steps:');
 
         $instructions = new \Grazulex\LaravelTurbomaker\Support\PostGenerationInstructions();
+        
+        // Check Laravel 11 API routes requirements
+        $laravel11Instructions = \Grazulex\LaravelTurbomaker\Support\Laravel11Helper::getApiRouteInstructions();
+        foreach ($laravel11Instructions as $instruction) {
+            $instructions->addInstruction(
+                $instruction['type'],
+                $instruction['message'],
+                $instruction['command']
+            );
+        }
 
         // Always need to run migrations for API
         $instructions->addMigrationReminder();

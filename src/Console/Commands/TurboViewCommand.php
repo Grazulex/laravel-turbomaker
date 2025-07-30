@@ -31,6 +31,21 @@ final class TurboViewCommand extends Command
         $name = $this->argument('name');
 
         $this->info("🎨 Generating views for: {$name}");
+
+        // Check if model exists
+        $modelClass = 'App\\Models\\'.Str::studly($name);
+        if (! class_exists($modelClass)) {
+            $this->newLine();
+            $this->warn("⚠️  Model {$modelClass} does not exist.");
+            $this->line("Consider running: <fg=cyan>php artisan turbo:make {$name}</> to create the complete module first.");
+
+            if (! $this->confirm('Do you want to continue generating views anyway?')) {
+                $this->error('❌ View generation cancelled.');
+
+                return self::FAILURE;
+            }
+        }
+
         $this->newLine();
 
         $context = $this->buildContext($name);

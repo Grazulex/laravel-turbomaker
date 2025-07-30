@@ -7,7 +7,7 @@
             <div class="card">
                 <div class="card-header">Create New {{ studly_name }}</div>
                 <div class="card-body">
-                    <form method="POST" action="{{ route('{{ kebab_name }}.store') }}">
+                    <form method="POST" action="{{ route('{{ plural_kebab }}.store') }}">
                         @csrf
                         
                         <div class="form-group mb-3">
@@ -20,7 +20,7 @@
 
                         <div class="form-group mb-3">
                             <button type="submit" class="btn btn-primary">Create {{ studly_name }}</button>
-                            <a href="{{ route('{{ kebab_name }}.index') }}" class="btn btn-secondary">Cancel</a>
+                            <a href="{{ route('{{ plural_kebab }}.index') }}" class="btn btn-secondary">Cancel</a>
                         </div>
                     </form>
                 </div>

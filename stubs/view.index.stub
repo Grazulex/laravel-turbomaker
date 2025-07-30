@@ -7,7 +7,7 @@
             <div class="card">
                 <div class="card-header">
                     <h1>{{ plural_studly }}</h1>
-                    <a href="{{ route('{{ kebab_name }}.create') }}" class="btn btn-primary float-right">Create New {{ studly_name }}</a>
+                    <a href="{{ route('{{ plural_kebab }}.create') }}" class="btn btn-primary float-right">Create New {{ studly_name }}</a>
                 </div>
                 <div class="card-body">
                     @if(${{ snake_name }}s->isEmpty())
@@ -26,9 +26,9 @@
                                         <tr>
                                             <td>{{ ${{ snake_name }}->id }}</td>
                                             <td>
-                                                <a href="{{ route('{{ kebab_name }}.show', ${{ snake_name }}) }}" class="btn btn-sm btn-info">View</a>
-                                                <a href="{{ route('{{ kebab_name }}.edit', ${{ snake_name }}) }}" class="btn btn-sm btn-warning">Edit</a>
-                                                <form method="POST" action="{{ route('{{ kebab_name }}.destroy', ${{ snake_name }}) }}" class="d-inline">
+                                                <a href="{{ route('{{ plural_kebab }}.show', ${{ snake_name }}) }}" class="btn btn-sm btn-info">View</a>
+                                                <a href="{{ route('{{ plural_kebab }}.edit', ${{ snake_name }}) }}" class="btn btn-sm btn-warning">Edit</a>
+                                                <form method="POST" action="{{ route('{{ plural_kebab }}.destroy', ${{ snake_name }}) }}" class="d-inline">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</button>

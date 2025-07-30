@@ -7,7 +7,7 @@
             <div class="card">
                 <div class="card-header">Edit {{ studly_name }}</div>
                 <div class="card-body">
-                    <form method="POST" action="{{ route('{{ kebab_name }}.update', ${{ snake_name }}) }}">
+                    <form method="POST" action="{{ route('{{ plural_kebab }}.update', ${{ snake_name }}) }}">
                         @csrf
                         @method('PUT')
                         
@@ -21,8 +21,8 @@
 
                         <div class="form-group mb-3">
                             <button type="submit" class="btn btn-primary">Update {{ studly_name }}</button>
-                            <a href="{{ route('{{ kebab_name }}.index') }}" class="btn btn-secondary">Cancel</a>
-                            <a href="{{ route('{{ kebab_name }}.show', ${{ snake_name }}) }}" class="btn btn-info">View</a>
+                            <a href="{{ route('{{ plural_kebab }}.index') }}" class="btn btn-secondary">Cancel</a>
+                            <a href="{{ route('{{ plural_kebab }}.show', ${{ snake_name }}) }}" class="btn btn-info">View</a>
                         </div>
                     </form>
                 </div>

@@ -1,0 +1,92 @@
+{
+    "name": "grazulex/laravel-devtoolbox",
+    "description": "Swiss-army artisan CLI for Laravel — Scan, inspect, debug, and explore every aspect of your Laravel application from the command line.",
+    "keywords": [
+        "laravel",
+        "devtools",
+        "cli",
+        "artisan",
+        "debug",
+        "scanner",
+        "inspector",
+        "php8",
+        "pest"
+    ],
+    "type": "library",
+    "homepage": "https://github.com/grazulex/laravel-devtoolbox",
+    "require": {
+        "php": "^8.3",
+        "illuminate/support": "^11.0|^12.0",
+        "nesbot/carbon": "^3.10"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.22",
+        "pestphp/pest": "^3.8",
+        "pestphp/pest-plugin-laravel": "^3.2",
+        "larastan/larastan": "^3.4",
+        "rector/rector": "^2.0",
+        "doctrine/dbal": "^4.2",
+        "orchestra/testbench": "^9.0|^10.0"
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "suggest": {
+        "doctrine/dbal": "Required for command `php artisan dev:generate-migration` to generate migrations from models"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Grazulex\\LaravelDevtoolbox\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Grazulex\\LaravelDevtoolbox\\LaravelDevtoolboxServiceProvider"
+            ]
+        }
+    },
+    "authors": [
+        {
+            "name": "Jean-Marc Strauven",
+            "email": "jms@grazulex.be",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/Grazulex/laravel-devtoolbox/issues",
+        "source": "https://github.com/Grazulex/laravel-devtoolbox",
+        "wiki": "https://github.com/Grazulex/laravel-devtoolbox/wiki",
+        "forum": "https://github.com/Grazulex/laravel-devtoolbox/discussions"
+    },
+    "scripts": {
+        "test": [
+            "./vendor/bin/pest --colors=always --coverage"
+        ],
+        "pint": [
+            "./vendor/bin/pint"
+        ],
+        "phpstan": [
+            "./vendor/bin/phpstan analyse --memory-limit=2G --configuration=phpstan.neon"
+        ],
+        "rector": [
+            "./vendor/bin/rector"
+        ],
+        "full": [
+            "composer run-script pint",
+            "composer run-script phpstan",
+            "composer run-script rector",
+            "composer run-script test"
+        ]
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    }
+}

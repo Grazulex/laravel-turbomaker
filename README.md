@@ -86,18 +86,21 @@ Automatically handles foreign keys, model relationships, and form integration.
 | `turbo:view {name}` | Views only | `turbo:view Product` |
 | `turbo:test {name}` | Tests only | `turbo:test User --feature --unit` |
 
-### Key Options
+### Generation Options
 
-| Option | Description | Components |
-|--------|-------------|------------|
+| Option | Description | Components Generated |
+|--------|-------------|---------------------|
 | `--tests` | Generate Pest tests | Feature & Unit tests |
 | `--factory` | Generate model factory | Database factories |
 | `--seeder` | Generate seeder | Database seeders |
 | `--policies` | Generate policies | Authorization policies |
-| `--actions` | Generate action classes | Action pattern classes |
-| `--services` | Generate service classes | Service layer |
-| `--rules` | Generate validation rules | Custom validation |
+| `--actions` | Generate action classes | CRUD action classes |
+| `--services` | Generate service classes | Business logic services |
+| `--rules` | Generate validation rules | Custom validation rules |
 | `--observers` | Generate model observers | Model event handling |
+| `--api` | API-only generation | No views, API resources only |
+| `--views` | Generate views | Complete CRUD views |
+| `--force` | Overwrite existing files | Force regeneration |
 
 ### Relationship Options
 
@@ -106,6 +109,7 @@ Automatically handles foreign keys, model relationships, and form integration.
 | `--belongs-to=User` | Post belongs to User | Foreign key & relationship |
 | `--has-many=Comment` | Post has many Comments | Relationship method |
 | `--has-one=Profile` | User has one Profile | One-to-one relationship |
+| `--relationships="user:belongsTo,posts:hasMany"` | Multiple relationships | Complex relationship definitions |
 
 ---
 
@@ -118,12 +122,33 @@ php artisan vendor:publish --tag=turbomaker-config
 ```
 
 **Key Configuration Options:**
-- **Default generation options** - Control what gets generated automatically
-- **File paths** - Customize where files are created
-- **Model settings** - UUIDs, soft deletes, traits
-- **Database options** - Foreign keys, constraints, table naming
-- **Testing framework** - Pest or PHPUnit configuration
-- **View settings** - Layout, CSS framework, pagination
+
+### Default Generation Settings
+- **Tests** - Automatically generate Pest tests (default: true)
+- **Factory** - Generate model factories (default: true) 
+- **Seeder** - Generate database seeders (default: false)
+- **Policies** - Generate authorization policies (default: false)
+- **API Resources** - Generate API resource classes (default: true)
+- **Actions** - Generate action classes (default: false)
+- **Services** - Generate service classes (default: false)
+- **Rules** - Generate validation rules (default: false)
+- **Observers** - Generate model observers (default: false)
+
+### File Paths Customization
+- **Models** - `app/Models` (customizable)
+- **Controllers** - `app/Http/Controllers` & `app/Http/Controllers/Api`
+- **Requests** - `app/Http/Requests`
+- **Resources** - `app/Http/Resources`
+- **Policies** - `app/Policies`
+- **Actions** - `app/Actions`
+- **Services** - `app/Services`
+- **Views** - `resources/views`
+- **Tests** - `tests/Feature` & `tests/Unit`
+
+### Performance & Status Tracking
+- **Caching** - Enable result caching (default: true)
+- **Status tracking** - Log generation activities
+- **Memory limits** - Configure memory usage for large projects
 
 ### 🎨 Custom Templates
 
@@ -133,7 +158,18 @@ Customize the generated code by publishing and modifying the stub templates:
 php artisan vendor:publish --tag=turbomaker-stubs
 ```
 
-This copies all stub files to `resources/stubs/turbomaker/` where you can modify them to match your coding standards.
+This copies all 24 stub files to `resources/stubs/turbomaker/` where you can modify them to match your coding standards.
+
+**Available Templates:**
+- **Models & Database**: `model.stub`, `migration.stub`, `factory.stub`, `seeder.stub`
+- **Controllers**: `controller.stub`, `controller.api.stub`
+- **Requests**: `request.store.stub`, `request.update.stub`
+- **Resources**: `resource.stub` (API resources)
+- **Authorization**: `policy.stub`, `observer.stub`
+- **Business Logic**: `action.*.stub` (create, update, delete, get), `service.stub`
+- **Validation**: `rule.exists.stub`, `rule.unique.stub`
+- **Views**: `view.index.stub`, `view.create.stub`, `view.edit.stub`, `view.show.stub`
+- **Tests**: `test.feature.stub`, `test.unit.stub`
 
 See the [Configuration Guide](docs/configuration.md) for complete details and team setup examples.
 
@@ -177,6 +213,7 @@ php artisan turbo:view Product
 php artisan turbo:make Order \
     --belongs-to=User \
     --has-many=OrderItem \
+    --has-one=Payment \
     --policies \
     --tests \
     --factory \
@@ -184,8 +221,23 @@ php artisan turbo:make Order \
     --actions \
     --services \
     --rules \
-    --observers
+    --observers \
+    --force
 ```
+
+This generates a complete Order module with:
+- Model with User and OrderItem relationships
+- Payment one-to-one relationship  
+- Web and API controllers
+- Authorization policies
+- Comprehensive test suite (Feature + Unit)
+- Database factory and seeder
+- CRUD action classes
+- Business service layer
+- Custom validation rules
+- Model observer for events
+- Complete CRUD views
+- API resources and requests
 
 ## 📁 Real-World Examples
 

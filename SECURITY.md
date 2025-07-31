@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-We provide security updates for the following versions of Laravel Arc:
+We provide security updates for the following versions of Laravel TurboMaker:
 
 | Version | Supported          |
 | ------- | ------------------ |
@@ -10,7 +10,7 @@ We provide security updates for the following versions of Laravel Arc:
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability within Laravel Arc, please send an email to [jms@grazulex.be](mailto:jms@grazulex.be). All security vulnerabilities will be promptly addressed.
+If you discover a security vulnerability within Laravel TurboMaker, please send an email to [jms@grazulex.be](mailto:jms@grazulex.be). All security vulnerabilities will be promptly addressed.
 
 Please do **not** report security issues publicly via GitHub issues or discussions. Security reports sent to the maintainer's email will be acknowledged within 48 hours.
 
@@ -34,9 +34,9 @@ When reporting a security vulnerability, please include:
 
 ## Security Best Practices
 
-When using Laravel Arc in your applications, we recommend:
+When using Laravel TurboMaker in your applications, we recommend:
 
-1. **Keep Updated** - Always use the latest version of Laravel Arc
+1. **Keep Updated** - Always use the latest version of Laravel TurboMaker
 2. **Validate Input** - Ensure proper validation of all data passed to DTOs
 3. **Review Dependencies** - Regularly update your Composer dependencies
 4. **Follow Laravel Security** - Follow Laravel's security best practices
@@ -51,4 +51,4 @@ For security-related questions or concerns, please contact:
 - **Email**: [jms@grazulex.be](mailto:jms@grazulex.be)
 - **Maintainer**: Jean-Marc Strauven
 
-Thank you for helping keep Laravel Arc and our users safe!
+Thank you for helping keep Laravel TurboMaker and our users safe!

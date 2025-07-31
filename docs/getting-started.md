@@ -85,11 +85,38 @@ php artisan turbo:make Product --belongs-to=Category --has-one=ProductDetail
 
 ```bash
 # Generate with all components
-php artisan turbo:make Order --policies --factory --seeder --tests
+php artisan turbo:make Order --policies --factory --seeder --tests --observers
 
 # Generate with actions and services
 php artisan turbo:make Invoice --actions --services --rules
+
+# Generate comprehensive module with all features
+php artisan turbo:make Product \
+    --policies \
+    --factory \
+    --seeder \
+    --tests \
+    --actions \
+    --services \
+    --rules \
+    --observers
 ```
+
+### Available Generation Options
+
+| Option | Description | Example |
+|--------|-------------|---------|
+| `--tests` | Generate Pest tests | Feature & Unit tests |
+| `--factory` | Generate model factory | Database factory |
+| `--seeder` | Generate seeder | Database seeder |
+| `--policies` | Generate policies | Authorization policies |
+| `--actions` | Generate action classes | CRUD action classes |
+| `--services` | Generate service classes | Business logic services |
+| `--rules` | Generate validation rules | Custom validation rules |
+| `--observers` | Generate model observers | Model event handling |
+| `--api` | API-only generation | No views, API resources only |
+| `--views` | Generate views | Complete CRUD views |
+| `--force` | Overwrite existing files | Force regeneration |
 
 ### Force Overwrite
 
@@ -102,7 +129,7 @@ php artisan turbo:make Post --force
 ## What's Generated?
 
 ### File Structure
-When you run `turbo:make Post`, here's what gets created:
+When you run `turbo:make Post --all-options`, here's what gets created:
 
 ```
 app/
@@ -121,27 +148,53 @@ app/
 │   ├── UpdatePostAction.php
 │   ├── DeletePostAction.php
 │   └── GetPostAction.php
-└── Services/PostService.php (if --services)
+├── Services/PostService.php (if --services)
+├── Rules/ (if --rules)
+│   ├── PostExistsRule.php
+│   └── PostUniqueRule.php
+└── Observers/PostObserver.php (if --observers)
 
 database/
 ├── migrations/xxxx_create_posts_table.php
 ├── factories/PostFactory.php (if --factory)
 └── seeders/PostSeeder.php (if --seeder)
 
-resources/views/posts/
+resources/views/posts/ (unless --api)
 ├── index.blade.php
 ├── create.blade.php
 ├── edit.blade.php
 └── show.blade.php
 
 routes/
-├── web.php (routes added)
-└── api.php (routes added)
+├── web.php (routes added unless --api)
+└── api.php (API routes added)
 
-tests/
+tests/ (if --tests)
 ├── Feature/PostTest.php
 └── Unit/PostTest.php
 ```
+
+### Generated Components
+
+| Component | File | Purpose |
+|-----------|------|---------|
+| **Model** | `app/Models/Post.php` | Eloquent model with relationships |
+| **Controllers** | `app/Http/Controllers/PostController.php` | Web CRUD operations |
+|  | `app/Http/Controllers/Api/PostController.php` | API CRUD operations |
+| **Requests** | `app/Http/Requests/StorePostRequest.php` | Form validation for create |
+|  | `app/Http/Requests/UpdatePostRequest.php` | Form validation for update |
+| **Resources** | `app/Http/Resources/PostResource.php` | API response formatting |
+| **Migration** | `database/migrations/*_create_posts_table.php` | Database table structure |
+| **Factory** | `database/factories/PostFactory.php` | Test data generation |
+| **Seeder** | `database/seeders/PostSeeder.php` | Database seeding |
+| **Policy** | `app/Policies/PostPolicy.php` | Authorization rules |
+| **Actions** | `app/Actions/Post/*.php` | CRUD action classes |
+| **Service** | `app/Services/PostService.php` | Business logic layer |
+| **Rules** | `app/Rules/Post*.php` | Custom validation rules |
+| **Observer** | `app/Observers/PostObserver.php` | Model event handling |
+| **Views** | `resources/views/posts/*.blade.php` | CRUD interface |
+| **Tests** | `tests/Feature/PostTest.php` | Feature testing |
+|  | `tests/Unit/PostTest.php` | Unit testing |
 
 ## Customizing Generated Code
 

@@ -33,6 +33,80 @@ return [
         'generate_seeder' => env('TURBOMAKER_GENERATE_SEEDER', false),
         'generate_policies' => env('TURBOMAKER_GENERATE_POLICIES', false),
         'generate_api_resources' => env('TURBOMAKER_GENERATE_API_RESOURCES', true),
+        'generate_actions' => env('TURBOMAKER_GENERATE_ACTIONS', false),
+        'generate_services' => env('TURBOMAKER_GENERATE_SERVICES', false),
+        'generate_rules' => env('TURBOMAKER_GENERATE_RULES', false),
+        'generate_observers' => env('TURBOMAKER_GENERATE_OBSERVERS', false),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | File Paths
+    |--------------------------------------------------------------------------
+    |
+    | Configure where different types of files should be generated.
+    |
+    */
+    'paths' => [
+        'models' => 'app/Models',
+        'controllers' => 'app/Http/Controllers',
+        'api_controllers' => 'app/Http/Controllers/Api',
+        'requests' => 'app/Http/Requests',
+        'resources' => 'app/Http/Resources',
+        'policies' => 'app/Policies',
+        'actions' => 'app/Actions',
+        'services' => 'app/Services',
+        'rules' => 'app/Rules',
+        'observers' => 'app/Observers',
+        'migrations' => 'database/migrations',
+        'factories' => 'database/factories',
+        'seeders' => 'database/seeders',
+        'views' => 'resources/views',
+        'tests' => 'tests',
+        'feature_tests' => 'tests/Feature',
+        'unit_tests' => 'tests/Unit',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Stub Templates
+    |--------------------------------------------------------------------------
+    |
+    | Configure which stub templates to use for code generation.
+    | TurboMaker will first look for published stubs in your project,
+    | then fallback to the package default stubs.
+    |
+    | To customize stubs, run: php artisan vendor:publish --tag=turbomaker-stubs
+    |
+    */
+    'stubs' => [
+        'path' => resource_path('stubs/turbomaker'),
+        'templates' => [
+            'model' => 'model.stub',
+            'controller' => 'controller.stub',
+            'api_controller' => 'controller.api.stub',
+            'migration' => 'migration.stub',
+            'factory' => 'factory.stub',
+            'seeder' => 'seeder.stub',
+            'policy' => 'policy.stub',
+            'request_store' => 'request.store.stub',
+            'request_update' => 'request.update.stub',
+            'resource' => 'resource.stub',
+            'action_create' => 'action.create.stub',
+            'action_update' => 'action.update.stub',
+            'action_delete' => 'action.delete.stub',
+            'action_get' => 'action.get.stub',
+            'service' => 'service.stub',
+            'rule_exists' => 'rule.exists.stub',
+            'rule_unique' => 'rule.unique.stub',
+            'observer' => 'observer.stub',
+            'test_feature' => 'test.feature.stub',
+            'test_unit' => 'test.unit.stub',
+            'view_index' => 'view.index.stub',
+            'view_create' => 'view.create.stub',
+            'view_edit' => 'view.edit.stub',
+            'view_show' => 'view.show.stub',
+        ],
     ],
 
     /*

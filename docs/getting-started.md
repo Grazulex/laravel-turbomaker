@@ -143,6 +143,16 @@ tests/
 └── Unit/PostTest.php
 ```
 
+## Customizing Generated Code
+
+You can customize the generated code by publishing and modifying the stub templates:
+
+```bash
+php artisan vendor:publish --tag=turbomaker-stubs
+```
+
+This copies all template files to `resources/stubs/turbomaker/` where you can modify them to match your project's coding standards and requirements.
+
 ## Next Steps
 
 - [Command Reference](commands.md) - Complete list of all available commands and options

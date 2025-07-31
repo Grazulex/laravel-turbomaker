@@ -125,6 +125,16 @@ php artisan vendor:publish --tag=turbomaker-config
 - **Testing framework** - Pest or PHPUnit configuration
 - **View settings** - Layout, CSS framework, pagination
 
+### 🎨 Custom Templates
+
+Customize the generated code by publishing and modifying the stub templates:
+
+```bash
+php artisan vendor:publish --tag=turbomaker-stubs
+```
+
+This copies all stub files to `resources/stubs/turbomaker/` where you can modify them to match your coding standards.
+
 See the [Configuration Guide](docs/configuration.md) for complete details and team setup examples.
 
 ---

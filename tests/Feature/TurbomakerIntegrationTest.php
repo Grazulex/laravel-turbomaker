@@ -59,6 +59,39 @@ final class TurbomakerIntegrationTest extends TestCase
         }
     }
 
+    public function test_turbomaker_stubs_can_be_published(): void
+    {
+        $this->artisan('vendor:publish', [
+            '--tag' => 'turbomaker-stubs',
+            '--force' => true,
+        ])->assertExitCode(0);
+
+        $stubsPath = resource_path('stubs/turbomaker');
+        $this->assertDirectoryExists($stubsPath);
+
+        // Check that some key stub files exist
+        $this->assertFileExists($stubsPath.'/model.stub');
+        $this->assertFileExists($stubsPath.'/controller.stub');
+        $this->assertFileExists($stubsPath.'/migration.stub');
+
+        // Clean up recursively
+        if (is_dir($stubsPath)) {
+            $files = glob($stubsPath.'/*');
+            foreach ($files as $file) {
+                if (is_file($file)) {
+                    unlink($file);
+                }
+            }
+            rmdir($stubsPath);
+
+            // Also remove the stubs directory if it's empty
+            $stubsParentPath = resource_path('stubs');
+            if (is_dir($stubsParentPath) && count(glob($stubsParentPath.'/*')) === 0) {
+                rmdir($stubsParentPath);
+            }
+        }
+    }
+
     public function test_turbomaker_manager_integration_with_scanners(): void
     {
         $manager = app('turbomaker');

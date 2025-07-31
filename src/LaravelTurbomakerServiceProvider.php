@@ -49,6 +49,11 @@ final class LaravelTurbomakerServiceProvider extends ServiceProvider
                 __DIR__.'/../config/turbomaker.php' => config_path('turbomaker.php'),
             ], 'turbomaker-config');
 
+            // Publish stubs
+            $this->publishes([
+                __DIR__.'/../stubs' => resource_path('stubs/turbomaker'),
+            ], 'turbomaker-stubs');
+
             // Register commands
             $this->commands([
                 TurboMakeCommand::class,

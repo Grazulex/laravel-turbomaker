@@ -21,6 +21,13 @@ abstract class BaseGenerator
 
     protected function getStub(string $name): string
     {
+        // First, check for published stubs in the user's project
+        $publishedStubPath = resource_path('stubs/turbomaker/'.$name.'.stub');
+        if ($this->files->exists($publishedStubPath)) {
+            return $this->files->get($publishedStubPath);
+        }
+
+        // Fallback to package stubs
         $stubPath = __DIR__.'/../../stubs/'.$name.'.stub';
 
         if (! $this->files->exists($stubPath)) {

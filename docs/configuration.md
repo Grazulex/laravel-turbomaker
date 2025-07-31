@@ -74,6 +74,10 @@ return [
     |--------------------------------------------------------------------------
     |
     | Configure which stub templates to use for code generation.
+    | TurboMaker will first look for published stubs in your project,
+    | then fallback to the package default stubs.
+    |
+    | To customize stubs, run: php artisan vendor:publish --tag=turbomaker-stubs
     |
     */
     'stubs' => [

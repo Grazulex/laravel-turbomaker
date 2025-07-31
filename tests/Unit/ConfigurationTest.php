@@ -31,10 +31,32 @@ final class ConfigurationTest extends TestCase
         $this->assertArrayHasKey('show_progress', $defaults);
         $this->assertArrayHasKey('output_path', $defaults);
 
+        // Test generation defaults
+        $this->assertArrayHasKey('generate_tests', $defaults);
+        $this->assertArrayHasKey('generate_factory', $defaults);
+        $this->assertArrayHasKey('generate_seeder', $defaults);
+        $this->assertArrayHasKey('generate_policies', $defaults);
+        $this->assertArrayHasKey('generate_api_resources', $defaults);
+        $this->assertArrayHasKey('generate_actions', $defaults);
+        $this->assertArrayHasKey('generate_services', $defaults);
+        $this->assertArrayHasKey('generate_rules', $defaults);
+        $this->assertArrayHasKey('generate_observers', $defaults);
+
         $this->assertEquals('table', $defaults['format']);
         $this->assertTrue($defaults['include_metadata']);
         $this->assertTrue($defaults['show_progress']);
         $this->assertStringContainsString('turbomaker', $defaults['output_path']);
+
+        // Test boolean defaults
+        $this->assertTrue($defaults['generate_tests']);
+        $this->assertTrue($defaults['generate_factory']);
+        $this->assertFalse($defaults['generate_seeder']);
+        $this->assertFalse($defaults['generate_policies']);
+        $this->assertTrue($defaults['generate_api_resources']);
+        $this->assertFalse($defaults['generate_actions']);
+        $this->assertFalse($defaults['generate_services']);
+        $this->assertFalse($defaults['generate_rules']);
+        $this->assertFalse($defaults['generate_observers']);
     }
 
     public function test_status_tracking_configuration(): void
@@ -117,8 +139,59 @@ final class ConfigurationTest extends TestCase
         // Test that environment variables would override defaults
         $this->assertEquals('table', config('turbomaker.defaults.format'));
         $this->assertTrue(config('turbomaker.defaults.include_metadata'));
-        $this->assertTrue(config('turbomaker.status_tracking.enabled'));
-        $this->assertTrue(config('turbomaker.performance.cache_enabled'));
-        $this->assertEquals(3600, config('turbomaker.performance.cache_ttl'));
+        $this->assertTrue(config('turbomaker.enabled'));
+    }
+
+    public function test_paths_configuration(): void
+    {
+        $paths = config('turbomaker.paths');
+
+        $this->assertIsArray($paths);
+        $this->assertArrayHasKey('models', $paths);
+        $this->assertArrayHasKey('controllers', $paths);
+        $this->assertArrayHasKey('api_controllers', $paths);
+        $this->assertArrayHasKey('requests', $paths);
+        $this->assertArrayHasKey('resources', $paths);
+        $this->assertArrayHasKey('policies', $paths);
+        $this->assertArrayHasKey('actions', $paths);
+        $this->assertArrayHasKey('services', $paths);
+        $this->assertArrayHasKey('rules', $paths);
+        $this->assertArrayHasKey('observers', $paths);
+        $this->assertArrayHasKey('migrations', $paths);
+        $this->assertArrayHasKey('factories', $paths);
+        $this->assertArrayHasKey('seeders', $paths);
+        $this->assertArrayHasKey('views', $paths);
+        $this->assertArrayHasKey('tests', $paths);
+        $this->assertArrayHasKey('feature_tests', $paths);
+        $this->assertArrayHasKey('unit_tests', $paths);
+
+        $this->assertEquals('app/Models', $paths['models']);
+        $this->assertEquals('app/Http/Controllers', $paths['controllers']);
+        $this->assertEquals('app/Http/Controllers/Api', $paths['api_controllers']);
+    }
+
+    public function test_stubs_configuration(): void
+    {
+        $stubs = config('turbomaker.stubs');
+
+        $this->assertIsArray($stubs);
+        $this->assertArrayHasKey('path', $stubs);
+        $this->assertArrayHasKey('templates', $stubs);
+
+        $templates = $stubs['templates'];
+        $this->assertIsArray($templates);
+        $this->assertArrayHasKey('model', $templates);
+        $this->assertArrayHasKey('controller', $templates);
+        $this->assertArrayHasKey('api_controller', $templates);
+        $this->assertArrayHasKey('migration', $templates);
+        $this->assertArrayHasKey('factory', $templates);
+        $this->assertArrayHasKey('seeder', $templates);
+        $this->assertArrayHasKey('policy', $templates);
+        $this->assertArrayHasKey('test_feature', $templates);
+        $this->assertArrayHasKey('test_unit', $templates);
+
+        $this->assertEquals('model.stub', $templates['model']);
+        $this->assertEquals('controller.stub', $templates['controller']);
+        $this->assertEquals('controller.api.stub', $templates['api_controller']);
     }
 }

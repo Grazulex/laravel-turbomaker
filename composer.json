@@ -62,7 +62,8 @@
         "issues": "https://github.com/Grazulex/laravel-turbomaker/issues",
         "source": "https://github.com/Grazulex/laravel-turbomaker",
         "wiki": "https://github.com/Grazulex/laravel-turbomaker/wiki",
-        "forum": "https://github.com/Grazulex/laravel-turbomaker/discussions"
+        "forum": "https://github.com/Grazulex/laravel-turbomaker/discussions",
+        "docs": "https://github.com/Grazulex/laravel-turbomaker/wiki"
     },
     "scripts": {
         "test": [

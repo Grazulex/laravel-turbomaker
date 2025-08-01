@@ -84,7 +84,7 @@ Automatically handles foreign keys, model relationships, and form integration.
 | Section | Description |
 |---------|-------------|
 | **[🚀 Getting Started](https://github.com/Grazulex/laravel-turbomaker/wiki/Getting-Started)** | Installation, setup and your first module |
-| **[📋 Command Reference](https://github.com/Grazulex/laravel-turbomaker/wiki/Command-Reference)** | Complete command documentation |
+| **[📋 Command Reference](https://github.com/Grazulex/laravel-turbomaker/wiki/Commands)** | Complete command documentation |
 | **[🔗 Working with Relationships](https://github.com/Grazulex/laravel-turbomaker/wiki/Relationships)** | Model relationships guide |
 | **[🎨 Custom Templates](https://github.com/Grazulex/laravel-turbomaker/wiki/Custom-Templates)** | Customize generated code |
 | **[⚙️ Configuration](https://github.com/Grazulex/laravel-turbomaker/wiki/Configuration)** | Configure TurboMaker settings |

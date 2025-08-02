@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Grazulex\LaravelTurbomaker\Generators;
 
+use Grazulex\LaravelTurbomaker\Schema\Schema;
+use Grazulex\LaravelTurbomaker\Schema\SchemaParser;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
@@ -12,12 +14,35 @@ abstract class BaseGenerator
 {
     protected Filesystem $files;
 
-    public function __construct(Filesystem $files)
+    protected SchemaParser $schemaParser;
+
+    protected ?Schema $schema = null;
+
+    public function __construct(Filesystem $files, ?SchemaParser $schemaParser = null)
     {
         $this->files = $files;
+        $this->schemaParser = $schemaParser ?? new SchemaParser();
     }
 
     abstract public function generate(array $context): array;
+
+    /**
+     * Set schema for this generator
+     */
+    final public function setSchema(?Schema $schema): static
+    {
+        $this->schema = $schema;
+
+        return $this;
+    }
+
+    /**
+     * Get the current schema
+     */
+    final public function getSchema(): ?Schema
+    {
+        return $this->schema;
+    }
 
     protected function getStub(string $name): string
     {
@@ -39,6 +64,11 @@ abstract class BaseGenerator
 
     protected function replaceTokens(string $content, array $context): string
     {
+        // Merge schema context if available
+        if ($this->schema instanceof Schema) {
+            $context = array_merge($context, $this->schema->generateContext());
+        }
+
         $tokens = [
             '{{ namespace }}' => $this->getNamespace($context),
             '{{ class }}' => $context['model_class'],
@@ -168,7 +198,7 @@ abstract class BaseGenerator
 
     protected function generateFillable(array $context): string
     {
-        $fillable = ['name']; // Default fillable field
+        $fillable = []; // No default fields, use schema definition
 
         // Add foreign keys for belongs_to relationships
         foreach ($context['relationships']['belongs_to'] as $relation) {

@@ -35,4 +35,42 @@ final class RequestGenerator extends BaseGenerator
     {
         return 'App\\Http\\Requests';
     }
+
+    protected function replaceTokens(string $content, array $context): string
+    {
+        // Get base tokens from parent
+        $content = parent::replaceTokens($content, $context);
+
+        // Determine if this is an update request based on the content
+        $isUpdateRequest = str_contains($content, 'Update') && str_contains($content, 'Request');
+
+        // Add request-specific tokens
+        $requestTokens = [
+            '{{ schema_validation_rules }}' => $isUpdateRequest
+                ? $this->generateUpdateValidationRules($context)
+                : $this->generateValidationRules($context),
+        ];
+
+        return str_replace(array_keys($requestTokens), array_values($requestTokens), $content);
+    }
+
+    private function generateValidationRules(array $context): string
+    {
+        if (isset($context['schema']) && $context['schema'] instanceof \Grazulex\LaravelTurbomaker\Schema\Schema) {
+            return $context['schema']->generateValidationRulesString();
+        }
+
+        // Fallback to basic validation rules
+        return "            'name' => ['required', 'string', 'max:255'],";
+    }
+
+    private function generateUpdateValidationRules(array $context): string
+    {
+        if (isset($context['schema']) && $context['schema'] instanceof \Grazulex\LaravelTurbomaker\Schema\Schema) {
+            return $context['schema']->generateUpdateValidationRulesString();
+        }
+
+        // Fallback to basic validation rules
+        return "            'name' => ['sometimes', 'string', 'max:255'],";
+    }
 }

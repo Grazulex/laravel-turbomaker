@@ -124,6 +124,23 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Schema Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configuration for schema-based generation using YAML files.
+    |
+    */
+    'schemas' => [
+        'path' => env('TURBOMAKER_SCHEMAS_PATH', resource_path('schemas')),
+        'extension' => '.schema.yml',
+        'auto_discovery' => env('TURBOMAKER_SCHEMA_AUTO_DISCOVERY', true),
+        'cache_enabled' => env('TURBOMAKER_SCHEMA_CACHE', true),
+        'validate_on_load' => env('TURBOMAKER_SCHEMA_VALIDATE', true),
+        'backup_on_generate' => env('TURBOMAKER_SCHEMA_BACKUP', false),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Scanner Configuration
     |--------------------------------------------------------------------------
     |
@@ -171,5 +188,25 @@ return [
         'formats' => ['json', 'csv', 'html'],
         'include_timestamps' => true,
         'compress_output' => false,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Custom Field Types
+    |--------------------------------------------------------------------------
+    |
+    | Register custom field types that extend the built-in functionality.
+    | Each entry should map a type name to a class that implements
+    | FieldTypeInterface.
+    |
+    | Example:
+    | 'custom_field_types' => [
+    |     'money' => App\TurboMaker\FieldTypes\MoneyFieldType::class,
+    |     'slug' => App\TurboMaker\FieldTypes\SlugFieldType::class,
+    | ],
+    |
+    */
+    'custom_field_types' => [
+        // Add your custom field types here
     ],
 ];

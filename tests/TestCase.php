@@ -38,6 +38,12 @@ abstract class TestCase extends Orchestra
             'prefix' => '',
         ]);
 
+        // Use array cache for testing to avoid database cache issues
+        $app['config']->set('cache.default', 'array');
+
+        // Disable schema cache for testing
+        $app['config']->set('turbomaker.schemas.cache_enabled', false);
+
         // Create necessary directories for testing
         $directories = [
             $app->basePath('app/Models'),
@@ -52,6 +58,7 @@ abstract class TestCase extends Orchestra
             $app->basePath('tests/Feature'),
             $app->basePath('tests/Unit'),
             $app->basePath('resources/views'),
+            $app->basePath('resources/schemas'),
         ];
 
         foreach ($directories as $directory) {

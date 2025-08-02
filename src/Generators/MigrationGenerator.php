@@ -31,16 +31,21 @@ final class MigrationGenerator extends BaseGenerator
         $content = parent::replaceTokens($content, $context);
 
         // Add migration-specific tokens
-        $migrationContent = $this->generateMigrationFields($context);
+        $migrationTokens = [
+            '{{ schema_migration_fields }}' => $this->generateMigrationFields($context),
+        ];
 
-        return str_replace('{{ migration_fields }}', $migrationContent, $content);
+        return str_replace(array_keys($migrationTokens), array_values($migrationTokens), $content);
     }
 
     private function generateMigrationFields(array $context): string
     {
-        $fields = [];
+        if (isset($context['schema']) && $context['schema'] instanceof \Grazulex\LaravelTurbomaker\Schema\Schema) {
+            return $context['schema']->generateMigrationFieldsString();
+        }
 
-        // Default fields
+        // Fallback to basic migration
+        $fields = [];
         $fields[] = '            $table->id();';
         $fields[] = "            \$table->string('name');";
 

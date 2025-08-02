@@ -6,18 +6,18 @@ namespace {{ namespace }};
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+{{ schema_traits }}
 {{ imports }}
 
 final class {{ class }} extends Model
 {
-    use HasFactory;
+    use {{ model_traits }};
 
-    protected $fillable = [{{ fillable }}];
+    protected $fillable = [{{ schema_fillable_array }}];
 
     protected $casts = [
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
+{{ schema_casts_array }}
     ];
 
-{{ relationships }}
+{{ schema_relationships }}{{ relationships }}
 }

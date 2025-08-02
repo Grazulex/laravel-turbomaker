@@ -25,4 +25,27 @@ final class ResourceGenerator extends BaseGenerator
     {
         return 'App\\Http\\Resources';
     }
+
+    protected function replaceTokens(string $content, array $context): string
+    {
+        // Get base tokens from parent
+        $content = parent::replaceTokens($content, $context);
+
+        // Add resource-specific tokens
+        $resourceTokens = [
+            '{{ schema_resource_fields }}' => $this->generateResourceFields($context),
+        ];
+
+        return str_replace(array_keys($resourceTokens), array_values($resourceTokens), $content);
+    }
+
+    private function generateResourceFields(array $context): string
+    {
+        if (isset($context['schema']) && $context['schema'] instanceof \Grazulex\LaravelTurbomaker\Schema\Schema) {
+            return $context['schema']->generateResourceFieldsString();
+        }
+
+        // Fallback to basic resource fields
+        return "            'id' => \$this->id,\n            'name' => \$this->name,\n            'created_at' => \$this->created_at,\n            'updated_at' => \$this->updated_at,";
+    }
 }

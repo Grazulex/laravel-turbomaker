@@ -16,7 +16,7 @@ final class {{ request_store_class }} extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255'],
+{{ schema_validation_rules }}
         ];
     }
 }

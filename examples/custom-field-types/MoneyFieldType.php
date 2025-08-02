@@ -9,7 +9,7 @@ use Grazulex\LaravelTurbomaker\Schema\FieldTypes\AbstractFieldType;
 
 /**
  * Custom Money field type - Example of how to extend the system
- * 
+ *
  * This field type handles monetary values with proper validation,
  * factory generation, and casting.
  */
@@ -60,7 +60,7 @@ final class MoneyFieldType extends AbstractFieldType
     {
         $precision = $field->attributes['precision'] ?? 8;
         $scale = $field->attributes['scale'] ?? 2;
-        
+
         return "decimal:{$scale}";
     }
 
@@ -75,7 +75,7 @@ final class MoneyFieldType extends AbstractFieldType
         // The decimal definition should include precision and scale
         // This will be handled in the migration generation where it becomes:
         // $table->decimal('price', 8, 2)->nullable()...
-        
+
         return $modifiers;
     }
 }

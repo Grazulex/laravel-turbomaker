@@ -48,7 +48,7 @@ abstract class AbstractFieldType implements FieldTypeInterface
 
         // Custom validation rules from schema
         if ($field->validationRules !== []) {
-            $rules = array_merge($rules, $field->validationRules);
+            return array_merge($rules, $field->validationRules);
         }
 
         return $rules;

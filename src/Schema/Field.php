@@ -48,6 +48,7 @@ final class Field
     public function getMigrationDefinition(): string
     {
         $fieldType = FieldTypeRegistry::get($this->type);
+
         return $fieldType->getMigrationDefinition($this);
     }
 
@@ -57,13 +58,14 @@ final class Field
     public function getMigrationModifiers(): array
     {
         $fieldType = FieldTypeRegistry::get($this->type);
+
         return $fieldType->getMigrationModifiers($this);
     }
 
     /**
      * Get validation rules for requests
      */
-    public function getValidationRules(string $tableName = null): array
+    public function getValidationRules(?string $tableName = null): array
     {
         $fieldType = FieldTypeRegistry::get($this->type);
         $rules = $fieldType->getValidationRules($this);
@@ -71,8 +73,8 @@ final class Field
         // Add table-specific unique constraint if needed
         if ($this->unique && $tableName) {
             // Remove any existing unique rule and add table-specific one
-            $rules = array_filter($rules, function ($rule) {
-                return !str_starts_with($rule, 'unique:');
+            $rules = array_filter($rules, function ($rule): bool {
+                return ! str_starts_with($rule, 'unique:');
             });
             $rules[] = "unique:{$tableName},{$this->name}";
         }
@@ -86,6 +88,7 @@ final class Field
     public function getFactoryDefinition(): string
     {
         $fieldType = FieldTypeRegistry::get($this->type);
+
         return $fieldType->getFactoryDefinition($this);
     }
 
@@ -104,7 +107,7 @@ final class Field
     public function getCastType(): ?string
     {
         $fieldType = FieldTypeRegistry::get($this->type);
+
         return $fieldType->getCastType($this);
     }
-
 }

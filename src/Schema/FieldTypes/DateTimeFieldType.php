@@ -40,12 +40,12 @@ final class DateTimeFieldType extends AbstractFieldType
 
         // Smart datetime generation based on field name
         $name = mb_strtolower($field->name);
-        
+
         return match (true) {
             str_contains($name, 'publish') => "fake()->optional(0.7)->dateTimeBetween('-1 year', 'now')",
             str_contains($name, 'login') || str_contains($name, 'last_') => "fake()->dateTimeBetween('-30 days', 'now')",
             str_contains($name, 'expire') => "fake()->dateTimeBetween('+1 month', '+5 years')",
-            default => "fake()->dateTime()",
+            default => 'fake()->dateTime()',
         };
     }
 

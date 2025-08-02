@@ -43,10 +43,10 @@ final class RequestGenerator extends BaseGenerator
 
         // Determine if this is an update request based on the content
         $isUpdateRequest = str_contains($content, 'Update') && str_contains($content, 'Request');
-        
+
         // Add request-specific tokens
         $requestTokens = [
-            '{{ schema_validation_rules }}' => $isUpdateRequest 
+            '{{ schema_validation_rules }}' => $isUpdateRequest
                 ? $this->generateUpdateValidationRules($context)
                 : $this->generateValidationRules($context),
         ];

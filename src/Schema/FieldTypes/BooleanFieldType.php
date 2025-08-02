@@ -59,8 +59,8 @@ final class BooleanFieldType extends AbstractFieldType
 
         // Special handling for boolean defaults
         if ($field->default !== null) {
-            $defaultValue = $field->default === true || $field->default === 'true' || $field->default === 1 || $field->default === '1' 
-                ? 'true' 
+            $defaultValue = $field->default === true || $field->default === 'true' || $field->default === 1 || $field->default === '1'
+                ? 'true'
                 : 'false';
             $modifiers[] = "default({$defaultValue})";
         }

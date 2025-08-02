@@ -23,7 +23,7 @@ final class FieldTypeRegistry
      */
     public static function get(string $name): FieldTypeInterface
     {
-        if (!isset(self::$types[$name])) {
+        if (! isset(self::$types[$name])) {
             throw new InvalidArgumentException("Unknown field type: {$name}");
         }
 

@@ -46,13 +46,13 @@ final class DateFieldType extends AbstractFieldType
 
         // Smart date generation based on field name
         $name = mb_strtolower($field->name);
-        
+
         return match (true) {
             str_contains($name, 'birth') => "fake()->dateTimeBetween('-80 years', '-18 years')->format('Y-m-d')",
             str_contains($name, 'start') => "fake()->dateTimeBetween('-1 year', '+1 year')->format('Y-m-d')",
             str_contains($name, 'end') => "fake()->dateTimeBetween('now', '+2 years')->format('Y-m-d')",
             str_contains($name, 'expire') => "fake()->dateTimeBetween('+1 month', '+5 years')->format('Y-m-d')",
-            default => "fake()->date()",
+            default => 'fake()->date()',
         };
     }
 

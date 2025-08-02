@@ -56,7 +56,7 @@ final class Schema
         // Only add if not already defined in schema
         foreach ($this->relationships as $relationship) {
             $foreignKeyField = $relationship->getForeignKeyField();
-            if ($foreignKeyField && !isset($allFields[$foreignKeyField->name])) {
+            if ($foreignKeyField && ! isset($allFields[$foreignKeyField->name])) {
                 $allFields[$foreignKeyField->name] = $foreignKeyField;
             }
         }
@@ -337,20 +337,20 @@ final class Schema
         foreach ($this->fields as $field) {
             $type = $field->getMigrationDefinition();
             $modifiers = $field->getMigrationModifiers();
-            
+
             // Build the base column definition
             if ($field->length && in_array($field->type, ['string', 'char'])) {
                 $columnDef = "\$table->{$type}('{$field->name}', {$field->length})";
             } else {
                 $columnDef = "\$table->{$type}('{$field->name}')";
             }
-            
+
             // Add modifiers
-            if (!empty($modifiers)) {
-                $columnDef .= '->' . implode('->', $modifiers);
+            if (! empty($modifiers)) {
+                $columnDef .= '->'.implode('->', $modifiers);
             }
-            
-            $lines[] = "            " . $columnDef . ";";
+
+            $lines[] = '            '.$columnDef.';';
         }
 
         // Add foreign key constraints from relationships
@@ -360,10 +360,8 @@ final class Schema
             if ($relationship->type === 'belongsTo') {
                 $foreignKey = $relationship->foreignKey ?? mb_strtolower($relationship->name).'_id';
                 // Only add constraint if the field is not already defined in schema
-                if (!in_array($foreignKey, $definedFields)) {
-                    if ($constraint = $relationship->generateForeignKeyConstraint()) {
-                        $lines[] = $constraint;
-                    }
+                if (! in_array($foreignKey, $definedFields) && $constraint = $relationship->generateForeignKeyConstraint()) {
+                    $lines[] = $constraint;
                 }
             }
         }

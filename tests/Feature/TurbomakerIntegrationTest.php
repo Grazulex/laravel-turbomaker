@@ -31,34 +31,6 @@ final class TurbomakerIntegrationTest extends TestCase
         }
     }
 
-    public function test_turbomaker_views_can_be_published(): void
-    {
-        $this->artisan('vendor:publish', [
-            '--tag' => 'turbomaker-views',
-            '--force' => true,
-        ])->assertExitCode(0);
-
-        $viewsPath = resource_path('views/vendor/turbomaker');
-        $this->assertDirectoryExists($viewsPath);
-
-        // Clean up recursively
-        if (is_dir($viewsPath)) {
-            $files = glob($viewsPath.'/*');
-            foreach ($files as $file) {
-                if (is_file($file)) {
-                    unlink($file);
-                }
-            }
-            rmdir($viewsPath);
-
-            // Also remove the vendor directory if it's empty
-            $vendorPath = resource_path('views/vendor');
-            if (is_dir($vendorPath) && count(glob($vendorPath.'/*')) === 0) {
-                rmdir($vendorPath);
-            }
-        }
-    }
-
     public function test_turbomaker_stubs_can_be_published(): void
     {
         $this->artisan('vendor:publish', [

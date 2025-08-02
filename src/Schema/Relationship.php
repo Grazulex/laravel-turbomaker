@@ -251,7 +251,7 @@ final class Relationship
         if ($this->model === '') {
             return 'return $this->morphOne();';
         }
-        
+
         $modelClass = $this->formatModelClass($this->model);
         $params = [$modelClass.'::class'];
 
@@ -270,7 +270,7 @@ final class Relationship
         if ($this->model === '') {
             return 'return $this->morphMany();';
         }
-        
+
         $modelClass = $this->formatModelClass($this->model);
         $params = [$modelClass.'::class'];
 

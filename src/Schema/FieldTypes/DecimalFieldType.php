@@ -12,6 +12,7 @@ final class DecimalFieldType extends AbstractFieldType
     {
         $precision = $field->attributes['precision'] ?? 8;
         $scale = $field->attributes['scale'] ?? 2;
+
         return "decimal({$precision}, {$scale})";
     }
 
@@ -43,13 +44,14 @@ final class DecimalFieldType extends AbstractFieldType
         $scale = $field->attributes['scale'] ?? 2;
         $min = $field->attributes['min'] ?? 0;
         $max = $field->attributes['max'] ?? 999.99;
-        
+
         return "fake()->randomFloat({$scale}, {$min}, {$max})";
     }
 
     public function getCastType(Field $field): ?string
     {
         $scale = $field->attributes['scale'] ?? 2;
+
         return "decimal:{$scale}";
     }
 }

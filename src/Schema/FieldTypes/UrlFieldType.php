@@ -18,7 +18,7 @@ final class UrlFieldType extends AbstractFieldType
         $rules = ['url'];
 
         // Length validation
-        if ($field->length) {
+        if ($field->length !== null && $field->length !== 0) {
             $rules[] = "max:{$field->length}";
         } else {
             $rules[] = 'max:2048'; // URLs can be long

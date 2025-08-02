@@ -51,7 +51,7 @@ it('can generate migration definition for a field', function () {
     // Test that the field type is correct
     $definition = $field->getMigrationDefinition();
     expect($definition)->toBe('string');
-    
+
     // Test that modifiers are generated correctly
     $modifiers = $field->getMigrationModifiers();
     expect($modifiers)->toContain('nullable()');

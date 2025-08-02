@@ -271,13 +271,10 @@ final class TurboSchemaManager
      */
     private function isValidFieldType(string $type): bool
     {
-        $validTypes = [
-            'string', 'text', 'integer', 'bigInteger', 'decimal', 'float', 'double',
-            'boolean', 'date', 'datetime', 'timestamp', 'time', 'json', 'uuid',
-            'email', 'url', 'foreignId', 'morphs',
-        ];
+        // Use the FieldTypeRegistry to check if type is registered
+        $registry = app(\Grazulex\LaravelTurbomaker\Schema\FieldTypes\FieldTypeRegistry::class);
 
-        return in_array($type, $validTypes);
+        return $registry->has($type);
     }
 
     /**

@@ -18,7 +18,7 @@ final class StringFieldType extends AbstractFieldType
         $rules = ['string'];
 
         // Length validation
-        if ($field->length) {
+        if ($field->length !== null && $field->length !== 0) {
             $rules[] = "max:{$field->length}";
         }
 

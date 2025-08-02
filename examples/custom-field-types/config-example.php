@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Example configuration for custom field types
- * 
+ *
  * Add this to your config/turbomaker.php file to register custom field types
  */
 

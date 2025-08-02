@@ -32,14 +32,11 @@ final class JsonFieldType extends AbstractFieldType
 
         // Generate appropriate JSON based on field name
         $name = mb_strtolower($field->name);
-        
+
         return match (true) {
-            str_contains($name, 'meta') || str_contains($name, 'settings') => 
-                "['key1' => fake()->word(), 'key2' => fake()->sentence(), 'enabled' => fake()->boolean()]",
-            str_contains($name, 'config') => 
-                "['theme' => fake()->colorName(), 'language' => fake()->languageCode(), 'timezone' => fake()->timezone()]",
-            str_contains($name, 'attributes') || str_contains($name, 'properties') => 
-                "['color' => fake()->safeColorName(), 'size' => fake()->randomElement(['S', 'M', 'L', 'XL']), 'weight' => fake()->numberBetween(100, 5000)]",
+            str_contains($name, 'meta') || str_contains($name, 'settings') => "['key1' => fake()->word(), 'key2' => fake()->sentence(), 'enabled' => fake()->boolean()]",
+            str_contains($name, 'config') => "['theme' => fake()->colorName(), 'language' => fake()->languageCode(), 'timezone' => fake()->timezone()]",
+            str_contains($name, 'attributes') || str_contains($name, 'properties') => "['color' => fake()->safeColorName(), 'size' => fake()->randomElement(['S', 'M', 'L', 'XL']), 'weight' => fake()->numberBetween(100, 5000)]",
             default => "['data' => fake()->words(3), 'value' => fake()->numberBetween(1, 100)]",
         };
     }

@@ -30,7 +30,7 @@ final class TimeFieldType extends AbstractFieldType
             return implode('->', $field->factoryRules);
         }
 
-        return "fake()->time()";
+        return 'fake()->time()';
     }
 
     public function getCastType(Field $field): ?string

@@ -9,7 +9,7 @@ use Grazulex\LaravelTurbomaker\Schema\FieldTypes\AbstractFieldType;
 
 /**
  * Custom Slug field type - Example of how to extend the system
- * 
+ *
  * This field type handles URL-friendly slugs with proper validation,
  * factory generation, and specific rules.
  */

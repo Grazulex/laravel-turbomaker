@@ -9,32 +9,32 @@ use Grazulex\LaravelTurbomaker\Console\Commands\TurboMakeCommand;
 use Grazulex\LaravelTurbomaker\Console\Commands\TurboSchemaCommand;
 use Grazulex\LaravelTurbomaker\Console\Commands\TurboTestCommand;
 use Grazulex\LaravelTurbomaker\Console\Commands\TurboViewCommand;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\FieldTypeRegistry;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\StringFieldType;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\TextFieldType;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\LongTextFieldType;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\MediumTextFieldType;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\IntegerFieldType;
 use Grazulex\LaravelTurbomaker\Schema\FieldTypes\BigIntegerFieldType;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\UnsignedBigIntegerFieldType;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\TinyIntegerFieldType;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\SmallIntegerFieldType;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\MediumIntegerFieldType;
+use Grazulex\LaravelTurbomaker\Schema\FieldTypes\BinaryFieldType;
 use Grazulex\LaravelTurbomaker\Schema\FieldTypes\BooleanFieldType;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\DecimalFieldType;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\FloatFieldType;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\DoubleFieldType;
 use Grazulex\LaravelTurbomaker\Schema\FieldTypes\DateFieldType;
 use Grazulex\LaravelTurbomaker\Schema\FieldTypes\DateTimeFieldType;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\TimestampFieldType;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\TimeFieldType;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\JsonFieldType;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\UuidFieldType;
+use Grazulex\LaravelTurbomaker\Schema\FieldTypes\DecimalFieldType;
+use Grazulex\LaravelTurbomaker\Schema\FieldTypes\DoubleFieldType;
 use Grazulex\LaravelTurbomaker\Schema\FieldTypes\EmailFieldType;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\UrlFieldType;
+use Grazulex\LaravelTurbomaker\Schema\FieldTypes\FieldTypeRegistry;
+use Grazulex\LaravelTurbomaker\Schema\FieldTypes\FloatFieldType;
 use Grazulex\LaravelTurbomaker\Schema\FieldTypes\ForeignIdFieldType;
+use Grazulex\LaravelTurbomaker\Schema\FieldTypes\IntegerFieldType;
+use Grazulex\LaravelTurbomaker\Schema\FieldTypes\JsonFieldType;
+use Grazulex\LaravelTurbomaker\Schema\FieldTypes\LongTextFieldType;
+use Grazulex\LaravelTurbomaker\Schema\FieldTypes\MediumIntegerFieldType;
+use Grazulex\LaravelTurbomaker\Schema\FieldTypes\MediumTextFieldType;
 use Grazulex\LaravelTurbomaker\Schema\FieldTypes\MorphsFieldType;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\BinaryFieldType;
+use Grazulex\LaravelTurbomaker\Schema\FieldTypes\SmallIntegerFieldType;
+use Grazulex\LaravelTurbomaker\Schema\FieldTypes\StringFieldType;
+use Grazulex\LaravelTurbomaker\Schema\FieldTypes\TextFieldType;
+use Grazulex\LaravelTurbomaker\Schema\FieldTypes\TimeFieldType;
+use Grazulex\LaravelTurbomaker\Schema\FieldTypes\TimestampFieldType;
+use Grazulex\LaravelTurbomaker\Schema\FieldTypes\TinyIntegerFieldType;
+use Grazulex\LaravelTurbomaker\Schema\FieldTypes\UnsignedBigIntegerFieldType;
+use Grazulex\LaravelTurbomaker\Schema\FieldTypes\UrlFieldType;
+use Grazulex\LaravelTurbomaker\Schema\FieldTypes\UuidFieldType;
 use Grazulex\LaravelTurbomaker\Schema\SchemaParser;
 use Illuminate\Support\ServiceProvider;
 
@@ -120,6 +120,11 @@ final class LaravelTurbomakerServiceProvider extends ServiceProvider
      */
     private function registerFieldTypes(): void
     {
+        // Debug log to ensure method is called
+        if (config('app.debug', false)) {
+            logger('TurboMaker: Registering core field types...');
+        }
+
         // String types
         FieldTypeRegistry::register('string', new StringFieldType());
         FieldTypeRegistry::register('text', new TextFieldType());
@@ -154,6 +159,12 @@ final class LaravelTurbomakerServiceProvider extends ServiceProvider
         FieldTypeRegistry::register('foreignId', new ForeignIdFieldType());
         FieldTypeRegistry::register('morphs', new MorphsFieldType());
         FieldTypeRegistry::register('binary', new BinaryFieldType());
+
+        // Debug log to confirm registration
+        if (config('app.debug', false)) {
+            $registeredCount = count(FieldTypeRegistry::getAvailableTypes());
+            logger("TurboMaker: Registered {$registeredCount} field types");
+        }
     }
 
     /**

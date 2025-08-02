@@ -18,11 +18,7 @@ final class EmailFieldType extends AbstractFieldType
         $rules = ['email'];
 
         // Length validation (emails are typically limited)
-        if ($field->length) {
-            $rules[] = "max:{$field->length}";
-        } else {
-            $rules[] = 'max:255';
-        }
+        $rules[] = $field->length !== null && $field->length !== 0 ? "max:{$field->length}" : 'max:255';
 
         // Merge with custom rules
         $rules = array_merge($rules, $this->getCommonValidationRules($field));

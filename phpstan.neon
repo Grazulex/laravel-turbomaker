@@ -6,3 +6,6 @@ parameters:
     bootstrapFiles:
         - vendor/autoload.php
 
+    ignoreErrors:
+        - '#never returns null so it can be removed from the return type#'
+

@@ -73,7 +73,7 @@ final class ForeignIdFieldType extends AbstractFieldType
             if (is_string($field->attributes['constrained'])) {
                 $modifiers[] = "constrained('{$field->attributes['constrained']}')";
             } else {
-                $modifiers[] = "constrained()";
+                $modifiers[] = 'constrained()';
             }
         }
 

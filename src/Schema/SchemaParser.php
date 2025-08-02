@@ -301,7 +301,7 @@ final class SchemaParser
         }
 
         $validTypes = [
-            'string', 'text', 'integer', 'bigInteger', 'decimal', 'float', 'double',
+            'string', 'text', 'integer', 'bigInteger', 'unsignedBigInteger', 'decimal', 'float', 'double',
             'boolean', 'date', 'datetime', 'timestamp', 'time', 'json', 'uuid',
             'email', 'url', 'foreignId', 'morphs',
         ];

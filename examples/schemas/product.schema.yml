@@ -133,8 +133,8 @@ options:
   timestamps: true
   soft_deletes: true
   traits:
-    - "App\Traits\Sluggable"
-    - "App\Traits\Searchable"
+    - 'App\Traits\Sluggable'
+    - 'App\Traits\Searchable'
 
 metadata:
   version: "1.0"

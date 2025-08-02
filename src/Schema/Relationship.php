@@ -141,7 +141,8 @@ final class Relationship
      */
     private function getBelongsToDefinition(): string
     {
-        $params = [$this->model.'::class'];
+        $modelClass = $this->formatModelClass($this->model);
+        $params = [$modelClass.'::class'];
 
         if ($this->foreignKey !== null && $this->foreignKey !== '' && $this->foreignKey !== '0') {
             $params[] = "'{$this->foreignKey}'";
@@ -159,7 +160,8 @@ final class Relationship
      */
     private function getHasOneDefinition(): string
     {
-        $params = [$this->model.'::class'];
+        $modelClass = $this->formatModelClass($this->model);
+        $params = [$modelClass.'::class'];
 
         if ($this->foreignKey !== null && $this->foreignKey !== '' && $this->foreignKey !== '0') {
             $params[] = "'{$this->foreignKey}'";
@@ -177,7 +179,8 @@ final class Relationship
      */
     private function getHasManyDefinition(): string
     {
-        $params = [$this->model.'::class'];
+        $modelClass = $this->formatModelClass($this->model);
+        $params = [$modelClass.'::class'];
 
         if ($this->foreignKey !== null && $this->foreignKey !== '' && $this->foreignKey !== '0') {
             $params[] = "'{$this->foreignKey}'";
@@ -195,7 +198,8 @@ final class Relationship
      */
     private function getBelongsToManyDefinition(): string
     {
-        $params = [$this->model.'::class'];
+        $modelClass = $this->formatModelClass($this->model);
+        $params = [$modelClass.'::class'];
 
         if ($this->pivotTable !== null && $this->pivotTable !== '' && $this->pivotTable !== '0') {
             $params[] = "'{$this->pivotTable}'";
@@ -244,7 +248,8 @@ final class Relationship
      */
     private function getMorphOneDefinition(): string
     {
-        $params = [$this->model.'::class'];
+        $modelClass = $this->formatModelClass($this->model);
+        $params = [$modelClass.'::class'];
 
         if ($this->foreignKey !== null && $this->foreignKey !== '' && $this->foreignKey !== '0') {
             $params[] = "'{$this->foreignKey}'";
@@ -258,12 +263,37 @@ final class Relationship
      */
     private function getMorphManyDefinition(): string
     {
-        $params = [$this->model.'::class'];
+        $modelClass = $this->formatModelClass($this->model);
+        $params = [$modelClass.'::class'];
 
         if ($this->foreignKey !== null && $this->foreignKey !== '' && $this->foreignKey !== '0') {
             $params[] = "'{$this->foreignKey}'";
         }
 
         return 'return $this->morphMany('.implode(', ', $params).');';
+    }
+
+    /**
+     * Format model class name for PHP code generation
+     */
+    private function formatModelClass(string $modelClass): string
+    {
+        // If it already starts with a backslash, return as is
+        if (str_starts_with($modelClass, '\\')) {
+            return $modelClass;
+        }
+
+        // If it contains App\ but doesn't start with \, add the leading backslash
+        if (str_starts_with($modelClass, 'App\\')) {
+            return '\\'.$modelClass;
+        }
+
+        // If it's just a class name without namespace, assume App\Models
+        if (! str_contains($modelClass, '\\')) {
+            return '\\App\\Models\\'.$modelClass;
+        }
+
+        // Otherwise, add leading backslash to fully qualified class name
+        return '\\'.$modelClass;
     }
 }

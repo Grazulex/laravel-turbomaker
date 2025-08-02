@@ -94,9 +94,10 @@ final class Schema
     public function getStoreValidationRules(): array
     {
         $rules = [];
+        $tableName = $this->getTableName();
 
         foreach ($this->getAllFields() as $field) {
-            $fieldRules = $field->getValidationRules();
+            $fieldRules = $field->getValidationRules($tableName);
             if (! empty($fieldRules)) {
                 $rules[$field->name] = $fieldRules;
             }
@@ -333,8 +334,22 @@ final class Schema
         $lines = ['            $table->id();'];
 
         foreach ($this->fields as $field) {
-            $definition = $field->getMigrationDefinition();
-            $lines[] = "            \$table->{$definition};";
+            $type = $field->getMigrationDefinition();
+            $modifiers = $field->getMigrationModifiers();
+            
+            // Build the base column definition
+            if ($field->length && in_array($field->type, ['string', 'char'])) {
+                $columnDef = "\$table->{$type}('{$field->name}', {$field->length})";
+            } else {
+                $columnDef = "\$table->{$type}('{$field->name}')";
+            }
+            
+            // Add modifiers
+            if (!empty($modifiers)) {
+                $columnDef .= '->' . implode('->', $modifiers);
+            }
+            
+            $lines[] = "            " . $columnDef . ";";
         }
 
         // Add foreign key constraints from relationships
@@ -382,6 +397,22 @@ final class Schema
         $storeRules = $this->getStoreValidationRules();
 
         foreach ($storeRules as $field => $fieldRules) {
+            $rulesArray = "'".implode("', '", $fieldRules)."'";
+            $rules[] = "            '{$field}' => [{$rulesArray}],";
+        }
+
+        return implode("\n", $rules);
+    }
+
+    /**
+     * Generate update validation rules string
+     */
+    public function generateUpdateValidationRulesString(): string
+    {
+        $rules = [];
+        $updateRules = $this->getUpdateValidationRules();
+
+        foreach ($updateRules as $field => $fieldRules) {
             $rulesArray = "'".implode("', '", $fieldRules)."'";
             $rules[] = "            '{$field}' => [{$rulesArray}],";
         }

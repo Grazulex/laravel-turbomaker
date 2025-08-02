@@ -45,13 +45,26 @@ final class Field
      */
     public function getMigrationDefinition(): string
     {
-        $definition = $this->type;
+        // Special handling for unsignedBigInteger
+        $type = match ($this->type) {
+            'unsignedBigInteger' => 'unsignedBigInteger',
+            default => $this->type,
+        };
 
-        if ($this->length && in_array($this->type, ['string', 'char'])) {
-            $definition .= "({$this->length})";
-        }
+        return $type;
+    }
 
+    /**
+     * Get migration column modifiers
+     */
+    public function getMigrationModifiers(): array
+    {
         $modifiers = [];
+
+        // Handle length for string types
+        if ($this->length && in_array($this->type, ['string', 'char'])) {
+            // This will be handled in the main definition
+        }
 
         if ($this->nullable) {
             $modifiers[] = 'nullable()';
@@ -74,13 +87,13 @@ final class Field
             $modifiers[] = "comment('{$this->comment}')";
         }
 
-        return $definition.($modifiers !== [] ? '->'.implode('->', $modifiers) : '');
+        return $modifiers;
     }
 
     /**
      * Get validation rules for requests
      */
-    public function getValidationRules(): array
+    public function getValidationRules(string $tableName = null): array
     {
         $rules = [];
 
@@ -90,7 +103,7 @@ final class Field
         // Type-specific rules
         match ($this->type) {
             'string', 'text' => $rules[] = 'string',
-            'integer', 'bigInteger' => $rules[] = 'integer',
+            'integer', 'bigInteger', 'unsignedBigInteger' => $rules[] = 'integer',
             'decimal', 'float', 'double' => $rules[] = 'numeric',
             'boolean' => $rules[] = 'boolean',
             'date' => $rules[] = 'date',
@@ -107,15 +120,28 @@ final class Field
 
         // Unique constraint
         if ($this->unique) {
-            $rules[] = 'unique:{{table_name}},'.$this->name;
+            $table = $tableName ?: '{{table_name}}';
+            $rules[] = "unique:{$table},{$this->name}";
         }
 
-        // Custom validation rules
+        // Custom validation rules - merge intelligently to avoid duplicates
         if ($this->validationRules !== []) {
-            return array_merge($rules, $this->validationRules);
+            // Merge custom rules but avoid conflicts
+            foreach ($this->validationRules as $customRule) {
+                // Check for rule conflicts (e.g., multiple max: rules)
+                $ruleName = explode(':', $customRule)[0];
+                
+                // Remove existing rule of same type to avoid conflicts
+                $rules = array_filter($rules, function ($rule) use ($ruleName) {
+                    return ! str_starts_with($rule, $ruleName.':');
+                });
+                
+                $rules[] = $customRule;
+            }
         }
 
-        return $rules;
+        // Remove exact duplicates while preserving order
+        return array_values(array_unique($rules));
     }
 
     /**

@@ -6,8 +6,10 @@ namespace Grazulex\LaravelTurbomaker;
 
 use Grazulex\LaravelTurbomaker\Console\Commands\TurboApiCommand;
 use Grazulex\LaravelTurbomaker\Console\Commands\TurboMakeCommand;
+use Grazulex\LaravelTurbomaker\Console\Commands\TurboSchemaCommand;
 use Grazulex\LaravelTurbomaker\Console\Commands\TurboTestCommand;
 use Grazulex\LaravelTurbomaker\Console\Commands\TurboViewCommand;
+use Grazulex\LaravelTurbomaker\Schema\SchemaParser;
 use Illuminate\Support\ServiceProvider;
 
 final class LaravelTurbomakerServiceProvider extends ServiceProvider
@@ -23,6 +25,10 @@ final class LaravelTurbomakerServiceProvider extends ServiceProvider
             'turbomaker'
         );
 
+        // Register schema services
+        $this->app->singleton(SchemaParser::class);
+        $this->app->singleton(TurboSchemaManager::class);
+
         // Register the main manager
         $this->app->singleton(TurbomakerManager::class, function ($app): TurbomakerManager {
             return new TurbomakerManager($app);
@@ -36,6 +42,7 @@ final class LaravelTurbomakerServiceProvider extends ServiceProvider
         $this->app->singleton(TurboViewCommand::class);
         $this->app->singleton(TurboApiCommand::class);
         $this->app->singleton(TurboTestCommand::class);
+        $this->app->singleton(TurboSchemaCommand::class);
     }
 
     /**
@@ -60,6 +67,7 @@ final class LaravelTurbomakerServiceProvider extends ServiceProvider
                 TurboViewCommand::class,
                 TurboApiCommand::class,
                 TurboTestCommand::class,
+                TurboSchemaCommand::class,
             ]);
         }
 

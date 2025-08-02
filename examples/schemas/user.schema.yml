@@ -1,0 +1,103 @@
+# User Schema Example
+# Simple user model with basic fields and relationships
+
+fields:
+  first_name:
+    type: string
+    length: 100
+    nullable: false
+    validation:
+      - "min:2"
+      - "max:100"
+      - "alpha"
+
+  last_name:
+    type: string
+    length: 100
+    nullable: false
+    validation:
+      - "min:2"
+      - "max:100"
+      - "alpha"
+
+  email:
+    type: email
+    length: 255
+    nullable: false
+    unique: true
+    validation:
+      - "email"
+      - "max:255"
+
+  email_verified_at:
+    type: timestamp
+    nullable: true
+
+  password:
+    type: string
+    length: 255
+    nullable: false
+    validation:
+      - "min:8"
+    factory:
+      - "Hash::make('password')"
+
+  phone:
+    type: string
+    length: 20
+    nullable: true
+    validation:
+      - "regex:/^[\+]?[0-9\s\-\(\)]+$/"
+
+  birth_date:
+    type: date
+    nullable: true
+    validation:
+      - "date"
+      - "before:today"
+
+  is_admin:
+    type: boolean
+    nullable: false
+    default: false
+
+  last_login_at:
+    type: datetime
+    nullable: true
+
+relationships:
+  profile:
+    type: hasOne
+    model: App\Models\UserProfile
+    foreign_key: user_id
+
+  posts:
+    type: hasMany
+    model: App\Models\Post
+    foreign_key: author_id
+
+  roles:
+    type: belongsToMany
+    model: App\Models\Role
+    pivot_table: user_roles
+    with_timestamps: true
+
+  orders:
+    type: hasMany
+    model: App\Models\Order
+    foreign_key: user_id
+
+options:
+  table: users
+  timestamps: true
+  soft_deletes: false
+  traits:
+    - "Illuminate\Foundation\Auth\User"
+    - "Laravel\Sanctum\HasApiTokens"
+
+metadata:
+  version: "1.0"
+  description: "Basic user model for authentication"
+  tags:
+    - "auth"
+    - "user"

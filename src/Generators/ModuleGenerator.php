@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Grazulex\LaravelTurbomaker\Generators;
 
+use Grazulex\LaravelTurbomaker\Schema\Schema;
+use Grazulex\LaravelTurbomaker\Schema\SchemaParser;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;
 
@@ -11,18 +13,21 @@ final class ModuleGenerator
 {
     private Filesystem $files;
 
+    private SchemaParser $schemaParser;
+
     private array $generators;
 
-    public function __construct(Filesystem $files)
+    public function __construct(Filesystem $files, ?SchemaParser $schemaParser = null)
     {
         $this->files = $files;
+        $this->schemaParser = $schemaParser ?? new SchemaParser();
         $this->initializeGenerators();
     }
 
-    public function generate(string $name, array $options = []): array
+    public function generate(string $name, array $options = [], ?Schema $schema = null): array
     {
         $generatedFiles = [];
-        $context = $this->buildContext($name, $options);
+        $context = $this->buildContext($name, $options, $schema);
 
         // Generate in order of dependencies
         $generationOrder = [
@@ -56,25 +61,25 @@ final class ModuleGenerator
     private function initializeGenerators(): void
     {
         $this->generators = [
-            'migration' => new MigrationGenerator($this->files),
-            'model' => new ModelGenerator($this->files),
-            'factory' => new FactoryGenerator($this->files),
-            'seeder' => new SeederGenerator($this->files),
-            'policy' => new PolicyGenerator($this->files),
-            'rules' => new RuleGenerator($this->files),
-            'observers' => new ObserverGenerator($this->files),
-            'request' => new RequestGenerator($this->files),
-            'resource' => new ResourceGenerator($this->files),
-            'actions' => new ActionGenerator($this->files),
-            'services' => new ServiceGenerator($this->files),
-            'controller' => new ControllerGenerator($this->files),
-            'routes' => new RouteGenerator($this->files),
-            'views' => new ViewGenerator($this->files),
-            'tests' => new TestGenerator($this->files),
+            'migration' => new MigrationGenerator($this->files, $this->schemaParser),
+            'model' => new ModelGenerator($this->files, $this->schemaParser),
+            'factory' => new FactoryGenerator($this->files, $this->schemaParser),
+            'seeder' => new SeederGenerator($this->files, $this->schemaParser),
+            'policy' => new PolicyGenerator($this->files, $this->schemaParser),
+            'rules' => new RuleGenerator($this->files, $this->schemaParser),
+            'observers' => new ObserverGenerator($this->files, $this->schemaParser),
+            'request' => new RequestGenerator($this->files, $this->schemaParser),
+            'resource' => new ResourceGenerator($this->files, $this->schemaParser),
+            'actions' => new ActionGenerator($this->files, $this->schemaParser),
+            'services' => new ServiceGenerator($this->files, $this->schemaParser),
+            'controller' => new ControllerGenerator($this->files, $this->schemaParser),
+            'routes' => new RouteGenerator($this->files, $this->schemaParser),
+            'views' => new ViewGenerator($this->files, $this->schemaParser),
+            'tests' => new TestGenerator($this->files, $this->schemaParser),
         ];
     }
 
-    private function buildContext(string $name, array $options): array
+    private function buildContext(string $name, array $options, ?Schema $schema = null): array
     {
         $studlyName = Str::studly($name);
         $snakeName = Str::snake($name);
@@ -83,7 +88,7 @@ final class ModuleGenerator
         $pluralSnake = Str::snake(Str::plural($name));
         $pluralKebab = Str::kebab(Str::plural($name));
 
-        return [
+        $context = [
             'name' => $name,
             'studly_name' => $studlyName,
             'snake_name' => $snakeName,
@@ -109,6 +114,13 @@ final class ModuleGenerator
                 'has_one' => $options['has_one'] ?? [],
             ],
         ];
+
+        // Add schema to context if provided
+        if ($schema instanceof Schema) {
+            $context['schema'] = $schema;
+        }
+
+        return $context;
     }
 
     private function shouldGenerate(string $type, array $options): bool

@@ -14,7 +14,7 @@ final class {{ factory_class }} extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->name(),
+{{ schema_factory_definitions }}
         ];
     }
 }

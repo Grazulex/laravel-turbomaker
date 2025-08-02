@@ -22,10 +22,13 @@ With a single command, you can scaffold complete modules (models, migrations, co
 ## ✨ Features
 
 - **⚡ One-command scaffolding** – Generate a full CRUD or API module instantly
+- **📋 Schema-based generation** – Define models with YAML schemas for complex projects
 - **📦 Complete structure** – Models, controllers, migrations, requests, resources, views & tests
 - **🔒 Security ready** – Generates Policies and authentication hooks out of the box
 - **🧪 Built-in testing** – Pest tests automatically generated for each action
-- **🔌 Extensible** – Add your own templates or modify the defaults
+- **🔌 Extensible field types** – 28+ built-in types + create custom field types
+- **⚙️ Advanced generators** – Actions, Services, Rules, Observers for clean architecture
+- **🎨 Custom templates** – Override stubs and templates to match your coding style
 - **🌐 API & Web ready** – Separate API Resources & Controllers when needed
 - **🚀 Laravel 11+ compatible** – Auto-detection and smart configuration
 
@@ -60,6 +63,15 @@ php artisan turbo:make Post
 - **Routes**: Both web and API routes with correct naming
 - **Tests**: Feature and unit tests using Pest framework
 - **Factory**: Model factory for testing and seeding
+
+### Schema-Based Development
+```bash
+# Create a schema file
+php artisan turbo:schema create Product --fields="name:string,price:decimal,category_id:foreignId"
+
+# Generate from schema
+php artisan turbo:make Product --schema=Product
+```
 
 ### API-First Development
 ```bash
@@ -99,6 +111,7 @@ Automatically handles foreign keys, model relationships, and form integration.
 |---------|---------|---------|
 | `turbo:make {name}` | Generate complete module | `turbo:make Post --tests --factory` |
 | `turbo:api {name}` | API-only module | `turbo:api Product --policies --tests` |
+| `turbo:schema {action}` | Manage YAML schemas | `turbo:schema create Product --fields="name:string"` |
 | `turbo:view {name}` | Views only | `turbo:view Product` |
 | `turbo:test {name}` | Tests only | `turbo:test User --feature --unit` |
 
@@ -106,10 +119,16 @@ Automatically handles foreign keys, model relationships, and form integration.
 
 | Option | Description |
 |--------|-------------|
+| `--schema=Product` | Use YAML schema for generation |
+| `--fields="name:string,email:email"` | Quick field definition |
 | `--tests` | Generate Pest tests |
 | `--factory` | Generate model factory |
 | `--seeder` | Generate seeder |
 | `--policies` | Generate policies |
+| `--actions` | Generate action classes |
+| `--services` | Generate service classes |
+| `--rules` | Generate validation rules |
+| `--observers` | Generate model observers |
 | `--belongs-to=User` | Add belongs-to relationship |
 | `--has-many=Comment` | Add has-many relationship |
 | `--force` | Overwrite existing files |
@@ -134,11 +153,37 @@ See the [Configuration Wiki](https://github.com/Grazulex/laravel-turbomaker/wiki
 
 ---
 
+## 🎯 Field Types & Extensibility
+
+TurboMaker includes **28+ built-in field types** and supports custom field type creation:
+
+### Built-in Types
+**String Types**: `string`, `text`, `longText`, `mediumText`  
+**Integer Types**: `integer`, `bigInteger`, `unsignedBigInteger`, `tinyInteger`, `smallInteger`  
+**Numeric Types**: `decimal`, `float`, `double`, `boolean`  
+**Date/Time**: `date`, `dateTime`, `timestamp`, `time`  
+**Special Types**: `json`, `uuid`, `email`, `url`, `foreignId`, `morphs`, `binary`
+
+### Custom Field Types
+Create your own field types by extending `AbstractFieldType`:
+
+```php
+// config/turbomaker.php
+'custom_field_types' => [
+    'money' => App\TurboMaker\FieldTypes\MoneyFieldType::class,
+    'slug' => App\TurboMaker\FieldTypes\SlugFieldType::class,
+],
+```
+
+See the [Field Types Wiki](https://github.com/Grazulex/laravel-turbomaker/wiki/Field-Types) for complete documentation.
+
+---
+
 ## 🆕 Version Compatibility
 
 | TurboMaker | PHP | Laravel |
 |------------|-----|---------|
-| 1.x        | 8.3+ | 11.x \| 12.x |
+| 2.x        | 8.3+ | 11.x \| 12.x |
 
 ---
 

@@ -1,4 +1,4 @@
-# Laravel TurboMaker V6: Extensible Field Type Architecture
+# Laravel TurboMaker V2: Extensible Field Type Architecture
 
 ## 🎯 Mission Accomplished
 
@@ -144,7 +144,7 @@ match ($this->type) {
 }
 ```
 
-### After (V6)
+### After (V2)
 ```php
 // Clean delegation to specialized classes
 $fieldType = FieldTypeRegistry::get($this->type);
@@ -194,4 +194,4 @@ This architecture enables:
 
 ---
 
-*"Laravel TurboMaker V6 transforms from a monolithic system to an extensible, community-driven architecture while maintaining 100% backward compatibility and zero breaking changes."*
+*"Laravel TurboMaker V2 transforms from a monolithic system to an extensible, community-driven architecture while maintaining 100% backward compatibility and zero breaking changes."*

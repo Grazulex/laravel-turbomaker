@@ -28,7 +28,7 @@ final class Relationship
         return new self(
             name: $name,
             type: $config['type'],
-            model: $config['model'],
+            model: $config['model'] ?? '', // Allow empty model for morphTo
             foreignKey: $config['foreign_key'] ?? null,
             localKey: $config['local_key'] ?? null,
             pivotTable: $config['pivot_table'] ?? null,

@@ -80,7 +80,7 @@ final class Relationship
     public function getFactoryDefinition(): string
     {
         return match ($this->type) {
-            'belongsTo' => $this->model.'::factory()',
+            'belongsTo' => $this->model !== '' ? $this->model.'::factory()' : '// Factory for empty model',
             'hasOne', 'hasMany' => "// {$this->name} will be created separately",
             'belongsToMany' => "// {$this->name} will be attached separately",
             default => "// {$this->name} relationship",
@@ -100,7 +100,7 @@ final class Relationship
      */
     public function getValidationRules(): array
     {
-        if ($this->type !== 'belongsTo') {
+        if ($this->type !== 'belongsTo' || $this->model === '') {
             return [];
         }
 
@@ -116,7 +116,7 @@ final class Relationship
      */
     public function generateForeignKeyConstraint(): ?string
     {
-        if ($this->type !== 'belongsTo') {
+        if ($this->type !== 'belongsTo' || $this->model === '') {
             return null;
         }
 
@@ -248,6 +248,10 @@ final class Relationship
      */
     private function getMorphOneDefinition(): string
     {
+        if ($this->model === '') {
+            return 'return $this->morphOne();';
+        }
+        
         $modelClass = $this->formatModelClass($this->model);
         $params = [$modelClass.'::class'];
 
@@ -263,6 +267,10 @@ final class Relationship
      */
     private function getMorphManyDefinition(): string
     {
+        if ($this->model === '') {
+            return 'return $this->morphMany();';
+        }
+        
         $modelClass = $this->formatModelClass($this->model);
         $params = [$modelClass.'::class'];
 

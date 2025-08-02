@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Grazulex\LaravelTurbomaker\Schema;
 
+use Grazulex\LaravelTurbomaker\Schema\FieldTypes\FieldTypeRegistry;
+
 final class Field
 {
     public function __construct(
@@ -45,13 +47,8 @@ final class Field
      */
     public function getMigrationDefinition(): string
     {
-        // Special handling for unsignedBigInteger
-        $type = match ($this->type) {
-            'unsignedBigInteger' => 'unsignedBigInteger',
-            default => $this->type,
-        };
-
-        return $type;
+        $fieldType = FieldTypeRegistry::get($this->type);
+        return $fieldType->getMigrationDefinition($this);
     }
 
     /**
@@ -59,35 +56,8 @@ final class Field
      */
     public function getMigrationModifiers(): array
     {
-        $modifiers = [];
-
-        // Handle length for string types
-        if ($this->length && in_array($this->type, ['string', 'char'])) {
-            // This will be handled in the main definition
-        }
-
-        if ($this->nullable) {
-            $modifiers[] = 'nullable()';
-        }
-
-        if ($this->unique) {
-            $modifiers[] = 'unique()';
-        }
-
-        if ($this->index) {
-            $modifiers[] = 'index()';
-        }
-
-        if ($this->default !== null) {
-            $defaultValue = is_string($this->default) ? "'{$this->default}'" : $this->default;
-            $modifiers[] = "default({$defaultValue})";
-        }
-
-        if ($this->comment !== null && $this->comment !== '' && $this->comment !== '0') {
-            $modifiers[] = "comment('{$this->comment}')";
-        }
-
-        return $modifiers;
+        $fieldType = FieldTypeRegistry::get($this->type);
+        return $fieldType->getMigrationModifiers($this);
     }
 
     /**
@@ -95,52 +65,18 @@ final class Field
      */
     public function getValidationRules(string $tableName = null): array
     {
-        $rules = [];
+        $fieldType = FieldTypeRegistry::get($this->type);
+        $rules = $fieldType->getValidationRules($this);
 
-        // Base required rule
-        $rules[] = $this->nullable ? 'nullable' : 'required';
-
-        // Type-specific rules
-        match ($this->type) {
-            'string', 'text' => $rules[] = 'string',
-            'integer', 'bigInteger', 'unsignedBigInteger' => $rules[] = 'integer',
-            'decimal', 'float', 'double' => $rules[] = 'numeric',
-            'boolean' => $rules[] = 'boolean',
-            'date' => $rules[] = 'date',
-            'datetime', 'timestamp' => $rules[] = 'date',
-            'email' => $rules = array_merge($rules, ['string', 'email']),
-            'url' => $rules = array_merge($rules, ['string', 'url']),
-            default => null,
-        };
-
-        // Length constraints
-        if ($this->length && in_array($this->type, ['string', 'text'])) {
-            $rules[] = "max:{$this->length}";
+        // Add table-specific unique constraint if needed
+        if ($this->unique && $tableName) {
+            // Remove any existing unique rule and add table-specific one
+            $rules = array_filter($rules, function ($rule) {
+                return !str_starts_with($rule, 'unique:');
+            });
+            $rules[] = "unique:{$tableName},{$this->name}";
         }
 
-        // Unique constraint
-        if ($this->unique) {
-            $table = $tableName ?: '{{table_name}}';
-            $rules[] = "unique:{$table},{$this->name}";
-        }
-
-        // Custom validation rules - merge intelligently to avoid duplicates
-        if ($this->validationRules !== []) {
-            // Merge custom rules but avoid conflicts
-            foreach ($this->validationRules as $customRule) {
-                // Check for rule conflicts (e.g., multiple max: rules)
-                $ruleName = explode(':', $customRule)[0];
-                
-                // Remove existing rule of same type to avoid conflicts
-                $rules = array_filter($rules, function ($rule) use ($ruleName) {
-                    return ! str_starts_with($rule, $ruleName.':');
-                });
-                
-                $rules[] = $customRule;
-            }
-        }
-
-        // Remove exact duplicates while preserving order
         return array_values(array_unique($rules));
     }
 
@@ -149,25 +85,8 @@ final class Field
      */
     public function getFactoryDefinition(): string
     {
-        // Custom factory rules take precedence
-        if ($this->factoryRules !== []) {
-            return implode('->', $this->factoryRules);
-        }
-
-        // Default factory based on type and name
-        return match ($this->type) {
-            'string' => $this->getStringFactoryDefinition(),
-            'text' => 'fake()->paragraph()',
-            'integer' => 'fake()->numberBetween(1, 1000)',
-            'bigInteger', 'unsignedBigInteger' => 'fake()->numberBetween(1, 999999)',
-            'decimal', 'float', 'double' => 'fake()->randomFloat(2, 0, 999)',
-            'boolean' => 'fake()->boolean()',
-            'date' => 'fake()->date()',
-            'datetime', 'timestamp' => 'fake()->dateTime()',
-            'email' => 'fake()->unique()->safeEmail()',
-            'url' => 'fake()->url()',
-            default => 'null',
-        };
+        $fieldType = FieldTypeRegistry::get($this->type);
+        return $fieldType->getFactoryDefinition($this);
     }
 
     /**
@@ -184,38 +103,8 @@ final class Field
      */
     public function getCastType(): ?string
     {
-        return match ($this->type) {
-            'boolean' => 'boolean',
-            'integer', 'bigInteger', 'unsignedBigInteger' => 'integer',
-            'decimal', 'float', 'double' => 'decimal:2',
-            'date' => 'date',
-            'datetime', 'timestamp' => 'datetime',
-            'json' => 'array',
-            default => null,
-        };
+        $fieldType = FieldTypeRegistry::get($this->type);
+        return $fieldType->getCastType($this);
     }
 
-    /**
-     * Get string factory definition based on field name
-     */
-    private function getStringFactoryDefinition(): string
-    {
-        $name = mb_strtolower($this->name);
-
-        return match (true) {
-            str_contains($name, 'email') => 'fake()->unique()->safeEmail()',
-            str_contains($name, 'name') && str_contains($name, 'first') => 'fake()->firstName()',
-            str_contains($name, 'name') && str_contains($name, 'last') => 'fake()->lastName()',
-            str_contains($name, 'name') => 'fake()->name()',
-            str_contains($name, 'phone') => 'fake()->phoneNumber()',
-            str_contains($name, 'address') => 'fake()->address()',
-            str_contains($name, 'city') => 'fake()->city()',
-            str_contains($name, 'country') => 'fake()->country()',
-            str_contains($name, 'title') => 'fake()->sentence(3)',
-            str_contains($name, 'slug') => 'fake()->slug()',
-            str_contains($name, 'uuid') => 'fake()->uuid()',
-            $this->length && $this->length <= 50 => 'fake()->word()',
-            default => $this->length !== null && $this->length !== 0 ? "fake()->text({$this->length})" : 'fake()->sentence()',
-        };
-    }
 }

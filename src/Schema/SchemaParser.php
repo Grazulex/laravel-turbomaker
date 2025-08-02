@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Grazulex\LaravelTurbomaker\Schema;
 
 use Exception;
+use Grazulex\LaravelTurbomaker\Schema\FieldTypes\FieldTypeRegistry;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 use InvalidArgumentException;
@@ -300,13 +301,8 @@ final class SchemaParser
             throw new InvalidArgumentException("Field '{$fieldName}' must have a type");
         }
 
-        $validTypes = [
-            'string', 'text', 'integer', 'bigInteger', 'unsignedBigInteger', 'decimal', 'float', 'double',
-            'boolean', 'date', 'datetime', 'timestamp', 'time', 'json', 'uuid',
-            'email', 'url', 'foreignId', 'morphs',
-        ];
-
-        if (! in_array($fieldConfig['type'], $validTypes)) {
+        // Use FieldTypeRegistry to validate field types
+        if (! FieldTypeRegistry::has($fieldConfig['type'])) {
             throw new InvalidArgumentException("Invalid field type '{$fieldConfig['type']}' for field '{$fieldName}'");
         }
     }

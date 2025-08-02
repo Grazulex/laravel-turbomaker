@@ -1,0 +1,119 @@
+name: "Product"
+table_name: "products"
+
+fields:
+  id:
+    type: unsignedBigInteger
+    nullable: false
+    unique: true
+    comment: "Primary key"
+  
+  name:
+    type: string
+    length: 255
+    nullable: false
+    index: true
+    validation: ["min:3"]
+    
+  slug:
+    type: string
+    length: 255
+    nullable: false
+    unique: true
+    validation: ["regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/"]
+    factory: ["slug()"]
+    
+  description:
+    type: longText
+    nullable: true
+    comment: "Product description"
+    
+  short_description:
+    type: text
+    nullable: true
+    
+  price:
+    type: decimal
+    nullable: false
+    attributes:
+      precision: 10
+      scale: 2
+    validation: ["numeric", "min:0"]
+    
+  weight:
+    type: decimal
+    nullable: true
+    attributes:
+      precision: 8
+      scale: 3
+    
+  is_active:
+    type: boolean
+    nullable: false
+    default: true
+    
+  category_id:
+    type: unsignedBigInteger
+    nullable: false
+    index: true
+    
+  brand_id:
+    type: unsignedBigInteger
+    nullable: true
+    index: true
+    
+  sku:
+    type: string
+    length: 100
+    nullable: false
+    unique: true
+    comment: "Stock Keeping Unit"
+    
+  barcode:
+    type: string
+    length: 50
+    nullable: true
+    unique: true
+    
+  stock_quantity:
+    type: integer
+    nullable: false
+    default: 0
+    validation: ["min:0"]
+    
+  meta_data:
+    type: json
+    nullable: true
+    comment: "Additional product metadata"
+    
+  published_at:
+    type: timestamp
+    nullable: true
+    
+  created_at:
+    type: timestamp
+    nullable: false
+    
+  updated_at:
+    type: timestamp
+    nullable: false
+
+relationships:
+  category:
+    type: belongsTo
+    model: "Category"
+    foreign_key: "category_id"
+    
+  brand:
+    type: belongsTo
+    model: "Brand"
+    foreign_key: "brand_id"
+    
+  orders:
+    type: belongsToMany
+    model: "Order"
+    pivot_table: "order_product"
+    
+  reviews:
+    type: hasMany
+    model: "Review"

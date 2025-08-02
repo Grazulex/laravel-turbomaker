@@ -48,11 +48,14 @@ it('can generate migration definition for a field', function () {
         length: 255
     );
 
+    // Test that the field type is correct
     $definition = $field->getMigrationDefinition();
-
-    expect($definition)->toContain('string(255)');
-    expect($definition)->toContain('nullable()');
-    expect($definition)->toContain('unique()');
+    expect($definition)->toBe('string');
+    
+    // Test that modifiers are generated correctly
+    $modifiers = $field->getMigrationModifiers();
+    expect($modifiers)->toContain('nullable()');
+    expect($modifiers)->toContain('unique()');
 });
 
 it('can create a relationship', function () {

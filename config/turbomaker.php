@@ -189,4 +189,24 @@ return [
         'include_timestamps' => true,
         'compress_output' => false,
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Custom Field Types
+    |--------------------------------------------------------------------------
+    |
+    | Register custom field types that extend the built-in functionality.
+    | Each entry should map a type name to a class that implements
+    | FieldTypeInterface.
+    |
+    | Example:
+    | 'custom_field_types' => [
+    |     'money' => App\TurboMaker\FieldTypes\MoneyFieldType::class,
+    |     'slug' => App\TurboMaker\FieldTypes\SlugFieldType::class,
+    | ],
+    |
+    */
+    'custom_field_types' => [
+        // Add your custom field types here
+    ],
 ];

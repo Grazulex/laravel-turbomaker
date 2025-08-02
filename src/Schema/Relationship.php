@@ -283,17 +283,13 @@ final class Relationship
             return $modelClass;
         }
 
-        // If it contains App\ but doesn't start with \, add the leading backslash
-        if (str_starts_with($modelClass, 'App\\')) {
-            return '\\'.$modelClass;
-        }
-
         // If it's just a class name without namespace, assume App\Models
         if (! str_contains($modelClass, '\\')) {
             return '\\App\\Models\\'.$modelClass;
         }
 
-        // Otherwise, add leading backslash to fully qualified class name
+        // If it contains namespace but no leading backslash, add one
+        // Important: Don't double the internal backslashes
         return '\\'.$modelClass;
     }
 }

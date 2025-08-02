@@ -53,9 +53,10 @@ final class Schema
         $allFields = $this->fields;
 
         // Add foreign key fields from belongsTo relationships
+        // Only add if not already defined in schema
         foreach ($this->relationships as $relationship) {
             $foreignKeyField = $relationship->getForeignKeyField();
-            if ($foreignKeyField) {
+            if ($foreignKeyField && !isset($allFields[$foreignKeyField->name])) {
                 $allFields[$foreignKeyField->name] = $foreignKeyField;
             }
         }
@@ -353,9 +354,17 @@ final class Schema
         }
 
         // Add foreign key constraints from relationships
+        // But only if the field is not already defined in the schema
+        $definedFields = array_keys($this->fields);
         foreach ($this->relationships as $relationship) {
-            if ($constraint = $relationship->generateForeignKeyConstraint()) {
-                $lines[] = $constraint;
+            if ($relationship->type === 'belongsTo') {
+                $foreignKey = $relationship->foreignKey ?? mb_strtolower($relationship->name).'_id';
+                // Only add constraint if the field is not already defined in schema
+                if (!in_array($foreignKey, $definedFields)) {
+                    if ($constraint = $relationship->generateForeignKeyConstraint()) {
+                        $lines[] = $constraint;
+                    }
+                }
             }
         }
 

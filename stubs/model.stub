@@ -13,7 +13,7 @@ final class {{ class }} extends Model
 {
     use {{ model_traits }};
 
-    protected $fillable = [{{ schema_fillable_array }}{{ fillable }}];
+    protected $fillable = [{{ schema_fillable_array }}];
 
     protected $casts = [
 {{ schema_casts_array }}

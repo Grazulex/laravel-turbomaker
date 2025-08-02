@@ -159,7 +159,7 @@ final class Field
             'string' => $this->getStringFactoryDefinition(),
             'text' => 'fake()->paragraph()',
             'integer' => 'fake()->numberBetween(1, 1000)',
-            'bigInteger' => 'fake()->numberBetween(1, 999999)',
+            'bigInteger', 'unsignedBigInteger' => 'fake()->numberBetween(1, 999999)',
             'decimal', 'float', 'double' => 'fake()->randomFloat(2, 0, 999)',
             'boolean' => 'fake()->boolean()',
             'date' => 'fake()->date()',
@@ -186,7 +186,7 @@ final class Field
     {
         return match ($this->type) {
             'boolean' => 'boolean',
-            'integer', 'bigInteger' => 'integer',
+            'integer', 'bigInteger', 'unsignedBigInteger' => 'integer',
             'decimal', 'float', 'double' => 'decimal:2',
             'date' => 'date',
             'datetime', 'timestamp' => 'datetime',

@@ -198,7 +198,7 @@ abstract class BaseGenerator
 
     protected function generateFillable(array $context): string
     {
-        $fillable = ['name']; // Default fillable field
+        $fillable = []; // No default fields, use schema definition
 
         // Add foreign keys for belongs_to relationships
         foreach ($context['relationships']['belongs_to'] as $relation) {

@@ -283,13 +283,15 @@ final class Relationship
             return $modelClass;
         }
 
+        // If it contains double backslashes (from YAML), normalize them first
+        $modelClass = str_replace('\\\\', '\\', $modelClass);
+
         // If it's just a class name without namespace, assume App\Models
         if (! str_contains($modelClass, '\\')) {
             return '\\App\\Models\\'.$modelClass;
         }
 
         // If it contains namespace but no leading backslash, add one
-        // Important: Don't double the internal backslashes
         return '\\'.$modelClass;
     }
 }

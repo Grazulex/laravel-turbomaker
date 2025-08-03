@@ -28,9 +28,16 @@ Ce docume### ✅ **Phases Terminées**
 - Validation renforcée avec double validation (ModelSchema + originale)
 - Résolution de schémas améliorée avec support fragments
 - `TurboSchemaManagerAdapter` créé pour pattern de composition
-- Compatibilité 100% préservée (tous les 138 tests passent)
+- Compatibilité 100% préservée (tous les 137 tests passent)
 - Tests organisés avec groupes Pest 3 (`migration`, `adapters`, `turbo-schema-manager`, `enhanced-manager`)
 - 25 tests de migration passent avec 107 assertions
+
+**✅ Résolution des conflits PHPStan/Pint :**
+- Configuration Pint mise à jour : `"final_class": false`, `"final_internal_class": false`
+- Toutes les erreurs PHPStan résolues (0 erreur)
+- Adaptateurs corrigés avec API appropriée (FieldTypeRegistry.has(), ModelSchema objects)
+- Classes non-final pour compatibilité tests Mockery
+- 137 tests passent avec 634 assertions
 
 ### 🚧 **Phase en Cours : Phase 5**plan complet de migration de TurboMaker vers le package externe `laravel-modelschema` pour centraliser la gestion des schémas YAML.
 
@@ -77,7 +84,40 @@ Cette migration utilise **Pest 3 Groups** pour organiser et distinguer les tests
 
 ---
 
-## 🗂 Composants à Migrer
+## � Résolution des Problèmes Techniques
+
+### Conflits Pint vs PHPStan/Mockery ✅ RÉSOLU
+
+**Problème identifié :**
+- Pint ajoutait automatiquement `final` aux classes via les règles `final_class: true` et `final_internal_class: true`
+- Cela causait des conflits avec Mockery dans les tests (impossible de mocker des classes final)
+- PHPStan signalait des erreurs d'API (méthodes incorrectes, types incompatibles)
+
+**Solution appliquée :**
+```json
+// pint.json - Configuration mise à jour
+{
+  "final_class": false,          // ❌ Désactivé pour éviter conflicts Mockery
+  "final_internal_class": false, // ❌ Désactivé pour éviter conflicts Mockery
+  "final_public_method_for_abstract_class": false
+}
+```
+
+**Corrections API effectuées :**
+- `FieldTypeAdapter` : `hasType()` → `has()` (FieldTypeRegistry)
+- `ModelSchemaAdapter` : Retour d'objets ModelSchema via `fromArray()`
+- `FragmentAdapter` : Génération de strings depuis ModelSchema arrays
+- `SchemaParserAdapter` : Délégation correcte vers `getAllSchemas()`, `exists()`
+
+**Résultat :**
+- ✅ 137 tests passent (634 assertions)
+- ✅ PHPStan : 0 erreur
+- ✅ Pint ne remet plus les classes en `final`
+- ✅ Tests Mockery fonctionnels
+
+---
+
+## �🗂 Composants à Migrer
 
 ### Fichiers Principaux à Remplacer/Adapter
 - [ ] `src/Schema/SchemaParser.php` → `SchemaService`
@@ -125,8 +165,10 @@ Cette migration utilise **Pest 3 Groups** pour organiser et distinguer les tests
 
 ### 📈 **Métriques de Progression**
 - **Tests Migration** : 25 tests ✅ (107 assertions)
-- **Tests Existants** : 138 tests ✅ (647 assertions) 
+- **Tests Existants** : 137 tests ✅ (634 assertions) 
 - **Compatibilité** : 100% des tests existants passent
+- **PHPStan** : 0 erreur ✅
+- **Configuration** : Pint configuré pour éviter les conflits avec Mockery
 - **Coverage Migration** : TurboSchemaManager complètement amélioré avec capacités ModelSchema
 
 ---
@@ -244,12 +286,17 @@ Cette organisation permet de :
 - Résolution de schémas avec détection automatique des formats ModelSchema
 - `TurboSchemaManagerAdapter` créé pour pattern de composition avancée
 - Tests organisés avec groupes Pest 3 (`migration`, `adapters`, `turbo-schema-manager`, `enhanced-manager`)
-- Tous les 138 tests passent, compatibilité 100% préservée
+- Tous les 137 tests passent, compatibilité 100% préservée
+- PHPStan: 0 erreur, Pint configuré pour éviter les conflits Mockery
 
 #### Tests
 - [x] **4.6** Tests de validation avec les nouveaux validateurs ✅ (5 tests)
 - [x] **4.7** Tests de l'adaptateur avec composition et délégation ✅ (5 tests)
 - [x] **4.8** Tests de compatibilité avec l'API existante ✅ (5 tests rétrocompatibilité)
+- [x] **4.9** Résolution des conflits PHPStan/Pint ✅
+  - Configuration `pint.json` mise à jour (`final_class: false`)
+  - Correction des APIs (FieldTypeRegistry, ModelSchema objects)
+  - Tests Mockery compatibles (classes non-final)
 
 ### Phase 5: Migration des Field Types
 #### Tâches
@@ -261,6 +308,11 @@ Cette organisation permet de :
 - [ ] **5.2** Migrer `FieldTypeRegistry` vers `FieldTypePluginManager`
 - [ ] **5.3** Adapter la validation des field types
 - [ ] **5.4** Configurer l'auto-discovery des plugins
+
+**📋 Notes importantes :**
+- Configuration Pint mise à jour pour éviter les conflits avec Mockery
+- Les règles `final_class` et `final_internal_class` désactivées dans `pint.json`
+- Cela évite que Pint remette automatiquement les classes en `final`
 
 #### Tests
 - [ ] **5.5** Tests pour chaque plugin de field type

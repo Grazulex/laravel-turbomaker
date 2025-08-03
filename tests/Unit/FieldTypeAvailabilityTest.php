@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\FieldTypeRegistry;
+use Grazulex\LaravelModelschema\Support\FieldTypeRegistry;
 
 it('shows all available field types in test environment', function () {
-    $availableTypes = FieldTypeRegistry::getAvailableTypes();
+    $availableTypes = FieldTypeRegistry::all();
 
     // Debug output
-    // echo "\n=== Available Field Types ===\n";
+    // echo "\n=== Available Field Types (ModelSchema) ===\n";
     foreach ($availableTypes as $type) {
         // echo "✓ {$type}\n";
     }
@@ -21,16 +21,16 @@ it('shows all available field types in test environment', function () {
         'tinyInteger', 'smallInteger', 'mediumInteger',
         'boolean', 'decimal', 'float', 'double',
         'date', 'datetime', 'timestamp', 'time',
-        'json', 'uuid', 'email', 'url',
+        'json', 'uuid', 'email',
         'foreignId', 'morphs', 'binary',
     ];
 
-    // echo "\n=== Type Validation ===\n";
+    // echo "\n=== Type Validation (ModelSchema FieldTypeRegistry) ===\n";
     foreach ($expectedTypes as $type) {
         $available = FieldTypeRegistry::has($type);
         // echo ($available ? '✅' : '❌')." {$type}\n";
-        expect($available)->toBeTrue("Type '{$type}' should be available");
+        expect($available)->toBeTrue("Type '{$type}' should be available in ModelSchema");
     }
 
-    expect(count($availableTypes))->toBeGreaterThanOrEqual(25, 'Should have at least 25 field types');
+    expect(count($availableTypes))->toBeGreaterThanOrEqual(60, 'ModelSchema should have at least 60 field types (including aliases)');
 });

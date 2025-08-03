@@ -270,10 +270,8 @@ class TurboSchemaManager
      */
     private function isValidFieldType(string $type): bool
     {
-        // Use the FieldTypeRegistry to check if type is registered
-        $registry = app(\Grazulex\LaravelTurbomaker\Schema\FieldTypes\FieldTypeRegistry::class);
-
-        return $registry->has($type);
+        // Use ModelSchema FieldTypeRegistry (30+ types)
+        return \Grazulex\LaravelModelschema\Support\FieldTypeRegistry::has($type);
     }
 
     /**

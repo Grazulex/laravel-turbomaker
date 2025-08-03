@@ -9,17 +9,16 @@ use Grazulex\LaravelTurbomaker\Schema\Schema;
 
 /**
  * Adapter for handling fragment generation and conversion
- * 
+ *
  * This adapter bridges TurboMaker's fragment system with the generation
  * capabilities of the laravel-modelschema package.
  */
-class FragmentAdapter
+final class FragmentAdapter
 {
     public function __construct(
         private GenerationService $generationService,
         private ModelSchemaAdapter $modelSchemaAdapter
-    ) {
-    }
+    ) {}
 
     /**
      * Generate migration fragment using ModelSchema generation service
@@ -27,8 +26,11 @@ class FragmentAdapter
     public function generateMigrationFragment(Schema $schema): string
     {
         $modelSchemaData = $this->modelSchemaAdapter->toModelSchema($schema);
-        
-        return $this->generationService->generateMigration($modelSchemaData);
+
+        $migrationData = $this->generationService->generateMigration($modelSchemaData);
+
+        // Extract the migration content from the array
+        return $migrationData['content'] ?? $migrationData['migration'] ?? '';
     }
 
     /**
@@ -37,8 +39,11 @@ class FragmentAdapter
     public function generateModelFragment(Schema $schema): string
     {
         $modelSchemaData = $this->modelSchemaAdapter->toModelSchema($schema);
-        
-        return $this->generationService->generateModel($modelSchemaData);
+
+        $modelData = $this->generationService->generateModel($modelSchemaData);
+
+        // Extract the model content from the array
+        return $modelData['content'] ?? $modelData['model'] ?? '';
     }
 
     /**
@@ -47,8 +52,11 @@ class FragmentAdapter
     public function generateFactoryFragment(Schema $schema): string
     {
         $modelSchemaData = $this->modelSchemaAdapter->toModelSchema($schema);
-        
-        return $this->generationService->generateFactory($modelSchemaData);
+
+        $factoryData = $this->generationService->generateFactory($modelSchemaData);
+
+        // Extract the factory content from the array
+        return $factoryData['content'] ?? $factoryData['factory'] ?? '';
     }
 
     /**
@@ -57,13 +65,13 @@ class FragmentAdapter
     public function generateValidationFragment(Schema $schema): array
     {
         $rules = [];
-        
+
         foreach ($schema->fields as $field) {
-            if (!empty($field->validationRules)) {
+            if ($field->validationRules !== []) {
                 $rules[$field->name] = $field->validationRules;
             }
         }
-        
+
         return $rules;
     }
 
@@ -73,14 +81,14 @@ class FragmentAdapter
     public function generateFillableFragment(Schema $schema): array
     {
         $fillable = [];
-        
+
         foreach ($schema->fields as $field) {
             // Skip certain field types that shouldn't be fillable
-            if (!in_array($field->type, ['id', 'timestamps', 'created_at', 'updated_at'])) {
+            if (! in_array($field->type, ['id', 'timestamps', 'created_at', 'updated_at'])) {
                 $fillable[] = $field->name;
             }
         }
-        
+
         return $fillable;
     }
 
@@ -90,14 +98,14 @@ class FragmentAdapter
     public function generateCastsFragment(Schema $schema): array
     {
         $casts = [];
-        
+
         foreach ($schema->fields as $field) {
             $cast = $this->getCastForFieldType($field->type);
             if ($cast !== null) {
                 $casts[$field->name] = $cast;
             }
         }
-        
+
         return $casts;
     }
 
@@ -107,7 +115,7 @@ class FragmentAdapter
     public function generateRelationshipsFragment(Schema $schema): array
     {
         $relationships = [];
-        
+
         foreach ($schema->relationships as $relationship) {
             $relationships[$relationship->name] = [
                 'type' => $relationship->type,
@@ -116,7 +124,7 @@ class FragmentAdapter
                 'local_key' => $relationship->localKey,
             ];
         }
-        
+
         return $relationships;
     }
 

@@ -4,15 +4,18 @@ declare(strict_types=1);
 
 namespace Grazulex\LaravelTurbomaker\Adapters;
 
+use Exception;
+use Grazulex\LaravelModelschema\Schema\ModelSchema;
 use Grazulex\LaravelModelschema\Services\SchemaService;
-use Grazulex\LaravelTurbomaker\Schema\Schema;
 use Grazulex\LaravelTurbomaker\Schema\Field;
 use Grazulex\LaravelTurbomaker\Schema\Relationship;
+use Grazulex\LaravelTurbomaker\Schema\Schema;
 use InvalidArgumentException;
+use RuntimeException;
 
 /**
  * Adapter for bridging TurboMaker Schema with Laravel ModelSchema package
- * 
+ *
  * This adapter provides a seamless interface between TurboMaker's internal
  * schema system and the centralized laravel-modelschema package, allowing
  * for migration without breaking existing functionality.
@@ -28,13 +31,13 @@ class ModelSchemaAdapter
     /**
      * Convert TurboMaker Schema to ModelSchema format
      */
-    public function toModelSchema(Schema $turboSchema): array
+    public function toModelSchema(Schema $turboSchema): ModelSchema
     {
         $modelSchemaData = [
-            'name' => $turboSchema->name,
             'table' => $turboSchema->getTableName(),
             'fields' => [],
             'relationships' => [],
+            'options' => [],
         ];
 
         // Convert fields
@@ -47,7 +50,8 @@ class ModelSchemaAdapter
             $modelSchemaData['relationships'][$relationship->name] = $this->convertRelationship($relationship);
         }
 
-        return $modelSchemaData;
+        // Create ModelSchema object using the static factory method
+        return ModelSchema::fromArray($turboSchema->name, $modelSchemaData);
     }
 
     /**
@@ -57,7 +61,7 @@ class ModelSchemaAdapter
     {
         $fields = [];
         $relationships = [];
-        
+
         // Convert fields
         if (isset($modelSchemaData['fields']) && is_array($modelSchemaData['fields'])) {
             foreach ($modelSchemaData['fields'] as $fieldName => $fieldData) {
@@ -85,15 +89,16 @@ class ModelSchemaAdapter
      */
     public function parseSchema(string $schemaPath): ?Schema
     {
-        if (!$this->schemaService) {
-            throw new \RuntimeException('SchemaService not available. ModelSchema integration not fully initialized.');
+        if (! $this->schemaService instanceof SchemaService) {
+            throw new RuntimeException('SchemaService not available. ModelSchema integration not fully initialized.');
         }
 
         try {
-            $modelSchema = $this->schemaService->parseSchema($schemaPath);
+            $modelSchema = $this->schemaService->parseYamlFile($schemaPath);
+
             return $this->convertFromModelSchema($modelSchema);
-        } catch (\Exception $e) {
-            throw new \InvalidArgumentException("Failed to parse schema at '{$schemaPath}': " . $e->getMessage());
+        } catch (Exception $e) {
+            throw new InvalidArgumentException("Failed to parse schema at '{$schemaPath}': ".$e->getMessage(), $e->getCode(), $e);
         }
     }
 
@@ -102,14 +107,15 @@ class ModelSchemaAdapter
      */
     public function validateSchema(array $schemaData): bool
     {
-        if (!$this->schemaService) {
+        if (! $this->schemaService instanceof SchemaService) {
             // Si ModelSchema n'est pas disponible, on fait une validation basique
             $required = ['name'];
             foreach ($required as $field) {
-                if (!isset($schemaData[$field])) {
+                if (! isset($schemaData[$field])) {
                     return false;
                 }
             }
+
             return true;
         }
 
@@ -118,24 +124,41 @@ class ModelSchemaAdapter
             // A future improvement would be to convert the array to ModelSchema object first
             $required = ['name'];
             foreach ($required as $field) {
-                if (!isset($schemaData[$field])) {
+                if (! isset($schemaData[$field])) {
                     return false;
                 }
             }
-            
+
             // Basic field validation
             if (isset($schemaData['fields']) && is_array($schemaData['fields'])) {
-                foreach ($schemaData['fields'] as $fieldName => $fieldData) {
-                    if (!is_array($fieldData) || !isset($fieldData['type'])) {
+                foreach ($schemaData['fields'] as $fieldData) {
+                    if (! is_array($fieldData) || ! isset($fieldData['type'])) {
                         return false;
                     }
                 }
             }
-            
+
             return true;
-        } catch (\Exception) {
+        } catch (Exception) {
             return false;
         }
+    }
+
+    /**
+     * Check if this adapter can handle the given schema format
+     */
+    public function canHandleSchema(string $schemaInput): bool
+    {
+        // For now, we can handle file paths that exist
+        // In the future, this could check for ModelSchema-specific formats
+        if ($this->isFilePath($schemaInput)) {
+            return file_exists($schemaInput);
+        }
+
+        // Check if it looks like a ModelSchema format (e.g., contains certain keywords)
+        return str_contains($schemaInput, 'fragments:') ||
+               str_contains($schemaInput, 'generation:') ||
+               str_contains($schemaInput, 'validation:');
     }
 
     /**
@@ -162,7 +185,7 @@ class ModelSchemaAdapter
         }
 
         // Add validation rules if present
-        if (!empty($field->validationRules)) {
+        if ($field->validationRules !== []) {
             $fieldData['validation'] = $field->validationRules;
         }
 
@@ -214,5 +237,43 @@ class ModelSchemaAdapter
             $relationshipData['foreign_key'] ?? null,
             $relationshipData['local_key'] ?? null
         );
+    }
+
+    /**
+     * Check if input looks like a file path
+     */
+    private function isFilePath(string $input): bool
+    {
+        return str_contains($input, '/') || str_contains($input, '\\') || str_contains($input, '.');
+    }
+
+    /**
+     * Convert ModelSchema back to TurboMaker Schema
+     */
+    private function convertFromModelSchema(object $modelSchema): Schema
+    {
+        // Utilisons l'adaptateur pour convertir en format TurboMaker
+        $schemaArray = [
+            'name' => $modelSchema->name ?? 'Unknown',
+            'table' => $modelSchema->table ?? null,
+            'fields' => [],
+            'relationships' => [],
+        ];
+
+        // Convertir les champs si disponibles
+        if (isset($modelSchema->fields)) {
+            foreach ($modelSchema->fields as $field) {
+                $schemaArray['fields'][] = [
+                    'name' => $field->name ?? 'unknown',
+                    'type' => $field->type ?? 'string',
+                    'options' => $field->options ?? [],
+                ];
+            }
+        }
+
+        // Convertir en Schema TurboMaker avec le SchemaParser
+        $schemaParser = app(\Grazulex\LaravelTurbomaker\Schema\SchemaParser::class);
+
+        return $schemaParser->parseArray($modelSchema->name ?? 'Unknown', $schemaArray);
     }
 }

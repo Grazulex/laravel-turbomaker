@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Adapters;
 
+use Exception;
 use Grazulex\LaravelTurbomaker\Adapters\ModelSchemaAdapter;
 use Grazulex\LaravelTurbomaker\Adapters\SchemaParserAdapter;
 use Grazulex\LaravelTurbomaker\Schema\Schema;
 use Grazulex\LaravelTurbomaker\Schema\SchemaParser;
-use Grazulex\LaravelTurbomaker\Schema\Field;
-use Tests\TestCase;
 use Mockery;
 
 describe('SchemaParserAdapter', function () {
@@ -40,8 +39,8 @@ describe('SchemaParserAdapter', function () {
         $config = [
             'name' => 'User',
             'fields' => [
-                'name' => ['type' => 'string']
-            ]
+                'name' => ['type' => 'string'],
+            ],
         ];
 
         $this->mockModelSchemaAdapter
@@ -65,15 +64,15 @@ describe('SchemaParserAdapter', function () {
         $config = [
             'name' => 'User',
             'fields' => [
-                'name' => ['type' => 'string']
-            ]
+                'name' => ['type' => 'string'],
+            ],
         ];
 
         $this->mockModelSchemaAdapter
             ->shouldReceive('validateSchema')
             ->with($config)
             ->once()
-            ->andThrow(new \Exception('Validation failed'));
+            ->andThrow(new Exception('Validation failed'));
 
         $this->mockOriginalParser
             ->shouldReceive('parseArray')
@@ -99,7 +98,7 @@ describe('SchemaParserAdapter', function () {
 
         // Test schemaExists
         $this->mockOriginalParser
-            ->shouldReceive('schemaExists')
+            ->shouldReceive('exists')
             ->with('user')
             ->once()
             ->andReturn(true);
@@ -109,7 +108,7 @@ describe('SchemaParserAdapter', function () {
 
         // Test listSchemas
         $this->mockOriginalParser
-            ->shouldReceive('listSchemas')
+            ->shouldReceive('getAllSchemas')
             ->once()
             ->andReturn(['user', 'post']);
 

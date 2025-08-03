@@ -4,32 +4,34 @@ declare(strict_types=1);
 
 namespace Grazulex\LaravelTurbomaker\Adapters;
 
+use Exception;
+use Grazulex\LaravelModelschema\Contracts\FieldTypeInterface;
 use Grazulex\LaravelModelschema\Support\FieldTypePluginManager;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\FieldTypeRegistry as TurboFieldTypeRegistry;
+use Grazulex\LaravelTurbomaker\Schema\FieldTypes\FieldTypeRegistry;
+use InvalidArgumentException;
 
 /**
  * Adapter for migrating TurboMaker field types to ModelSchema plugin system
- * 
+ *
  * This adapter handles the transition from TurboMaker's field type system
  * to the plugin-based system in laravel-modelschema package.
  */
-class FieldTypeAdapter
+final class FieldTypeAdapter
 {
     public function __construct(
         private FieldTypePluginManager $pluginManager
-    ) {
-    }
+    ) {}
 
     /**
      * Register TurboMaker field types as plugins in ModelSchema
      */
     public function registerTurboFieldTypes(): void
     {
-        $turboFieldTypes = TurboFieldTypeRegistry::getAvailableTypes();
-        
+        $turboFieldTypes = FieldTypeRegistry::all();
+
         foreach ($turboFieldTypes as $typeName => $typeClass) {
-            if (!$this->pluginManager->hasPlugin($typeName)) {
-                $this->registerFieldTypeAsPlugin($typeName, $typeClass);
+            if (! $this->pluginManager->hasPlugin($typeName)) {
+                $this->registerFieldTypeAsPlugin($typeClass);
             }
         }
     }
@@ -39,14 +41,17 @@ class FieldTypeAdapter
      */
     public function isFieldTypeAvailable(string $fieldType): bool
     {
-        return $this->pluginManager->hasPlugin($fieldType) 
-            || TurboFieldTypeRegistry::hasType($fieldType);
+        if ($this->pluginManager->hasPlugin($fieldType)) {
+            return true;
+        }
+
+        return FieldTypeRegistry::has($fieldType);
     }
 
     /**
      * Get field type definition with fallback to TurboMaker system
      */
-    public function getFieldTypeDefinition(string $fieldType): ?array
+    public function getFieldTypeDefinition(string $fieldType): ?object
     {
         // Try ModelSchema plugin system first
         if ($this->pluginManager->hasPlugin($fieldType)) {
@@ -54,9 +59,8 @@ class FieldTypeAdapter
         }
 
         // Fallback to TurboMaker system
-        if (TurboFieldTypeRegistry::hasType($fieldType)) {
-            $turboFieldType = TurboFieldTypeRegistry::get($fieldType);
-            return $this->convertTurboFieldTypeToPlugin($turboFieldType);
+        if (FieldTypeRegistry::has($fieldType)) {
+            return FieldTypeRegistry::get($fieldType);
         }
 
         return null;
@@ -65,36 +69,49 @@ class FieldTypeAdapter
     /**
      * Generate migration definition using appropriate field type system
      */
-    public function generateMigrationDefinition(string $fieldType, array $options = []): string
+    public function generateMigrationDefinition(string $fieldType, array $field = []): string
     {
         // Try ModelSchema plugin system first
         if ($this->pluginManager->hasPlugin($fieldType)) {
-            return $this->pluginManager->generateMigration($fieldType, $options);
+            $plugin = $this->pluginManager->getPlugin($fieldType);
+            if (method_exists($plugin, 'getMigrationDefinition')) {
+                $fieldObject = $this->convertArrayToField($field);
+
+                return $plugin->getMigrationDefinition($fieldObject);
+            }
         }
 
         // Fallback to TurboMaker system
-        if (TurboFieldTypeRegistry::hasType($fieldType)) {
-            $turboFieldType = TurboFieldTypeRegistry::get($fieldType);
-            return $turboFieldType->getMigrationDefinition($options);
+        if (FieldTypeRegistry::has($fieldType)) {
+            $turboFieldType = FieldTypeRegistry::get($fieldType);
+            $fieldObject = $this->convertArrayToField($field);
+
+            return $turboFieldType->getMigrationDefinition($fieldObject);
         }
 
-        throw new \InvalidArgumentException("Field type '{$fieldType}' not found in either system");
+        throw new InvalidArgumentException("Field type '{$fieldType}' not found in either system");
     }
 
     /**
      * Generate validation rules using appropriate field type system
      */
-    public function generateValidationRules(string $fieldType, array $options = []): array
+    public function generateValidationRules(string $fieldType, array $field = []): array
     {
         // Try ModelSchema plugin system first
         if ($this->pluginManager->hasPlugin($fieldType)) {
-            return $this->pluginManager->generateValidation($fieldType, $options);
+            $plugin = $this->pluginManager->getPlugin($fieldType);
+            if (method_exists($plugin, 'getValidationRules')) {
+                // Pour ModelSchema, la méthode peut attendre un array plutôt qu'un objet
+                return $plugin->getValidationRules($field);
+            }
         }
 
         // Fallback to TurboMaker system
-        if (TurboFieldTypeRegistry::hasType($fieldType)) {
-            $turboFieldType = TurboFieldTypeRegistry::get($fieldType);
-            return $turboFieldType->getValidationRules($options);
+        if (FieldTypeRegistry::has($fieldType)) {
+            $turboFieldType = FieldTypeRegistry::get($fieldType);
+            $fieldObject = $this->convertArrayToField($field);
+
+            return $turboFieldType->getValidationRules($fieldObject);
         }
 
         return [];
@@ -105,10 +122,10 @@ class FieldTypeAdapter
      */
     public function getAllAvailableFieldTypes(): array
     {
-        $modelSchemaTypes = $this->pluginManager->getAvailablePlugins();
-        $turboTypes = TurboFieldTypeRegistry::getAvailableTypes();
-        
-        return array_merge($modelSchemaTypes, array_keys($turboTypes));
+        $modelSchemaTypes = array_keys($this->pluginManager->getPlugins());
+        $turboTypes = FieldTypeRegistry::getAvailableTypes();
+
+        return array_merge($modelSchemaTypes, $turboTypes);
     }
 
     /**
@@ -116,12 +133,13 @@ class FieldTypeAdapter
      */
     public function migrateFieldType(string $fieldType): bool
     {
-        if (!TurboFieldTypeRegistry::hasType($fieldType)) {
+        if (! FieldTypeRegistry::has($fieldType)) {
             return false;
         }
 
-        $turboFieldType = TurboFieldTypeRegistry::get($fieldType);
-        return $this->registerFieldTypeAsPlugin($fieldType, $turboFieldType::class);
+        $turboFieldType = FieldTypeRegistry::get($fieldType);
+
+        return $this->registerFieldTypeAsPlugin($turboFieldType::class);
     }
 
     /**
@@ -130,15 +148,15 @@ class FieldTypeAdapter
     public function checkFieldTypeCompatibility(string $fieldType): array
     {
         $compatibility = [
-            'turbo_available' => TurboFieldTypeRegistry::hasType($fieldType),
+            'turbo_available' => FieldTypeRegistry::has($fieldType),
             'modelschema_available' => $this->pluginManager->hasPlugin($fieldType),
             'migration_needed' => false,
             'issues' => [],
         ];
 
-        if ($compatibility['turbo_available'] && !$compatibility['modelschema_available']) {
+        if ($compatibility['turbo_available'] && ! $compatibility['modelschema_available']) {
             $compatibility['migration_needed'] = true;
-            $compatibility['issues'][] = "Field type exists in TurboMaker but not in ModelSchema";
+            $compatibility['issues'][] = 'Field type exists in TurboMaker but not in ModelSchema';
         }
 
         return $compatibility;
@@ -147,15 +165,17 @@ class FieldTypeAdapter
     /**
      * Register a TurboMaker field type as a ModelSchema plugin
      */
-    private function registerFieldTypeAsPlugin(string $typeName, string $typeClass): bool
+    private function registerFieldTypeAsPlugin(string $typeClass): bool
     {
         try {
             // Convert TurboMaker field type to plugin format
             $pluginDefinition = $this->convertTurboFieldTypeToPlugin(new $typeClass());
-            
+
             // Register with plugin manager
-            return $this->pluginManager->registerPlugin($typeName, $pluginDefinition);
-        } catch (\Exception $e) {
+            $this->pluginManager->registerPlugin($pluginDefinition);
+
+            return true;
+        } catch (Exception $e) {
             // Log error or handle registration failure
             return false;
         }
@@ -164,15 +184,28 @@ class FieldTypeAdapter
     /**
      * Convert TurboMaker field type instance to ModelSchema plugin format
      */
-    private function convertTurboFieldTypeToPlugin(object $turboFieldType): array
+    private function convertTurboFieldTypeToPlugin(object $turboFieldType): FieldTypeInterface
     {
-        return [
-            'name' => $turboFieldType->getName(),
-            'migration_generator' => [$turboFieldType, 'getMigrationDefinition'],
-            'validation_generator' => [$turboFieldType, 'getValidationRules'],
-            'cast_type' => method_exists($turboFieldType, 'getCastType') 
-                ? $turboFieldType->getCastType() 
-                : null,
-        ];
+        // Pour l'instant, on retourne l'objet tel quel
+        // TODO: Créer un wrapper si nécessaire
+        return $turboFieldType;
+    }
+
+    /**
+     * Convert array representation to Field object
+     */
+    private function convertArrayToField(array $fieldData): object
+    {
+        // Import the Field class
+        $fieldClass = \Grazulex\LaravelTurbomaker\Schema\Field::class;
+
+        // Create a basic Field object from array data
+        $field = new $fieldClass(
+            $fieldData['name'] ?? 'unknown',
+            $fieldData['type'] ?? 'string',
+            $fieldData['options'] ?? []
+        );
+
+        return $field;
     }
 }

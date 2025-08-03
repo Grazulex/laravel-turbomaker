@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Grazulex\LaravelTurbomaker;
 
+use Exception;
 use Grazulex\LaravelTurbomaker\Adapters\ModelSchemaAdapter;
 use Grazulex\LaravelTurbomaker\Adapters\SchemaParserAdapter;
 use Grazulex\LaravelTurbomaker\Schema\Schema;
@@ -11,7 +12,7 @@ use Grazulex\LaravelTurbomaker\Schema\SchemaParser;
 use Illuminate\Support\Facades\File;
 use InvalidArgumentException;
 
-final class TurboSchemaManager
+class TurboSchemaManager
 {
     private SchemaParserAdapter $parser;
 
@@ -19,21 +20,32 @@ final class TurboSchemaManager
     {
         // Utiliser le nouvel adapter qui combine TurboMaker et ModelSchema
         $originalParser = new SchemaParser(false); // Toujours désactiver le cache
-        
+
         // Créer ModelSchemaAdapter - SchemaService sera injecté quand disponible
         $modelSchemaAdapter = new ModelSchemaAdapter();
-        
+
         $this->parser = new SchemaParserAdapter($originalParser, $modelSchemaAdapter);
     }
 
     /**
-     * Resolve schema from various input types
+     * Resolve schema from various input types - Enhanced with ModelSchema
      */
     public function resolveSchema(?string $schemaInput, string $modelName): ?Schema
     {
         // No schema input provided
         if ($schemaInput === null || $schemaInput === '' || $schemaInput === '0') {
             return $this->tryAutoDiscovery($modelName);
+        }
+
+        // Try ModelSchema parsing first for enhanced formats
+        if ($this->canUseModelSchema($schemaInput)) {
+            try {
+                $modelSchemaAdapter = new ModelSchemaAdapter();
+
+                return $modelSchemaAdapter->parseSchema($schemaInput);
+            } catch (Exception $e) {
+                // Fall back to original parsing
+            }
         }
 
         // Handle inline schema definition (JSON or YAML)
@@ -59,32 +71,26 @@ final class TurboSchemaManager
     }
 
     /**
-     * Validate schema before using it
+     * Validate schema before using it - Enhanced with ModelSchema capabilities
      */
     public function validateSchema(Schema $schema): array
     {
         $errors = [];
 
-        // Check for required fields
-        if ($schema->fields === []) {
-            $errors[] = 'Schema must have at least one field';
+        // Try enhanced ModelSchema validation if available
+        try {
+            $modelSchemaAdapter = new ModelSchemaAdapter();
+            $modelSchema = $modelSchemaAdapter->toModelSchema($schema);
+            // ModelSchema objects are considered valid if they were created successfully
+            // Additional validation can be added here if needed
+        } catch (Exception $e) {
+            // ModelSchema validation not available or failed, continue with original validation
         }
 
-        // Validate field types
-        foreach ($schema->fields as $field) {
-            if (! $this->isValidFieldType($field->type)) {
-                $errors[] = "Invalid field type '{$field->type}' for field '{$field->name}'";
-            }
-        }
+        // Always run original validation as well
+        $originalErrors = $this->validateSchemaOriginal($schema);
 
-        // Validate relationships
-        foreach ($schema->relationships as $relationship) {
-            if (! $this->isValidRelationshipType($relationship->type)) {
-                $errors[] = "Invalid relationship type '{$relationship->type}' for relationship '{$relationship->name}'";
-            }
-        }
-
-        return $errors;
+        return array_merge($errors, $originalErrors);
     }
 
     /**
@@ -145,6 +151,45 @@ final class TurboSchemaManager
     public function clearCache(): void
     {
         $this->parser->clearCache();
+    }
+
+    /**
+     * Check if we can use ModelSchema for this input
+     */
+    private function canUseModelSchema(string $schemaInput): bool
+    {
+        $modelSchemaAdapter = new ModelSchemaAdapter();
+
+        return $modelSchemaAdapter->canHandleSchema($schemaInput);
+    }
+
+    /**
+     * Original validation logic (for compatibility and fallback)
+     */
+    private function validateSchemaOriginal(Schema $schema): array
+    {
+        $errors = [];
+
+        // Check for required fields
+        if ($schema->fields === []) {
+            $errors[] = 'Schema must have at least one field';
+        }
+
+        // Validate field types
+        foreach ($schema->fields as $field) {
+            if (! $this->isValidFieldType($field->type)) {
+                $errors[] = "Invalid field type '{$field->type}' for field '{$field->name}'";
+            }
+        }
+
+        // Validate relationships
+        foreach ($schema->relationships as $relationship) {
+            if (! $this->isValidRelationshipType($relationship->type)) {
+                $errors[] = "Invalid relationship type '{$relationship->type}' for relationship '{$relationship->name}'";
+            }
+        }
+
+        return $errors;
     }
 
     /**

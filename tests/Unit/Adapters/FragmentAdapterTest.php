@@ -7,9 +7,8 @@ namespace Tests\Unit\Adapters;
 use Grazulex\LaravelModelschema\Services\Generation\GenerationService;
 use Grazulex\LaravelTurbomaker\Adapters\FragmentAdapter;
 use Grazulex\LaravelTurbomaker\Adapters\ModelSchemaAdapter;
-use Grazulex\LaravelTurbomaker\Schema\Schema;
 use Grazulex\LaravelTurbomaker\Schema\Field;
-use Tests\TestCase;
+use Grazulex\LaravelTurbomaker\Schema\Schema;
 use Mockery;
 
 describe('FragmentAdapter', function () {
@@ -31,11 +30,11 @@ describe('FragmentAdapter', function () {
             'updated_at' => new Field(name: 'updated_at', type: 'updated_at'),
             'id' => new Field(name: 'id', type: 'id'),
         ];
-        
+
         $schema = new Schema(name: 'User', fields: $fields);
-        
+
         $fillable = $this->adapter->generateFillableFragment($schema);
-        
+
         expect($fillable)->toBeArray();
         expect($fillable)->toContain('name');
         expect($fillable)->toContain('email');
@@ -52,11 +51,11 @@ describe('FragmentAdapter', function () {
             'settings' => new Field(name: 'settings', type: 'json'),
             'created_at' => new Field(name: 'created_at', type: 'dateTime'),
         ];
-        
+
         $schema = new Schema(name: 'Product', fields: $fields);
-        
+
         $casts = $this->adapter->generateCastsFragment($schema);
-        
+
         expect($casts)->toBeArray();
         expect($casts['is_active'])->toBe('boolean');
         expect($casts['price'])->toBe('decimal:2');
@@ -68,25 +67,25 @@ describe('FragmentAdapter', function () {
     test('it can generate validation fragment', function () {
         $fields = [
             'name' => new Field(
-                name: 'name', 
-                type: 'string', 
+                name: 'name',
+                type: 'string',
                 validationRules: ['required', 'max:255']
             ),
             'email' => new Field(
-                name: 'email', 
-                type: 'email', 
+                name: 'email',
+                type: 'email',
                 validationRules: ['required', 'email', 'unique:users']
             ),
             'age' => new Field(
-                name: 'age', 
+                name: 'age',
                 type: 'integer'
             ),
         ];
-        
+
         $schema = new Schema(name: 'User', fields: $fields);
-        
+
         $validation = $this->adapter->generateValidationFragment($schema);
-        
+
         expect($validation)->toBeArray();
         expect($validation['name'])->toBe(['required', 'max:255']);
         expect($validation['email'])->toBe(['required', 'email', 'unique:users']);
@@ -100,9 +99,9 @@ describe('FragmentAdapter', function () {
             'table' => 'users',
             'model' => 'User',
         ];
-        
+
         $converted = $this->adapter->convertFragmentFormat($turboFragment);
-        
+
         expect($converted)->toBeArray();
         expect($converted)->toHaveKey('fields');
         expect($converted)->toHaveKey('relationships');

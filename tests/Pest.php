@@ -13,6 +13,6 @@ uses()->beforeEach(function (): void {
 })->in('Feature', 'Unit');
 
 // Define test groups for migration
-//uses()->group('migration')->in('Unit/ModelSchemaIntegrationTest.php');
-//uses()->group('migration', 'adapters', 'modelschema')->in('Unit/Adapters/ModelSchemaAdapterTest.php');
-//uses()->group('migration', 'adapters', 'fragments')->in('Unit/Adapters/FragmentAdapterTest.php');
+// uses()->group('migration')->in('Unit/ModelSchemaIntegrationTest.php');
+// uses()->group('migration', 'adapters', 'modelschema')->in('Unit/Adapters/ModelSchemaAdapterTest.php');
+// uses()->group('migration', 'adapters', 'fragments')->in('Unit/Adapters/FragmentAdapterTest.php');

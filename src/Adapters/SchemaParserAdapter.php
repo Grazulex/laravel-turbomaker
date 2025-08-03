@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Grazulex\LaravelTurbomaker\Adapters;
 
+use Exception;
 use Grazulex\LaravelTurbomaker\Schema\Schema;
 use Grazulex\LaravelTurbomaker\Schema\SchemaParser;
 use Illuminate\Support\Facades\File;
+use InvalidArgumentException;
 
 /**
  * Adapter that wraps SchemaParser with ModelSchema capabilities
@@ -15,6 +17,7 @@ use Illuminate\Support\Facades\File;
 class SchemaParserAdapter
 {
     private SchemaParser $originalParser;
+
     private ModelSchemaAdapter $modelSchemaAdapter;
 
     public function __construct(SchemaParser $originalParser, ModelSchemaAdapter $modelSchemaAdapter)
@@ -40,10 +43,10 @@ class SchemaParserAdapter
     {
         try {
             // Use ModelSchema validation if available
-            if (!$this->modelSchemaAdapter->validateSchema($config)) {
-                throw new \InvalidArgumentException("Schema validation failed for '{$name}'");
+            if (! $this->modelSchemaAdapter->validateSchema($config)) {
+                throw new InvalidArgumentException("Schema validation failed for '{$name}'");
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Continue to original parsing - it will do its own validation
         }
 
@@ -71,7 +74,7 @@ class SchemaParserAdapter
      */
     public function listSchemas(): array
     {
-        return $this->originalParser->listSchemas();
+        return $this->originalParser->getAllSchemas();
     }
 
     /**
@@ -87,7 +90,7 @@ class SchemaParserAdapter
      */
     public function schemaExists(string $schemaName): bool
     {
-        return $this->originalParser->schemaExists($schemaName);
+        return $this->originalParser->exists($schemaName);
     }
 
     /**
@@ -112,42 +115,5 @@ class SchemaParserAdapter
     public function clearCache(): void
     {
         $this->originalParser->clearCache();
-    }
-
-    /**
-     * Check if input looks like a file path
-     */
-    private function isFilePath(string $path): bool
-    {
-        // Simple check for file paths
-        return str_contains($path, '/') || str_contains($path, '\\') || str_contains($path, '.');
-    }
-
-    /**
-     * Resolve file path from schema input
-     */
-    private function resolveFilePath(string $schemaInput): ?string
-    {
-        $schemasPath = config('turbomaker.schemas.path', resource_path('schemas'));
-        $extension = config('turbomaker.schemas.extension', '.schema.yml');
-
-        // If it's already a full path
-        if (str_starts_with($schemaInput, '/') && File::exists($schemaInput)) {
-            return $schemaInput;
-        }
-
-        // Try with .schema.yml extension
-        $filePath = $schemasPath . '/' . $schemaInput . $extension;
-        if (File::exists($filePath)) {
-            return $filePath;
-        }
-
-        // Try without adding extension (in case it's already included)
-        $filePath = $schemasPath . '/' . $schemaInput;
-        if (File::exists($filePath)) {
-            return $filePath;
-        }
-
-        return null;
     }
 }

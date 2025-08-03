@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\File;
 use InvalidArgumentException;
 use Symfony\Component\Yaml\Yaml;
 
-final class SchemaParser
+class SchemaParser
 {
     private string $schemasPath;
 

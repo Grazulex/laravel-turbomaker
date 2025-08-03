@@ -20,8 +20,9 @@ use InvalidArgumentException;
 class ModelSchemaAdapter
 {
     public function __construct(
-        private SchemaService $schemaService
+        private ?SchemaService $schemaService = null
     ) {
+        // SchemaService est optionnel pour permettre l'utilisation progressive
     }
 
     /**
@@ -80,24 +81,19 @@ class ModelSchemaAdapter
     }
 
     /**
-     * Parse schema using ModelSchema service and convert to TurboMaker format
+     * Parse a schema file using ModelSchema format
      */
     public function parseSchema(string $schemaPath): ?Schema
     {
-        try {
-            // Use ModelSchema service to parse the YAML
-            $modelSchemaData = $this->schemaService->loadSchema($schemaPath);
-            
-            if ($modelSchemaData === null) {
-                return null;
-            }
+        if (!$this->schemaService) {
+            throw new \RuntimeException('SchemaService not available. ModelSchema integration not fully initialized.');
+        }
 
-            // Extract schema name from file path
-            $schemaName = basename($schemaPath, '.schema.yml');
-            
-            return $this->fromModelSchema($modelSchemaData, $schemaName);
+        try {
+            $modelSchema = $this->schemaService->parseSchema($schemaPath);
+            return $this->convertFromModelSchema($modelSchema);
         } catch (\Exception $e) {
-            throw new InvalidArgumentException("Failed to parse schema: {$e->getMessage()}", 0, $e);
+            throw new \InvalidArgumentException("Failed to parse schema at '{$schemaPath}': " . $e->getMessage());
         }
     }
 
@@ -106,6 +102,17 @@ class ModelSchemaAdapter
      */
     public function validateSchema(array $schemaData): bool
     {
+        if (!$this->schemaService) {
+            // Si ModelSchema n'est pas disponible, on fait une validation basique
+            $required = ['name'];
+            foreach ($required as $field) {
+                if (!isset($schemaData[$field])) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         try {
             // For now, we'll do basic validation since ModelSchema expects a ModelSchema object
             // A future improvement would be to convert the array to ModelSchema object first

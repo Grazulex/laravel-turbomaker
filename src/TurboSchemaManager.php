@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Grazulex\LaravelTurbomaker;
 
+use Grazulex\LaravelTurbomaker\Adapters\ModelSchemaAdapter;
+use Grazulex\LaravelTurbomaker\Adapters\SchemaParserAdapter;
 use Grazulex\LaravelTurbomaker\Schema\Schema;
 use Grazulex\LaravelTurbomaker\Schema\SchemaParser;
 use Illuminate\Support\Facades\File;
@@ -11,12 +13,17 @@ use InvalidArgumentException;
 
 final class TurboSchemaManager
 {
-    private SchemaParser $parser;
+    private SchemaParserAdapter $parser;
 
     public function __construct()
     {
-        // Toujours désactiver le cache (causes trop de problèmes dans les tests)
-        $this->parser = new SchemaParser(false);
+        // Utiliser le nouvel adapter qui combine TurboMaker et ModelSchema
+        $originalParser = new SchemaParser(false); // Toujours désactiver le cache
+        
+        // Créer ModelSchemaAdapter - SchemaService sera injecté quand disponible
+        $modelSchemaAdapter = new ModelSchemaAdapter();
+        
+        $this->parser = new SchemaParserAdapter($originalParser, $modelSchemaAdapter);
     }
 
     /**
@@ -83,7 +90,7 @@ final class TurboSchemaManager
     /**
      * Get schema parser instance
      */
-    public function getParser(): SchemaParser
+    public function getParser(): SchemaParserAdapter
     {
         return $this->parser;
     }

@@ -383,10 +383,11 @@ final class TurboSchemaCommand extends Command
     private function diffSchemas(): int
     {
         $schema1 = $this->argument('name');
-        $schema2 = $this->option('compare') ?? $this->ask('Enter the second schema name to compare with');
+        $schema2 = $this->argument('target') ?? $this->ask('Enter the second schema name to compare with');
 
         if (! $schema1 || ! $schema2) {
             $this->error('Two schema names are required for diff operation');
+            $this->line('Usage: php artisan turbo:schema diff Product BlogPost');
 
             return Command::FAILURE;
         }
@@ -394,19 +395,90 @@ final class TurboSchemaCommand extends Command
         $this->info("🔍 Comparing schemas: {$schema1} vs {$schema2} (ModelSchema Enterprise)");
         $this->newLine();
 
-        // TODO: Load actual ModelSchema objects and use diffService->compareSchemas()
-        // For now, show a placeholder message
-        $this->line('📊 Schema comparison (ModelSchema Enterprise feature):');
-        $this->newLine();
+        // Load both schemas
+        $schemaPath = config('turbomaker.schemas.path', resource_path('schemas'));
+        $extension = config('turbomaker.schemas.extension', '.schema.yml');
 
-        $this->line('  <fg=green>•</fg=green> Example: Added field location:geometry');
-        $this->line('  <fg=red>•</fg=red> Example: Removed field old_field:string');
-        $this->line('  <fg=yellow>•</fg=yellow> Example: Changed status:string → status:enum');
+        $schema1Path = $schemaPath.'/'.\Illuminate\Support\Str::snake($schema1).$extension;
+        $schema2Path = $schemaPath.'/'.\Illuminate\Support\Str::snake($schema2).$extension;
 
-        $this->newLine();
-        $this->info('� Full diff functionality available when ModelSchema objects are loaded');
+        if (! file_exists($schema1Path)) {
+            $this->error("Schema '{$schema1}' not found at: {$schema1Path}");
+
+            return Command::FAILURE;
+        }
+
+        if (! file_exists($schema2Path)) {
+            $this->error("Schema '{$schema2}' not found at: {$schema2Path}");
+
+            return Command::FAILURE;
+        }
+
+        try {
+            $yaml1 = \Symfony\Component\Yaml\Yaml::parse(file_get_contents($schema1Path));
+            $yaml2 = \Symfony\Component\Yaml\Yaml::parse(file_get_contents($schema2Path));
+
+            $this->compareSchemaStructures($yaml1, $yaml2, $schema1, $schema2);
+
+        } catch (Exception $e) {
+            $this->error("Failed to compare schemas: {$e->getMessage()}");
+
+            return Command::FAILURE;
+        }
 
         return Command::SUCCESS;
+    }
+
+    /**
+     * Compare schema structures and display differences
+     */
+    private function compareSchemaStructures(array $schema1, array $schema2, string $name1, string $name2): void
+    {
+        $this->line('📊 Schema comparison results:');
+        $this->newLine();
+
+        // Compare fields
+        $fields1 = $schema1['fields'] ?? [];
+        $fields2 = $schema2['fields'] ?? [];
+
+        $added = array_diff_key($fields2, $fields1);
+        $removed = array_diff_key($fields1, $fields2);
+        $common = array_intersect_key($fields1, $fields2);
+
+        // Show added fields
+        foreach ($added as $fieldName => $fieldConfig) {
+            $type = $fieldConfig['type'] ?? 'unknown';
+            $this->line("  <fg=green>+ Added field:</fg=green> {$fieldName}:{$type}");
+        }
+
+        // Show removed fields
+        foreach ($removed as $fieldName => $fieldConfig) {
+            $type = $fieldConfig['type'] ?? 'unknown';
+            $this->line("  <fg=red>- Removed field:</fg=red> {$fieldName}:{$type}");
+        }
+
+        // Show changed fields
+        foreach ($common as $fieldName => $fieldConfig1) {
+            $fieldConfig2 = $fields2[$fieldName];
+            $type1 = $fieldConfig1['type'] ?? 'unknown';
+            $type2 = $fieldConfig2['type'] ?? 'unknown';
+
+            if ($type1 !== $type2) {
+                $this->line("  <fg=yellow>~ Changed field:</fg=yellow> {$fieldName}:{$type1} → {$fieldName}:{$type2}");
+            }
+        }
+
+        // Summary
+        $totalChanges = count($added) + count($removed) +
+                       count(array_filter($common, fn ($field, $name): bool => ($fields1[$name]['type'] ?? '') !== ($fields2[$name]['type'] ?? ''),
+                           ARRAY_FILTER_USE_BOTH));
+
+        $this->newLine();
+        if ($totalChanges === 0) {
+            $this->info("✅ No differences found between {$name1} and {$name2}");
+        } else {
+            $this->info("📊 Found {$totalChanges} difference(s) between {$name1} and {$name2}");
+        }
     }
 
     /**

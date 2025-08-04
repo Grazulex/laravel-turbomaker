@@ -232,22 +232,31 @@ final class TurboMakeCommand extends Command
                 }
 
                 // Try to find schema file in resources/schemas/
-                $schemaPath = resource_path("schemas/{$schemaOption}.schema.yml");
-                if (! file_exists($schemaPath)) {
-                    $schemaPath = resource_path("schemas/{$modelName}.schema.yml");
+                $possiblePaths = [
+                    resource_path("schemas/{$schemaOption}.schema.yml"),
+                    resource_path('schemas/'.Str::snake($schemaOption).'.schema.yml'),
+                    resource_path("schemas/{$modelName}.schema.yml"),
+                    resource_path('schemas/'.Str::snake($modelName).'.schema.yml'),
+                ];
+
+                foreach ($possiblePaths as $schemaPath) {
+                    if (file_exists($schemaPath)) {
+                        $yamlContent = file_get_contents($schemaPath);
+                        $yamlData = \Symfony\Component\Yaml\Yaml::parse($yamlContent);
+
+                        $schema = \Grazulex\LaravelTurbomaker\Schema\Schema::fromArray($modelName, $yamlData);
+                        $this->line('✅ Schema resolved successfully');
+                        $this->line('📄 Using schema: '.basename($schemaPath));
+
+                        return $schema;
+                    }
                 }
 
-                if (file_exists($schemaPath)) {
-                    $yamlContent = file_get_contents($schemaPath);
-                    $yamlData = \Symfony\Component\Yaml\Yaml::parse($yamlContent);
-
-                    $schema = \Grazulex\LaravelTurbomaker\Schema\Schema::fromArray($modelName, $yamlData);
-                    $this->line('✅ Schema resolved successfully');
-
-                    return $schema;
+                $this->warn("⚠️  Schema '{$schemaOption}' not found in any of these locations:");
+                foreach ($possiblePaths as $path) {
+                    $this->line('   - '.$path);
                 }
-
-                $this->warn("⚠️  Schema '{$schemaOption}' not found, using default generation");
+                $this->warn('Using default generation instead.');
             }
 
             return null;

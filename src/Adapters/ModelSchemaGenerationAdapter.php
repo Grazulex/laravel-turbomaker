@@ -650,6 +650,44 @@ final class ModelSchemaGenerationAdapter
         // Fallback to original ModelSchema generation
         $tableName = $result['metadata']['table_name'] ?? 'table';
 
+        // Generate fillable array from current schema
+        $fillableFields = [];
+        if ($this->currentSchema && $this->currentSchema->fields !== []) {
+            foreach ($this->currentSchema->fields as $field) {
+                // Exclude timestamps and id fields from fillable
+                if (! in_array($field->name, ['id', 'created_at', 'updated_at', 'deleted_at'])) {
+                    $fillableFields[] = "'{$field->name}'";
+                }
+            }
+        }
+
+        // If no schema fields, use default 'name'
+        if ($fillableFields === []) {
+            $fillableFields = ["'name'"];
+        }
+
+        $fillableString = "[\n        ".implode(",\n        ", $fillableFields).",\n    ]";
+
+        // Generate casts array from current schema
+        $casts = [];
+        if ($this->currentSchema && $this->currentSchema->fields !== []) {
+            foreach ($this->currentSchema->fields as $field) {
+                if ($field->type === 'boolean') {
+                    $casts[] = "'{$field->name}' => 'boolean'";
+                } elseif ($field->type === 'json') {
+                    $casts[] = "'{$field->name}' => 'array'";
+                } elseif ($field->type === 'decimal') {
+                    $casts[] = "'{$field->name}' => 'decimal:2'";
+                } elseif (in_array($field->type, ['date', 'datetime', 'timestamp'])) {
+                    $casts[] = "'{$field->name}' => 'datetime'";
+                }
+            }
+        }
+
+        $castsString = $casts === [] ?
+            "[\n        // Add your casts here\n    ]" :
+            "[\n        ".implode(",\n        ", $casts).",\n    ]";
+
         // Generate relationships
         $relationships = $this->generateRelationships($options);
 
@@ -681,16 +719,12 @@ final class {$modelName} extends Model
     /**
      * The attributes that are mass assignable.
      */
-    protected \$fillable = [
-        'name',
-    ];
+    protected \$fillable = {$fillableString};
 
     /**
      * The attributes that should be cast.
      */
-    protected \$casts = [
-        // Add your casts here
-    ];
+    protected \$casts = {$castsString};
 {$relationships}
 }
 ";
@@ -960,6 +994,28 @@ class {$modelName}Resource extends JsonResource
      */
     private function generateFactoryPhpFromFragment(string $modelName): string
     {
+        // Generate factory definition array from current schema
+        $factoryDefinitions = [];
+        if ($this->currentSchema && $this->currentSchema->fields !== []) {
+            foreach ($this->currentSchema->fields as $field) {
+                // Skip ID and timestamps as they're auto-generated
+                if (in_array($field->name, ['id', 'created_at', 'updated_at', 'deleted_at'])) {
+                    continue;
+                }
+
+                // Generate appropriate faker data based on field type
+                $fakerMethod = $this->getFakerMethodForField($field);
+                $factoryDefinitions[] = "            '{$field->name}' => {$fakerMethod}";
+            }
+        }
+
+        // If no schema fields, use default 'name'
+        if ($factoryDefinitions === []) {
+            $factoryDefinitions = ["            'name' => \$this->faker->name()"];
+        }
+
+        $definitionString = implode(",\n", $factoryDefinitions);
+
         return "<?php
 
 declare(strict_types=1);
@@ -986,7 +1042,7 @@ class {$modelName}Factory extends Factory
     public function definition(): array
     {
         return [
-            'name' => \$this->faker->name(),
+{$definitionString},
         ];
     }
 }
@@ -1752,6 +1808,82 @@ class Unique{$modelName}Rule implements ValidationRule
     }
 }
 ";
+    }
+
+    /**
+     * Get appropriate Faker method for a field type
+     */
+    private function getFakerMethodForField(\Grazulex\LaravelTurbomaker\Schema\Field $field): string
+    {
+        switch ($field->type) {
+            case 'string':
+                if (str_contains(mb_strtolower($field->name), 'name')) {
+                    return '$this->faker->name()';
+                }
+                if (str_contains(mb_strtolower($field->name), 'title')) {
+                    return '$this->faker->sentence(3)';
+                }
+                if (str_contains(mb_strtolower($field->name), 'slug')) {
+                    return '$this->faker->slug()';
+                }
+
+                return '$this->faker->word()';
+
+            case 'text':
+            case 'longText':
+            case 'mediumText':
+                if (str_contains(mb_strtolower($field->name), 'content')) {
+                    return '$this->faker->paragraphs(3, true)';
+                }
+
+                return '$this->faker->text()';
+
+            case 'email':
+                return '$this->faker->unique()->safeEmail()';
+
+            case 'integer':
+            case 'bigInteger':
+            case 'unsignedBigInteger':
+                return '$this->faker->numberBetween(1, 1000)';
+
+            case 'decimal':
+            case 'float':
+            case 'double':
+                return '$this->faker->randomFloat(2, 0, 999.99)';
+
+            case 'boolean':
+                return '$this->faker->boolean()';
+
+            case 'date':
+                return '$this->faker->date()';
+
+            case 'dateTime':
+            case 'timestamp':
+                return '$this->faker->dateTime()';
+
+            case 'time':
+                return '$this->faker->time()';
+
+            case 'json':
+                return '$this->faker->randomElements([\'tag1\', \'tag2\', \'tag3\'], 2)';
+
+            case 'uuid':
+                return '$this->faker->uuid()';
+
+            case 'enum':
+                // For enum fields, we should use one of the predefined values
+                if (isset($field->attributes['values']) && is_array($field->attributes['values'])) {
+                    $values = array_map(fn ($v): string => "'{$v}'", $field->attributes['values']);
+
+                    return '$this->faker->randomElement(['.implode(', ', $values).'])';
+                }
+
+                return '$this->faker->word()';
+
+            default:
+                // Default to string for unknown types
+                return '$this->faker->word()';
+        }
     }
 
     /**

@@ -78,8 +78,20 @@ it('works with pure fragment architecture when write_files is false', function (
     // Verify paths are returned but files don't exist
     $modelPath = $results['model'][0];
     expect($modelPath)->toEndWith('TestModel.php');
-    expect(file_exists($modelPath))->toBeFalse(); // No actual file created
+
+    // Check if files were actually created (they shouldn't be in fragment mode)
+    $modelExists = file_exists($modelPath);
+    if ($modelExists) {
+        // Clean up if file was created unexpectedly
+        @unlink($modelPath);
+    }
+    expect($modelExists)->toBeFalse(); // No actual file created
 
     $migrationPath = $results['migration'][0];
-    expect(file_exists($migrationPath))->toBeFalse(); // No actual file created
+    $migrationExists = file_exists($migrationPath);
+    if ($migrationExists) {
+        // Clean up if file was created unexpectedly
+        @unlink($migrationPath);
+    }
+    expect($migrationExists)->toBeFalse(); // No actual file created
 });

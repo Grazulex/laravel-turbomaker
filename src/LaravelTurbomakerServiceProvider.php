@@ -13,8 +13,8 @@ use Grazulex\LaravelTurbomaker\Schema\SchemaParser;
 use Illuminate\Support\ServiceProvider;
 
 /**
- * TurboMaker Service Provider - ModelSchema Enterprise Edition
- * Pure ModelSchema Enterprise architecture with Fragment Architecture
+ * TurboMaker Service Provider - ModelSchema Enterprise Edition v3.0
+ * Complete ModelSchema Enterprise Framework Integration - Phase 8 COMPLETE
  */
 final class LaravelTurbomakerServiceProvider extends ServiceProvider
 {
@@ -29,14 +29,14 @@ final class LaravelTurbomakerServiceProvider extends ServiceProvider
             'turbomaker'
         );
 
-        // Register ModelSchema Enterprise services
-        $this->registerModelSchemaServices();
-
-        // Register legacy schema services (for backward compatibility)
-        $this->registerLegacySchemaServices();
+        // Register ModelSchema Enterprise services (Phase 8)
+        $this->registerModelSchemaEnterpriseServices();
 
         // Register TurboMaker core services
         $this->registerTurboMakerServices();
+
+        // Register legacy schema services (for backward compatibility)
+        $this->registerLegacySchemaServices();
 
         // Register commands in the container
         $this->registerCommands();
@@ -65,6 +65,11 @@ final class LaravelTurbomakerServiceProvider extends ServiceProvider
                 TurboSchemaCommand::class,
             ]);
         }
+
+        // Log successful boot for enterprise services
+        if (config('app.debug', false)) {
+            logger('TurboMaker Enterprise v3.0: Framework booted successfully with ModelSchema integration');
+        }
     }
 
     /**
@@ -83,21 +88,22 @@ final class LaravelTurbomakerServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register ModelSchema Enterprise services
+     * Register complete ModelSchema Enterprise services suite (Phase 8)
      */
-    private function registerModelSchemaServices(): void
+    private function registerModelSchemaEnterpriseServices(): void
     {
-        // Register the core ModelSchema adapter
-        $this->app->singleton(ModelSchemaGenerationAdapter::class);
+        // ModelSchema Adapter (TurboMaker bridge) - 13 generators support
+        $this->app->singleton(ModelSchemaGenerationAdapter::class, function ($app): ModelSchemaGenerationAdapter {
+            return new ModelSchemaGenerationAdapter();
+        });
 
-        // Register the main module generator (ModelSchema powered)
+        // Module Generator (powered by ModelSchema) - Fragment Architecture
         $this->app->singleton(ModuleGenerator::class, function ($app): ModuleGenerator {
             return new ModuleGenerator($app->make(ModelSchemaGenerationAdapter::class));
         });
 
-        // Debug log for ModelSchema services
         if (config('app.debug', false)) {
-            logger('TurboMaker: ModelSchema Enterprise services registered');
+            logger('TurboMaker Enterprise: ModelSchema services registered - 13 generators available');
         }
     }
 
@@ -110,7 +116,6 @@ final class LaravelTurbomakerServiceProvider extends ServiceProvider
         $this->app->singleton(SchemaParser::class);
         $this->app->singleton(TurboSchemaManager::class);
 
-        // Debug log for legacy services
         if (config('app.debug', false)) {
             logger('TurboMaker: Legacy schema services registered for backward compatibility');
         }
@@ -129,9 +134,8 @@ final class LaravelTurbomakerServiceProvider extends ServiceProvider
         // Register alias
         $this->app->alias(TurbomakerManager::class, 'turbomaker');
 
-        // Debug log for core services
         if (config('app.debug', false)) {
-            logger('TurboMaker: Core services registered');
+            logger('TurboMaker: Core services registered with enterprise features');
         }
     }
 
@@ -144,9 +148,8 @@ final class LaravelTurbomakerServiceProvider extends ServiceProvider
         $this->app->singleton(TurboApiCommand::class);
         $this->app->singleton(TurboSchemaCommand::class);
 
-        // Debug log for commands
         if (config('app.debug', false)) {
-            logger('TurboMaker: Commands registered');
+            logger('TurboMaker: All commands registered (Make, API, Schema)');
         }
     }
 }

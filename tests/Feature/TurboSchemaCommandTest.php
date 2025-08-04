@@ -174,6 +174,6 @@ it('can clear schema cache', function () {
 it('handles invalid action', function () {
     $this->artisan('turbo:schema invalid-action')
         ->expectsOutput('Invalid action: invalid-action')
-        ->expectsOutput('Available actions: list, create, show, validate, clear-cache')
+        ->expectsOutput('Available actions: list, create, show, validate, diff, optimize, clear-cache')
         ->assertExitCode(1);
 });

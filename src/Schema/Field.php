@@ -27,6 +27,17 @@ final class Field
      */
     public static function fromArray(string $name, array $config): self
     {
+        // Extract special properties for attributes
+        $attributes = $config['attributes'] ?? [];
+
+        // Add precision and scale for decimal types
+        if (isset($config['precision'])) {
+            $attributes['precision'] = $config['precision'];
+        }
+        if (isset($config['scale'])) {
+            $attributes['scale'] = $config['scale'];
+        }
+
         return new self(
             name: $name,
             type: $config['type'] ?? 'string',
@@ -36,7 +47,7 @@ final class Field
             default: $config['default'] ?? null,
             length: isset($config['length']) ? (int) $config['length'] : null,
             comment: $config['comment'] ?? null,
-            attributes: $config['attributes'] ?? [],
+            attributes: $attributes,
             validationRules: $config['validation'] ?? [],
             factoryRules: $config['factory'] ?? [],
         );
@@ -49,7 +60,7 @@ final class Field
     {
         $fieldType = FieldTypeRegistry::get($this->type);
 
-        return $fieldType->getMigrationDefinition($this);
+        return $fieldType->getMigrationDefinition();
     }
 
     /**
@@ -68,7 +79,7 @@ final class Field
     public function getValidationRules(?string $tableName = null): array
     {
         $fieldType = FieldTypeRegistry::get($this->type);
-        $rules = $fieldType->getValidationRules($this);
+        $rules = $fieldType->getValidationRules();
 
         // Add table-specific unique constraint if needed
         if ($this->unique && $tableName) {
@@ -89,7 +100,7 @@ final class Field
     {
         $fieldType = FieldTypeRegistry::get($this->type);
 
-        return $fieldType->getFactoryDefinition($this);
+        return $fieldType->getFactoryDefinition();
     }
 
     /**
@@ -108,6 +119,6 @@ final class Field
     {
         $fieldType = FieldTypeRegistry::get($this->type);
 
-        return $fieldType->getCastType($this);
+        return $fieldType->getCastType();
     }
 }

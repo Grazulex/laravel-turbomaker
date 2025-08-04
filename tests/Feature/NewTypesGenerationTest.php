@@ -129,14 +129,12 @@ YAML;
     expect($migrationContent)->toContain('tinyInteger(\'tiny_status\')');
     expect($migrationContent)->toContain('smallInteger(\'small_priority\')');
     expect($migrationContent)->toContain('mediumInteger(\'medium_counter\')');
-    expect($migrationContent)->toContain('decimal(8, 2)(\'price\')');
+    expect($migrationContent)->toContain('decimal(\'price\', 10, 2)'); // Corrected syntax
     expect($migrationContent)->toContain('uuid(\'uuid_field\')');
     expect($migrationContent)->toContain('string(\'email_address\')'); // email devient string
     expect($migrationContent)->toContain('json(\'config\')');
     expect($migrationContent)->toContain('binary(\'binary_data\')');
-    expect($migrationContent)->toContain('foreignId(\'user_id\')');
-
-    // Nettoyer
+    expect($migrationContent)->toContain('foreignId(\'user_id\')'); // Should generate relationship    // Nettoyer
     File::delete($schemaPath);
     foreach ($migrationFiles as $file) {
         File::delete($file);

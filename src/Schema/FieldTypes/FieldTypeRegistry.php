@@ -6,59 +6,66 @@ namespace Grazulex\LaravelTurbomaker\Schema\FieldTypes;
 
 use InvalidArgumentException;
 
+/**
+ * Legacy FieldTypeRegistry Stub
+ * This is a minimal stub to maintain backward compatibility
+ * Real field type handling is now done by ModelSchema Enterprise
+ */
 final class FieldTypeRegistry
 {
-    private static array $types = [];
+    private static array $types = [
+        'string' => true,
+        'text' => true,
+        'integer' => true,
+        'bigInteger' => true,
+        'boolean' => true,
+        'date' => true,
+        'datetime' => true,
+        'timestamp' => true,
+        'float' => true,
+        'double' => true,
+        'decimal' => true,
+        'json' => true,
+        'uuid' => true,
+        'email' => true,
+        'url' => true,
+        'foreignId' => true,
+        'morphs' => true,
+        'time' => true,
+        'binary' => true,
+        'longText' => true,
+        'mediumText' => true,
+        'mediumInteger' => true,
+        'smallInteger' => true,
+        'tinyInteger' => true,
+        'unsignedBigInteger' => true,
+    ];
 
     /**
-     * Register a field type
+     * Check if a field type is registered
      */
-    public static function register(string $name, FieldTypeInterface $type): void
+    public static function has(string $type): bool
     {
-        self::$types[$name] = $type;
+        return isset(self::$types[$type]);
     }
 
     /**
-     * Get a field type by name
+     * Get a field type stub
      */
-    public static function get(string $name): FieldTypeInterface
+    public static function get(string $type): FieldTypeStub
     {
-        if (! isset(self::$types[$name])) {
-            throw new InvalidArgumentException("Unknown field type: {$name}");
+        if (! self::has($type)) {
+            throw new InvalidArgumentException("Field type '{$type}' not found");
         }
 
-        return self::$types[$name];
+        return new FieldTypeStub($type);
     }
 
     /**
-     * Check if a field type exists
+     * Get all registered types
      */
-    public static function has(string $name): bool
-    {
-        return isset(self::$types[$name]);
-    }
-
-    /**
-     * Get all available field types
-     */
-    public static function getAvailableTypes(): array
+    public static function getTypes(): array
     {
         return array_keys(self::$types);
-    }
-
-    /**
-     * Get all registered field types
-     */
-    public static function all(): array
-    {
-        return self::$types;
-    }
-
-    /**
-     * Clear all registered types (useful for testing)
-     */
-    public static function clear(): void
-    {
-        self::$types = [];
     }
 }

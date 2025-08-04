@@ -75,7 +75,9 @@ final class TurboMakeCommand extends Command
         $this->newLine();
 
         try {
-            $generated = $this->generator->generate($name, $options, $schema);
+            // Use generateWithFiles to ensure actual file creation for CLI usage
+            // This enables the hybrid approach: Fragment Architecture + File Writing
+            $generated = $this->generator->generateWithFiles($name, $options, $schema);
 
             $this->displayGeneratedFiles($generated);
             $this->displayNextSteps($name);

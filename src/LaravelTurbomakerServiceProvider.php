@@ -4,40 +4,18 @@ declare(strict_types=1);
 
 namespace Grazulex\LaravelTurbomaker;
 
+use Grazulex\LaravelTurbomaker\Adapters\ModelSchemaGenerationAdapter;
 use Grazulex\LaravelTurbomaker\Console\Commands\TurboApiCommand;
 use Grazulex\LaravelTurbomaker\Console\Commands\TurboMakeCommand;
 use Grazulex\LaravelTurbomaker\Console\Commands\TurboSchemaCommand;
-use Grazulex\LaravelTurbomaker\Console\Commands\TurboTestCommand;
-use Grazulex\LaravelTurbomaker\Console\Commands\TurboViewCommand;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\BigIntegerFieldType;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\BinaryFieldType;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\BooleanFieldType;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\DateFieldType;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\DateTimeFieldType;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\DecimalFieldType;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\DoubleFieldType;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\EmailFieldType;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\FieldTypeRegistry;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\FloatFieldType;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\ForeignIdFieldType;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\IntegerFieldType;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\JsonFieldType;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\LongTextFieldType;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\MediumIntegerFieldType;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\MediumTextFieldType;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\MorphsFieldType;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\SmallIntegerFieldType;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\StringFieldType;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\TextFieldType;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\TimeFieldType;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\TimestampFieldType;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\TinyIntegerFieldType;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\UnsignedBigIntegerFieldType;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\UrlFieldType;
-use Grazulex\LaravelTurbomaker\Schema\FieldTypes\UuidFieldType;
+use Grazulex\LaravelTurbomaker\Generators\ModuleGenerator;
 use Grazulex\LaravelTurbomaker\Schema\SchemaParser;
 use Illuminate\Support\ServiceProvider;
 
+/**
+ * TurboMaker Service Provider - ModelSchema Enterprise Edition
+ * Pure ModelSchema Enterprise architecture with Fragment Architecture
+ */
 final class LaravelTurbomakerServiceProvider extends ServiceProvider
 {
     /**
@@ -51,30 +29,17 @@ final class LaravelTurbomakerServiceProvider extends ServiceProvider
             'turbomaker'
         );
 
-        // Register core field types
-        $this->registerFieldTypes();
+        // Register ModelSchema Enterprise services
+        $this->registerModelSchemaServices();
 
-        // Register custom field types from config
-        $this->registerCustomFieldTypes();
+        // Register legacy schema services (for backward compatibility)
+        $this->registerLegacySchemaServices();
 
-        // Register schema services
-        $this->app->singleton(SchemaParser::class);
-        $this->app->singleton(TurboSchemaManager::class);
-
-        // Register the main manager
-        $this->app->singleton(TurbomakerManager::class, function ($app): TurbomakerManager {
-            return new TurbomakerManager($app);
-        });
-
-        // Register alias
-        $this->app->alias(TurbomakerManager::class, 'turbomaker');
+        // Register TurboMaker core services
+        $this->registerTurboMakerServices();
 
         // Register commands in the container
-        $this->app->singleton(TurboMakeCommand::class);
-        $this->app->singleton(TurboViewCommand::class);
-        $this->app->singleton(TurboApiCommand::class);
-        $this->app->singleton(TurboTestCommand::class);
-        $this->app->singleton(TurboSchemaCommand::class);
+        $this->registerCommands();
     }
 
     /**
@@ -96,9 +61,7 @@ final class LaravelTurbomakerServiceProvider extends ServiceProvider
             // Register commands
             $this->commands([
                 TurboMakeCommand::class,
-                TurboViewCommand::class,
                 TurboApiCommand::class,
-                TurboTestCommand::class,
                 TurboSchemaCommand::class,
             ]);
         }
@@ -106,78 +69,84 @@ final class LaravelTurbomakerServiceProvider extends ServiceProvider
 
     /**
      * Get the services provided by the provider.
+     *
+     * @return array<string>
      */
     public function provides(): array
     {
         return [
             TurbomakerManager::class,
             'turbomaker',
+            ModelSchemaGenerationAdapter::class,
+            ModuleGenerator::class,
         ];
     }
 
     /**
-     * Register all core field types
+     * Register ModelSchema Enterprise services
      */
-    private function registerFieldTypes(): void
+    private function registerModelSchemaServices(): void
     {
-        // Debug log to ensure method is called
+        // Register the core ModelSchema adapter
+        $this->app->singleton(ModelSchemaGenerationAdapter::class);
+
+        // Register the main module generator (ModelSchema powered)
+        $this->app->singleton(ModuleGenerator::class, function ($app): ModuleGenerator {
+            return new ModuleGenerator($app->make(ModelSchemaGenerationAdapter::class));
+        });
+
+        // Debug log for ModelSchema services
         if (config('app.debug', false)) {
-            logger('TurboMaker: Registering core field types...');
-        }
-
-        // String types
-        FieldTypeRegistry::register('string', new StringFieldType());
-        FieldTypeRegistry::register('text', new TextFieldType());
-        FieldTypeRegistry::register('longText', new LongTextFieldType());
-        FieldTypeRegistry::register('mediumText', new MediumTextFieldType());
-
-        // Integer types
-        FieldTypeRegistry::register('integer', new IntegerFieldType());
-        FieldTypeRegistry::register('bigInteger', new BigIntegerFieldType());
-        FieldTypeRegistry::register('unsignedBigInteger', new UnsignedBigIntegerFieldType());
-        FieldTypeRegistry::register('tinyInteger', new TinyIntegerFieldType());
-        FieldTypeRegistry::register('smallInteger', new SmallIntegerFieldType());
-        FieldTypeRegistry::register('mediumInteger', new MediumIntegerFieldType());
-
-        // Numeric types
-        FieldTypeRegistry::register('boolean', new BooleanFieldType());
-        FieldTypeRegistry::register('decimal', new DecimalFieldType());
-        FieldTypeRegistry::register('float', new FloatFieldType());
-        FieldTypeRegistry::register('double', new DoubleFieldType());
-
-        // Date and time types
-        FieldTypeRegistry::register('date', new DateFieldType());
-        FieldTypeRegistry::register('datetime', new DateTimeFieldType());
-        FieldTypeRegistry::register('timestamp', new TimestampFieldType());
-        FieldTypeRegistry::register('time', new TimeFieldType());
-
-        // Special types
-        FieldTypeRegistry::register('json', new JsonFieldType());
-        FieldTypeRegistry::register('uuid', new UuidFieldType());
-        FieldTypeRegistry::register('email', new EmailFieldType());
-        FieldTypeRegistry::register('url', new UrlFieldType());
-        FieldTypeRegistry::register('foreignId', new ForeignIdFieldType());
-        FieldTypeRegistry::register('morphs', new MorphsFieldType());
-        FieldTypeRegistry::register('binary', new BinaryFieldType());
-
-        // Debug log to confirm registration
-        if (config('app.debug', false)) {
-            $registeredCount = count(FieldTypeRegistry::getAvailableTypes());
-            logger("TurboMaker: Registered {$registeredCount} field types");
+            logger('TurboMaker: ModelSchema Enterprise services registered');
         }
     }
 
     /**
-     * Register custom field types from configuration
+     * Register legacy schema services for backward compatibility
      */
-    private function registerCustomFieldTypes(): void
+    private function registerLegacySchemaServices(): void
     {
-        $customTypes = config('turbomaker.custom_field_types', []);
+        // Keep SchemaParser for backward compatibility with YAML schemas
+        $this->app->singleton(SchemaParser::class);
+        $this->app->singleton(TurboSchemaManager::class);
 
-        foreach ($customTypes as $type => $className) {
-            if (class_exists($className)) {
-                FieldTypeRegistry::register($type, new $className());
-            }
+        // Debug log for legacy services
+        if (config('app.debug', false)) {
+            logger('TurboMaker: Legacy schema services registered for backward compatibility');
+        }
+    }
+
+    /**
+     * Register TurboMaker core services
+     */
+    private function registerTurboMakerServices(): void
+    {
+        // Register the main manager
+        $this->app->singleton(TurbomakerManager::class, function ($app): TurbomakerManager {
+            return new TurbomakerManager($app);
+        });
+
+        // Register alias
+        $this->app->alias(TurbomakerManager::class, 'turbomaker');
+
+        // Debug log for core services
+        if (config('app.debug', false)) {
+            logger('TurboMaker: Core services registered');
+        }
+    }
+
+    /**
+     * Register commands in the container
+     */
+    private function registerCommands(): void
+    {
+        $this->app->singleton(TurboMakeCommand::class);
+        $this->app->singleton(TurboApiCommand::class);
+        $this->app->singleton(TurboSchemaCommand::class);
+
+        // Debug log for commands
+        if (config('app.debug', false)) {
+            logger('TurboMaker: Commands registered');
         }
     }
 }

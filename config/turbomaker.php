@@ -209,4 +209,88 @@ return [
     'custom_field_types' => [
         // Add your custom field types here
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | ModelSchema Enterprise Configuration - Phase 8
+    |--------------------------------------------------------------------------
+    |
+    | Configuration for ModelSchema Enterprise integration with 13 generators,
+    | Fragment Architecture, and performance optimization.
+    |
+    */
+    'modelschema' => [
+        // Enable ModelSchema Enterprise features
+        'enabled' => env('TURBOMAKER_MODELSCHEMA_ENABLED', true),
+
+        // Fragment Architecture (for maximum performance)
+        'fragment_architecture' => env('TURBOMAKER_FRAGMENT_ARCHITECTURE', true),
+
+        // Generation modes
+        'generation_mode' => env('TURBOMAKER_GENERATION_MODE', 'hybrid'), // fragment, hybrid, files
+
+        // Performance optimization
+        'performance' => [
+            'logging' => env('TURBOMAKER_PERFORMANCE_LOGGING', true),
+            'optimization' => env('TURBOMAKER_OPTIMIZATION_LEVEL', 'high'), // low, medium, high
+            'cache' => env('TURBOMAKER_CACHE_ENABLED', true),
+            'threshold' => env('TURBOMAKER_PERFORMANCE_THRESHOLD', 1000),
+        ],
+
+        // YAML optimization strategies
+        'optimization' => [
+            'yaml_strategy' => env('TURBOMAKER_YAML_STRATEGY', 'lazy'), // standard, lazy, streaming
+            'streaming' => env('TURBOMAKER_STREAMING_ENABLED', true),
+        ],
+
+        // Analysis and security
+        'analysis' => [
+            'detailed' => env('TURBOMAKER_DETAILED_ANALYSIS', true),
+            'diff_enabled' => env('TURBOMAKER_DIFF_ENABLED', true),
+        ],
+
+        'security' => [
+            'strict' => env('TURBOMAKER_SECURITY_STRICT', true),
+            'level' => env('TURBOMAKER_SECURITY_LEVEL', 'high'), // low, medium, high
+        ],
+
+        // Validation features
+        'validation' => [
+            'auto_rules' => env('TURBOMAKER_AUTO_RULES', true),
+            'enterprise' => env('TURBOMAKER_ENTERPRISE_VALIDATION', true),
+        ],
+
+        // Plugin system
+        'plugins' => [
+            'auto_discovery' => env('TURBOMAKER_PLUGIN_AUTO_DISCOVERY', true),
+            'path' => env('TURBOMAKER_PLUGIN_PATH', app_path('FieldTypes')),
+        ],
+
+        // Field types configuration
+        'field_types' => [
+            'enterprise_types' => true, // Enable all 65+ enterprise field types
+            'geometry_support' => true, // Enable geometry field types
+            'include_aliases' => true,  // Include field type aliases
+            'custom' => [
+                // Define custom field types here
+            ],
+        ],
+
+        // 13 Generators configuration
+        'generators' => [
+            'model' => true,
+            'migration' => true,
+            'requests' => true,
+            'resources' => true,
+            'factory' => true,
+            'seeder' => true,
+            'controllers' => true,
+            'tests' => true,
+            'policies' => true,
+            'observers' => true,    // NEW Enterprise generator
+            'services' => true,     // NEW Enterprise generator
+            'actions' => true,      // NEW Enterprise generator
+            'rules' => true,        // NEW Enterprise generator
+        ],
+    ],
 ];

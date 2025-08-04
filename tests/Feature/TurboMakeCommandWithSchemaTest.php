@@ -85,7 +85,8 @@ it('can generate module without schema (fallback)', function () {
 
 it('shows warning when schema not found', function () {
     $this->artisan('turbo:make TestModel --schema=nonexistent --force')
-        ->expectsOutput('⚠️  Schema \'nonexistent\' not found, using default generation')
+        ->expectsOutputToContain('⚠️  Schema \'nonexistent\' not found in any of these locations:')
+        ->expectsOutputToContain('Using default generation instead.')
         ->expectsOutput("✅ Module 'TestModel' generated successfully!")
         ->assertExitCode(0);
 });

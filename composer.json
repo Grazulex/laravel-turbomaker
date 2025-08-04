@@ -18,7 +18,8 @@
         "php": "^8.3",
         "illuminate/support": "^11.0|^12.0",
         "nesbot/carbon": "^3.10",
-        "symfony/yaml": "^7.3"
+        "symfony/yaml": "^7.3",
+        "grazulex/laravel-modelschema": "^1.1.0"
     },
     "require-dev": {
         "laravel/pint": "^1.22",
@@ -42,7 +43,10 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\": "tests/"
+            "Tests\\": "tests/",
+            "Workbench\\App\\": "workbench/app/",
+            "Workbench\\Database\\Factories\\": "workbench/database/factories/",
+            "Workbench\\Database\\Seeders\\": "workbench/database/seeders/"
         }
     },
     "extra": {
@@ -84,6 +88,22 @@
             "composer run-script phpstan",
             "composer run-script rector",
             "composer run-script test"
+        ],
+        "post-autoload-dump": [
+            "@clear",
+            "@prepare"
+        ],
+        "clear": "@php vendor/bin/testbench package:purge-skeleton --ansi",
+        "prepare": "@php vendor/bin/testbench package:discover --ansi",
+        "build": "@php vendor/bin/testbench workbench:build --ansi",
+        "serve": [
+            "Composer\\Config::disableProcessTimeout",
+            "@build",
+            "@php vendor/bin/testbench serve --ansi"
+        ],
+        "lint": [
+            "@php vendor/bin/pint --ansi",
+            "@php vendor/bin/phpstan analyse --verbose --ansi"
         ]
     },
     "config": {

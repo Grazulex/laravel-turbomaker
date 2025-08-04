@@ -58,8 +58,9 @@ final class ConfigurationUsageTest extends TestCase
     public function test_api_command_respects_default_configurations(): void
     {
         // Test API command with default configurations
-        $this->artisan('turbo:api', [
+        $this->artisan('turbo:make', [
             'name' => 'ApiConfigTest',
+            '--api' => true,
             '--force' => true,
         ])->assertExitCode(0);
 

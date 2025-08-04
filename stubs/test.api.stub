@@ -1,0 +1,93 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Feature\Api;
+
+use App\Models\{{ class }};
+use Tests\TestCase;
+
+final class {{ test_api_class }} extends TestCase
+{
+    public function test_can_create_{{ snake_name }}_via_api(): void
+    {
+        $data = {{ class }}::factory()->make()->toArray();
+
+        $response = $this->postJson('/api/{{ plural_kebab }}', $data);
+
+        $response->assertStatus(201);
+        $response->assertJsonStructure(['data' => array_keys($data)]);
+        $this->assertDatabaseHas('{{ table_name }}', $data);
+    }
+
+    public function test_can_list_{{ plural_snake }}_via_api(): void
+    {
+        {{ class }}::factory()->count(3)->create();
+
+        $response = $this->getJson('/api/{{ plural_kebab }}');
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            'data' => [
+                '*' => {{ fillable_array }}
+            ]
+        ]);
+    }
+
+    public function test_can_show_{{ snake_name }}_via_api(): void
+    {
+        ${{ model_variable }} = {{ class }}::factory()->create();
+
+        $response = $this->getJson("/api/{{ plural_kebab }}/{${{ model_variable }}->id}");
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure(['data' => {{ fillable_array }}]);
+    }
+
+    public function test_can_update_{{ snake_name }}_via_api(): void
+    {
+        ${{ model_variable }} = {{ class }}::factory()->create();
+        $data = {{ class }}::factory()->make()->toArray();
+
+        $response = $this->putJson("/api/{{ plural_kebab }}/{${{ model_variable }}->id}", $data);
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure(['data' => array_keys($data)]);
+        $this->assertDatabaseHas('{{ table_name }}', array_merge(['id' => ${{ model_variable }}->id], $data));
+    }
+
+    public function test_can_delete_{{ snake_name }}_via_api(): void
+    {
+        ${{ model_variable }} = {{ class }}::factory()->create();
+
+        $response = $this->deleteJson("/api/{{ plural_kebab }}/{${{ model_variable }}->id}");
+
+        $response->assertStatus(204);
+        $this->assertDatabaseMissing('{{ table_name }}', ['id' => ${{ model_variable }}->id]);
+    }
+
+    public function test_validates_required_fields_on_create(): void
+    {
+        $response = $this->postJson('/api/{{ plural_kebab }}', []);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors();
+    }
+
+    public function test_validates_required_fields_on_update(): void
+    {
+        ${{ model_variable }} = {{ class }}::factory()->create();
+
+        $response = $this->putJson("/api/{{ plural_kebab }}/{${{ model_variable }}->id}", []);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors();
+    }
+
+    public function test_returns_404_for_non_existent_{{ snake_name }}(): void
+    {
+        $response = $this->getJson('/api/{{ plural_kebab }}/999999');
+
+        $response->assertStatus(404);
+    }
+}

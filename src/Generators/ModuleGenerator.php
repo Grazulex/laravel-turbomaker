@@ -4,144 +4,174 @@ declare(strict_types=1);
 
 namespace Grazulex\LaravelTurbomaker\Generators;
 
+use Exception;
+use Grazulex\LaravelTurbomaker\Adapters\ModelSchemaGenerationAdapter;
 use Grazulex\LaravelTurbomaker\Schema\Schema;
-use Grazulex\LaravelTurbomaker\Schema\SchemaParser;
-use Illuminate\Filesystem\Filesystem;
-use Illuminate\Support\Str;
 
+/**
+ * ModuleGenerator Enterprise - 100% ModelSchema Powered
+ * Uses ModelSchema Fragment Architecture for maximum performance and enterprise features
+ * NO LEGACY FALLBACK - Pure ModelSchema Enterprise Power!
+ */
 final class ModuleGenerator
 {
-    private Filesystem $files;
+    private ModelSchemaGenerationAdapter $adapter;
 
-    private SchemaParser $schemaParser;
-
-    private array $generators;
-
-    public function __construct(Filesystem $files, ?SchemaParser $schemaParser = null)
+    public function __construct(?ModelSchemaGenerationAdapter $adapter = null)
     {
-        $this->files = $files;
-        $this->schemaParser = $schemaParser ?? new SchemaParser();
-        $this->initializeGenerators();
+        $this->adapter = $adapter ?? new ModelSchemaGenerationAdapter();
     }
 
+    /**
+     * Generate module using PURE ModelSchema Enterprise Architecture
+     * NO FALLBACK - ModelSchema Enterprise or nothing!
+     *
+     * @param  string  $name  The model name
+     * @param  array  $options  Generation options, including 'write_files' for test compatibility
+     * @param  Schema|null  $schema  Optional TurboMaker schema
+     * @return array Generated file paths or simulated paths
+     */
     public function generate(string $name, array $options = [], ?Schema $schema = null): array
     {
-        $generatedFiles = [];
-        $context = $this->buildContext($name, $options, $schema);
+        // Use ModelSchema Enterprise GenerationService::generateAll() - THE ENTERPRISE WAY!
+        return $this->generateWithModelSchema($name, $options, $schema);
+    }
 
-        // Generate in order of dependencies
-        $generationOrder = [
-            'migration',
-            'model',
-            'factory',
-            'seeder',
-            'policy',
-            'rules',
-            'observers',
-            'request',
-            'resource',
-            'actions',
-            'services',
-            'controller',
-            'routes',
-            'views',
-            'tests',
+    /**
+     * Generate module with actual file writing (for test compatibility)
+     * This enables the hybrid approach when needed
+     */
+    public function generateWithFiles(string $name, array $options = [], ?Schema $schema = null): array
+    {
+        // Force file writing for test compatibility
+        $options['write_files'] = true;
+
+        return $this->generateWithModelSchema($name, $options, $schema);
+    }
+
+    /**
+     * Get available ModelSchema Enterprise generators
+     */
+    public function getAvailableGenerators(): array
+    {
+        return $this->adapter->getAvailableGenerators();
+    }
+
+    /**
+     * Get available generator names from ModelSchema
+     */
+    public function getAvailableGeneratorNames(): array
+    {
+        return $this->adapter->getAvailableGeneratorNames();
+    }
+
+    /**
+     * Generate specific component using ModelSchema Enterprise
+     */
+    public function generateSpecific(string $name, string $type, array $options = [], ?Schema $schema = null): array
+    {
+        $mappedOptions = $this->mapOptionsForModelSchema($options);
+
+        return $this->adapter->generate($name, $type, $mappedOptions, $schema);
+    }
+
+    /**
+     * Generate multiple components using ModelSchema Fragment Architecture
+     */
+    public function generateMultiple(string $name, array $generators, array $options = [], ?Schema $schema = null): array
+    {
+        $mappedOptions = $this->mapOptionsForModelSchema($options);
+
+        return $this->adapter->generateMultiple($name, $generators, $mappedOptions, $schema);
+    }
+
+    /**
+     * Get the ModelSchema GenerationService directly for advanced features
+     */
+    public function getModelSchemaService(): ModelSchemaGenerationAdapter
+    {
+        return $this->adapter;
+    }
+
+    /**
+     * Generate using ModelSchema Enterprise GenerationService::generateAll()
+     * 🚀 PURE ENTERPRISE POWER - 9 Generators + Fragment Architecture
+     */
+    private function generateWithModelSchema(string $name, array $options, ?Schema $schema): array
+    {
+        // Map generation options for ModelSchema Enterprise
+        $mappedOptions = $this->mapOptionsForModelSchema($options);
+
+        // 🔥 Use ModelSchema GenerationService::generateAll() - NO COMPROMISE!
+        $results = $this->adapter->generateAll($name, $mappedOptions, $schema);
+
+        // Convert to TurboMaker expected format for compatibility
+        return $this->formatResultsForTurboMaker($results, $name);
+    }
+
+    /**
+     * Map TurboMaker options to ModelSchema Enterprise options
+     */
+    private function mapOptionsForModelSchema(array $options): array
+    {
+        return [
+            // Core components (always generated by ModelSchema)
+            'model' => true,
+            'migration' => true,
+
+            // Optional components with TurboMaker compatibility
+            'requests' => $options['generate_requests'] ?? $options['requests'] ?? true,
+            'resources' => $options['generate_api_resources'] ?? $options['resources'] ?? true,
+            'factory' => $options['generate_factory'] ?? $options['factory'] ?? true,
+            'seeder' => $options['generate_seeder'] ?? $options['seeder'] ?? false,
+            'controllers' => true, // ModelSchema generates both API and Web controllers
+            'tests' => $options['generate_tests'] ?? $options['tests'] ?? true, // ModelSchema generates Feature + Unit
+            'policies' => $options['generate_policies'] ?? $options['policies'] ?? false,
+
+            // New ModelSchema Enterprise generators (v0.0.3)
+            'observers' => $options['generate_observers'] ?? $options['observers'] ?? false,
+            'services' => $options['generate_services'] ?? $options['services'] ?? false,
+            'actions' => $options['generate_actions'] ?? $options['actions'] ?? false,
+            'rules' => $options['generate_rules'] ?? $options['rules'] ?? false,
+
+            // Enterprise features
+            'force' => $options['force'] ?? false,
+            'enhanced' => true, // Always use ModelSchema enterprise features
+            'fragments' => $options['fragments'] ?? false, // Fragment Architecture
+            'optimize' => $options['optimize'] ?? false, // YamlOptimization
+
+            // Generation modes
+            'api_only' => $options['api_only'] ?? false,
+            'web_only' => ! ($options['api_only'] ?? false),
+
+            // Hybrid mode: Fragment Architecture + File Writing
+            'write_files' => $options['write_files'] ?? false, // For test compatibility
+
+            // Preserve relationships for TurboMaker-specific processing
+            'belongs_to' => $options['belongs_to'] ?? [],
+            'has_many' => $options['has_many'] ?? [],
+            'has_one' => $options['has_one'] ?? [],
         ];
+    }
 
-        foreach ($generationOrder as $type) {
-            if ($this->shouldGenerate($type, $options)) {
-                $files = $this->generators[$type]->generate($context);
-                $generatedFiles[$type] = $files;
+    /**
+     * Format ModelSchema results for TurboMaker compatibility
+     */
+    private function formatResultsForTurboMaker(array $results, string $name): array
+    {
+        $formatted = [];
+
+        foreach ($results as $type => $paths) {
+            if (is_array($paths) && $paths !== []) {
+                $formatted[$type] = $paths;
             }
         }
 
-        return $generatedFiles;
-    }
-
-    private function initializeGenerators(): void
-    {
-        $this->generators = [
-            'migration' => new MigrationGenerator($this->files, $this->schemaParser),
-            'model' => new ModelGenerator($this->files, $this->schemaParser),
-            'factory' => new FactoryGenerator($this->files, $this->schemaParser),
-            'seeder' => new SeederGenerator($this->files, $this->schemaParser),
-            'policy' => new PolicyGenerator($this->files, $this->schemaParser),
-            'rules' => new RuleGenerator($this->files, $this->schemaParser),
-            'observers' => new ObserverGenerator($this->files, $this->schemaParser),
-            'request' => new RequestGenerator($this->files, $this->schemaParser),
-            'resource' => new ResourceGenerator($this->files, $this->schemaParser),
-            'actions' => new ActionGenerator($this->files, $this->schemaParser),
-            'services' => new ServiceGenerator($this->files, $this->schemaParser),
-            'controller' => new ControllerGenerator($this->files, $this->schemaParser),
-            'routes' => new RouteGenerator($this->files, $this->schemaParser),
-            'views' => new ViewGenerator($this->files, $this->schemaParser),
-            'tests' => new TestGenerator($this->files, $this->schemaParser),
-        ];
-    }
-
-    private function buildContext(string $name, array $options, ?Schema $schema = null): array
-    {
-        $studlyName = Str::studly($name);
-        $snakeName = Str::snake($name);
-        $kebabName = Str::kebab($name);
-        $pluralStudly = Str::studly(Str::plural($name));
-        $pluralSnake = Str::snake(Str::plural($name));
-        $pluralKebab = Str::kebab(Str::plural($name));
-
-        $context = [
-            'name' => $name,
-            'studly_name' => $studlyName,
-            'snake_name' => $snakeName,
-            'kebab_name' => $kebabName,
-            'plural_studly' => $pluralStudly,
-            'plural_snake' => $pluralSnake,
-            'plural_kebab' => $pluralKebab,
-            'table_name' => $pluralSnake,
-            'model_class' => $studlyName,
-            'controller_class' => $studlyName.'Controller',
-            'policy_class' => $studlyName.'Policy',
-            'request_store_class' => 'Store'.$studlyName.'Request',
-            'request_update_class' => 'Update'.$studlyName.'Request',
-            'resource_class' => $studlyName.'Resource',
-            'factory_class' => $studlyName.'Factory',
-            'seeder_class' => $studlyName.'Seeder',
-            'test_feature_class' => $studlyName.'Test',
-            'test_unit_class' => $studlyName.'UnitTest',
-            'options' => $options,
-            'relationships' => [
-                'belongs_to' => $options['belongs_to'] ?? [],
-                'has_many' => $options['has_many'] ?? [],
-                'has_one' => $options['has_one'] ?? [],
-            ],
-        ];
-
-        // Add schema to context if provided
-        if ($schema instanceof Schema) {
-            $context['schema'] = $schema;
+        // Ensure we have the expected structure
+        if ($formatted === []) {
+            throw new Exception("ModelSchema Enterprise failed to generate files for: {$name}");
         }
 
-        return $context;
-    }
-
-    private function shouldGenerate(string $type, array $options): bool
-    {
-        return match ($type) {
-            'migration' => true, // Always generate migration
-            'model' => true, // Always generate model
-            'factory' => $options['generate_factory'] ?? config('turbomaker.defaults.generate_factory', true),
-            'seeder' => $options['generate_seeder'] ?? config('turbomaker.defaults.generate_seeder', false),
-            'policy' => $options['generate_policies'] ?? config('turbomaker.defaults.generate_policies', false),
-            'rules' => $options['generate_rules'] ?? config('turbomaker.defaults.generate_rules', false),
-            'observers' => $options['generate_observers'] ?? config('turbomaker.defaults.generate_observers', false),
-            'request' => true, // Always generate for validation
-            'resource' => $options['api_only'] || config('turbomaker.defaults.generate_api_resources', true),
-            'actions' => $options['generate_actions'] ?? config('turbomaker.defaults.generate_actions', false),
-            'services' => $options['generate_services'] ?? config('turbomaker.defaults.generate_services', false),
-            'controller' => true, // Always generate controller
-            'routes' => true, // Always generate routes
-            'views' => $options['generate_views'] ?? true,
-            'tests' => $options['generate_tests'] ?? config('turbomaker.defaults.generate_tests', true),
-            default => false,
-        };
+        return $formatted;
     }
 }

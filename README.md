@@ -26,7 +26,7 @@ With a single command, you can scaffold complete modules (models, migrations, co
 - **📦 Complete structure** – Models, controllers, migrations, requests, resources, views & tests
 - **🔒 Security ready** – Generates Policies and authentication hooks out of the box
 - **🧪 Built-in testing** – Pest tests automatically generated for each action
-- **🔌 Extensible field types** – 28+ built-in types + create custom field types
+- **🔌 Extensible field types** – 65+ built-in types + create custom field types
 - **⚙️ Advanced generators** – Actions, Services, Rules, Observers for clean architecture
 - **🎨 Custom templates** – Override stubs and templates to match your coding style
 - **🌐 API & Web ready** – Separate API Resources & Controllers when needed
@@ -87,6 +87,120 @@ Automatically handles foreign keys, model relationships, and form integration.
 
 ---
 
+## 📚 Documentation & Examples
+
+> **📖 Complete documentation and examples have been moved to the [GitHub Wiki](https://github.com/Grazulex/laravel-turbomaker/wiki)**
+
+### Quick Links:
+
+| Section | Description |
+|---------|-------------|
+| **[🚀 Getting Started](https://github.com/Grazulex/laravel-turbomaker/wiki/Getting-Started)** | Installation, setup and your first module |
+| **[📋 Command Reference](https://github.com/Grazulex/laravel-turbomaker/wiki/Commands)** | Complete command documentation |
+| **[🔗 Working with Relationships](https://github.com/Grazulex/laravel-turbomaker/wiki/Relationships)** | Model relationships guide |
+| **[🎨 Custom Templates](https://github.com/Grazulex/laravel-turbomaker/wiki/Custom-Templates)** | Customize generated code |
+| **[⚙️ Configuration](https://github.com/Grazulex/laravel-turbomaker/wiki/Configuration)** | Configure TurboMaker settings |
+| **[🏢 Advanced Usage](https://github.com/Grazulex/laravel-turbomaker/wiki/Advanced-Usage)** | Complex patterns and enterprise features |
+| **[💡 Real-World Examples](https://github.com/Grazulex/laravel-turbomaker/wiki/Examples)** | Blog, E-commerce, API projects |
+
+---
+
+## 🔧 Available Commands
+
+| Command | Purpose | Example |
+|---------|---------|---------|
+| `turbo:make` | Complete module generation | `turbo:make Post --tests --factory` |
+| `turbo:api` | API-only module | `turbo:api Product --policies` |
+| `turbo:schema` | Schema management | `turbo:schema create User --fields="name:string,email:email"` |
+
+**[➡️ See complete command reference](./docs/COMMANDS.md)**
+
+---
+
+## 🏭 Enterprise Features
+
+### ModelSchema Integration
+- **65+ Field Types** with automatic validation
+- **Fragment Architecture** for 95% faster generation
+- **Enterprise Validation** with diff and optimization tools
+- **Schema Templates** for common patterns (blog, ecommerce, etc.)
+
+### Advanced Generators
+- **13 Generator Types** - Models, Controllers, Tests, Policies, etc.
+- **Smart Relationships** - Automatic foreign keys and model relationships
+- **Custom Actions & Services** - Clean architecture patterns
+- **Validation Rules** - Custom validation with type-specific rules
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+
+### Development Setup
+```bash
+git clone https://github.com/grazulex/laravel-turbomaker.git
+cd laravel-turbomaker
+composer install
+./vendor/bin/pest
+```
+
+---
+
+## � License
+
+This package is open-sourced software licensed under the [MIT license](LICENSE.md).
+
+---
+
+## 🔗 Related Packages
+
+- **[Laravel ModelSchema](https://github.com/grazulex/laravel-modelschema)** - The enterprise engine powering TurboMaker
+- **[Schema Templates](./examples/schemas/)** - Pre-built schema examples
+
+---
+
+**Made with ❤️ for the Laravel community**
+
+### Generate Complete Module
+```bash
+php artisan turbo:make Post
+```
+
+**What's Generated:**
+- **Model**: `app/Models/Post.php` with relationships
+- **Controllers**: Web & API controllers with CRUD operations
+- **Migrations**: Database table with proper columns and indexes
+- **Form Requests**: Validation for Store/Update operations
+- **API Resources**: JSON transformations for API responses
+- **Views**: Complete CRUD views (index, create, edit, show)
+- **Routes**: Both web and API routes with correct naming
+- **Tests**: Feature and unit tests using Pest framework
+- **Factory**: Model factory for testing and seeding
+
+### Schema-Based Development
+```bash
+# Create a schema file
+php artisan turbo:schema create Product --fields="name:string,price:decimal,category_id:foreignId"
+
+# Generate from schema
+php artisan turbo:make Product --schema=Product
+```
+
+### API-First Development
+```bash
+php artisan turbo:api Product --tests --policies
+```
+Generates API-only components (no views) with authentication and authorization.
+
+### Add Relationships
+```bash
+php artisan turbo:make Comment --belongs-to=Post --belongs-to=User
+```
+Automatically handles foreign keys, model relationships, and form integration.
+
+---
+
 ## � Documentation & Examples
 
 > **📖 Complete documentation and examples have been moved to the [GitHub Wiki](https://github.com/Grazulex/laravel-turbomaker/wiki)**
@@ -102,6 +216,28 @@ Automatically handles foreign keys, model relationships, and form integration.
 | **[⚙️ Configuration](https://github.com/Grazulex/laravel-turbomaker/wiki/Configuration)** | Configure TurboMaker settings |
 | **[🏢 Advanced Usage](https://github.com/Grazulex/laravel-turbomaker/wiki/Advanced-Usage)** | Complex patterns and enterprise features |
 | **[💡 Real-World Examples](https://github.com/Grazulex/laravel-turbomaker/wiki/Examples)** | Blog, E-commerce, API projects |
+
+---
+
+## 🏭 13 Enterprise Generators
+
+TurboMaker generates **13 different types of files** for complete module scaffolding:
+
+| Generator | Files Generated | Purpose |
+|-----------|----------------|---------|
+| **Model** | `app/Models/{Name}.php` | Eloquent model with relationships |
+| **Migration** | `database/migrations/create_{table}_table.php` | Database schema |
+| **Controllers** | `app/Http/Controllers/{Name}Controller.php` | Web + API controllers |
+| **Requests** | `app/Http/Requests/{Name}/Store{Name}Request.php` | Form validation |
+| **Resources** | `app/Http/Resources/{Name}Resource.php` | API responses |
+| **Factory** | `database/factories/{Name}Factory.php` | Test data generation |
+| **Seeder** | `database/seeders/{Name}Seeder.php` | Database seeding |
+| **Tests** | `tests/Feature/{Name}Test.php` | Feature + Unit tests |
+| **Policies** | `app/Policies/{Name}Policy.php` | Authorization logic |
+| **Observers** | `app/Observers/{Name}Observer.php` | Model event handlers |
+| **Services** | `app/Services/{Name}Service.php` | Business logic layer |
+| **Actions** | `app/Actions/{Name}/` | CRUD action classes |
+| **Rules** | `app/Rules/{Name}/` | Custom validation rules |
 
 ---
 
@@ -155,14 +291,16 @@ See the [Configuration Wiki](https://github.com/Grazulex/laravel-turbomaker/wiki
 
 ## 🎯 Field Types & Extensibility
 
-TurboMaker includes **28+ built-in field types** and supports custom field type creation:
+TurboMaker includes **65+ built-in field types** and supports custom field type creation:
 
 ### Built-in Types
 **String Types**: `string`, `text`, `longText`, `mediumText`  
 **Integer Types**: `integer`, `bigInteger`, `unsignedBigInteger`, `tinyInteger`, `smallInteger`  
 **Numeric Types**: `decimal`, `float`, `double`, `boolean`  
 **Date/Time**: `date`, `dateTime`, `timestamp`, `time`  
-**Special Types**: `json`, `uuid`, `email`, `url`, `foreignId`, `morphs`, `binary`
+**Geometry**: `point`, `lineString`, `polygon`, `multiPoint`, `multiLineString`, `multiPolygon`, `geometryCollection`  
+**Advanced**: `json`, `uuid`, `email`, `foreignId`, `morphs`, `binary`, `enum`, `set`, `fullText`, `char`, `year`  
+**MongoDB**: `objectId`, `binaryUuid`
 
 ### Custom Field Types
 Create your own field types by extending `AbstractFieldType`:

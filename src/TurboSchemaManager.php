@@ -9,14 +9,13 @@ use Grazulex\LaravelTurbomaker\Schema\SchemaParser;
 use Illuminate\Support\Facades\File;
 use InvalidArgumentException;
 
-final class TurboSchemaManager
+class TurboSchemaManager
 {
     private SchemaParser $parser;
 
     public function __construct()
     {
-        // Toujours désactiver le cache (causes trop de problèmes dans les tests)
-        $this->parser = new SchemaParser(false);
+        $this->parser = new SchemaParser(false); // Toujours désactiver le cache
     }
 
     /**
@@ -271,10 +270,8 @@ final class TurboSchemaManager
      */
     private function isValidFieldType(string $type): bool
     {
-        // Use the FieldTypeRegistry to check if type is registered
-        $registry = app(\Grazulex\LaravelTurbomaker\Schema\FieldTypes\FieldTypeRegistry::class);
-
-        return $registry->has($type);
+        // Use ModelSchema FieldTypeRegistry (30+ types)
+        return \Grazulex\LaravelModelschema\Support\FieldTypeRegistry::has($type);
     }
 
     /**

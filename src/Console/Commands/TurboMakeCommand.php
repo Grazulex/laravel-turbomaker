@@ -6,7 +6,6 @@ namespace Grazulex\LaravelTurbomaker\Console\Commands;
 
 use Exception;
 use Grazulex\LaravelTurbomaker\Generators\ModuleGenerator;
-use Grazulex\LaravelTurbomaker\TurboSchemaManager;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
 
@@ -29,21 +28,20 @@ final class TurboMakeCommand extends Command
                             {--belongs-to=* : Add belongs-to relationships}
                             {--has-many=* : Add has-many relationships}
                             {--has-one=* : Add has-one relationships}
+                            {--optimize : Enable ModelSchema optimization (lazy loading, streaming)}
+                            {--fragments : Use fragment-based generation}
                             {--force : Overwrite existing files}';
 
-    protected $description = 'Generate a complete Laravel module with models, controllers, views, tests, and more. Supports schema-based generation.';
+    protected $description = 'Generate a complete Laravel module with ModelSchema enterprise features. Supports schema-based generation with optimization.';
 
     private ModuleGenerator $generator;
 
-    private TurboSchemaManager $schemaManager;
-
     private bool $schemaError = false;
 
-    public function __construct(ModuleGenerator $generator, TurboSchemaManager $schemaManager)
+    public function __construct(ModuleGenerator $generator)
     {
         parent::__construct();
         $this->generator = $generator;
-        $this->schemaManager = $schemaManager;
     }
 
     public function handle(): int
@@ -67,16 +65,21 @@ final class TurboMakeCommand extends Command
             $fieldsCount = count($schema->fields);
             $relationsCount = count($schema->relationships);
             $this->line("Fields: {$fieldsCount}, Relations: {$relationsCount}");
+
+            // Display schema details if requested via fields
+            if ($this->option('fields')) {
+                $this->displaySchemaDetails($schema);
+            }
         }
 
         $this->newLine();
 
         try {
-            // Pass schema to generator
-            $generated = $this->generator->generate($name, $options, $schema);
+            // Use generateWithFiles to ensure actual file creation for CLI usage
+            // This enables the hybrid approach: Fragment Architecture + File Writing
+            $generated = $this->generator->generateWithFiles($name, $options, $schema);
 
             $this->displayGeneratedFiles($generated);
-            $this->displaySchemaInfo($schema);
             $this->displayNextSteps($name);
 
             $this->newLine();
@@ -120,8 +123,10 @@ final class TurboMakeCommand extends Command
             }
 
             $this->line("  <fg=cyan>{$type}:</>");
+
             foreach ($files as $file) {
-                $this->line("    <fg=green>✓</> {$file}");
+                $relativePath = str_replace(base_path().'/', '', $file);
+                $this->line("    <fg=green>✓</> {$relativePath}");
             }
         }
     }
@@ -188,107 +193,152 @@ final class TurboMakeCommand extends Command
         }
     }
 
-    /**
-     * Resolve schema from options
-     */
     private function resolveSchema(string $modelName): ?\Grazulex\LaravelTurbomaker\Schema\Schema
     {
         $schemaOption = $this->option('schema');
         $fieldsOption = $this->option('fields');
 
-        // Determine which input to use (fields takes precedence over schema)
-        $schemaInput = $fieldsOption ?: $schemaOption;
-
         try {
-            $schema = $this->schemaManager->resolveSchema($schemaInput, $modelName);
-
-            if ($schema instanceof \Grazulex\LaravelTurbomaker\Schema\Schema) {
-                // Validate schema
-                $errors = $this->schemaManager->validateSchema($schema);
-                if ($errors !== []) {
-                    $this->error('Schema validation failed:');
-                    foreach ($errors as $error) {
-                        $this->line("  - {$error}");
-                    }
-                    throw new Exception('Invalid schema configuration');
-                }
-
+            // Check if fields shorthand provided
+            if ($fieldsOption) {
                 $this->line('✅ Schema resolved successfully');
+                $fields = $this->parseFields($fieldsOption);
+                $config = [
+                    'fields' => $fields,
+                    'relationships' => [],
+                    'options' => [
+                        'table' => mb_strtolower(Str::snake(Str::pluralStudly($modelName))),
+                        'timestamps' => true,
+                        'soft_deletes' => false,
+                    ],
+                ];
 
-                return $schema;
+                return \Grazulex\LaravelTurbomaker\Schema\Schema::fromArray($modelName, $config);
             }
 
-            if ($schemaInput) {
-                $this->warn("⚠️  Schema '{$schemaInput}' not found, using default generation");
+            // Check if schema file provided
+            if ($schemaOption) {
+                // First try as inline YAML
+                if (str_contains($schemaOption, '{') || str_contains($schemaOption, 'fields:')) {
+                    try {
+                        $yamlData = \Symfony\Component\Yaml\Yaml::parse($schemaOption);
+                        $schema = \Grazulex\LaravelTurbomaker\Schema\Schema::fromArray($modelName, $yamlData);
+                        $this->line('✅ Schema resolved successfully');
+
+                        return $schema;
+                    } catch (Exception $e) {
+                        // Fall through to file lookup
+                    }
+                }
+
+                // Try to find schema file in resources/schemas/
+                $possiblePaths = [
+                    resource_path("schemas/{$schemaOption}.schema.yml"),
+                    resource_path('schemas/'.Str::snake($schemaOption).'.schema.yml'),
+                    resource_path("schemas/{$modelName}.schema.yml"),
+                    resource_path('schemas/'.Str::snake($modelName).'.schema.yml'),
+                ];
+
+                foreach ($possiblePaths as $schemaPath) {
+                    if (file_exists($schemaPath)) {
+                        $yamlContent = file_get_contents($schemaPath);
+                        $yamlData = \Symfony\Component\Yaml\Yaml::parse($yamlContent);
+
+                        $schema = \Grazulex\LaravelTurbomaker\Schema\Schema::fromArray($modelName, $yamlData);
+                        $this->line('✅ Schema resolved successfully');
+                        $this->line('📄 Using schema: '.basename($schemaPath));
+
+                        return $schema;
+                    }
+                }
+
+                $this->warn("⚠️  Schema '{$schemaOption}' not found in any of these locations:");
+                foreach ($possiblePaths as $path) {
+                    $this->line('   - '.$path);
+                }
+                $this->warn('Using default generation instead.');
             }
 
             return null;
         } catch (Exception $e) {
             $this->error("❌ Schema error: {$e->getMessage()}");
-            // Signal error by setting a property that handle() can check
             $this->schemaError = true;
 
             return null;
         }
     }
 
-    /**
-     * Display schema information
-     */
-    private function displaySchemaInfo(?\Grazulex\LaravelTurbomaker\Schema\Schema $schema): void
+    private function displaySchemaDetails(\Grazulex\LaravelTurbomaker\Schema\Schema $schema): void
     {
-        if (! $schema instanceof \Grazulex\LaravelTurbomaker\Schema\Schema) {
-            return;
-        }
-
         $this->newLine();
-        $this->info('📋 Schema details:');
+        $this->line('📋 Schema details:');
+        $this->line('Fields:');
 
-        // Display fields
-        if ($schema->fields !== []) {
-            $this->line('  <fg=cyan>Fields:</fg=cyan>');
-            foreach ($schema->fields as $field) {
-                $type = $field->type;
-                $attributes = [];
-
-                if ($field->nullable) {
-                    $attributes[] = 'nullable';
-                }
-                if ($field->unique) {
-                    $attributes[] = 'unique';
-                }
-                if ($field->index) {
-                    $attributes[] = 'index';
-                }
-                if ($field->default !== null) {
-                    $attributes[] = "default:{$field->default}";
-                }
-
-                $attributesStr = $attributes === [] ? '' : ' ('.implode(', ', $attributes).')';
-                $this->line("    <fg=green>✓</fg=green> {$field->name}: {$type}{$attributesStr}");
+        foreach ($schema->fields as $field) {
+            $modifiers = [];
+            if ($field->nullable) {
+                $modifiers[] = 'nullable';
             }
+            if ($field->unique) {
+                $modifiers[] = 'unique';
+            }
+            if ($field->index) {
+                $modifiers[] = 'index';
+            }
+
+            $modifierStr = $modifiers === [] ? '' : ' ('.implode(', ', $modifiers).')';
+            $this->line("  {$field->name}: {$field->type}{$modifierStr}");
         }
 
-        // Display relationships
         if ($schema->relationships !== []) {
-            $this->line('  <fg=cyan>Relationships:</fg=cyan>');
+            $this->line('Relationships:');
             foreach ($schema->relationships as $relationship) {
-                $model = class_basename($relationship->model);
-                $this->line("    <fg=green>✓</fg=green> {$relationship->name}: {$relationship->type} -> {$model}");
+                $this->line("  {$relationship->name}: {$relationship->type}");
             }
+        }
+    }
+
+    private function parseFields(string $fieldsInput): array
+    {
+        $fields = [];
+        $pairs = explode(',', $fieldsInput);
+
+        foreach ($pairs as $pair) {
+            $parts = explode(':', mb_trim($pair));
+            if (count($parts) < 2) {
+                continue;
+            }
+
+            $name = mb_trim($parts[0]);
+            $type = mb_trim($parts[1]);
+            $modifiers = array_slice($parts, 2);
+
+            // Validate field type using ModelSchema registry
+            $fieldRegistry = \Grazulex\LaravelModelschema\Support\FieldTypeRegistry::class;
+            if (! $fieldRegistry::has($type)) {
+                throw new Exception("Invalid field type '{$type}' for field '{$name}'");
+            }
+
+            $field = [
+                'type' => $type,
+                'nullable' => in_array('nullable', $modifiers),
+                'unique' => in_array('unique', $modifiers),
+                'index' => in_array('index', $modifiers),
+            ];
+
+            // Handle length for strings
+            if (in_array($type, ['string', 'char']) && $modifiers !== []) {
+                foreach ($modifiers as $modifier) {
+                    if (is_numeric($modifier)) {
+                        $field['length'] = (int) $modifier;
+                        break;
+                    }
+                }
+            }
+
+            $fields[$name] = $field;
         }
 
-        // Display options
-        if ($schema->options !== []) {
-            $this->line('  <fg=cyan>Options:</fg=cyan>');
-            foreach ($schema->options as $key => $value) {
-                if (is_array($value)) {
-                    $value = implode(', ', $value);
-                } elseif (is_bool($value)) {
-                    $value = $value ? 'true' : 'false';
-                }
-                $this->line("    <fg=green>✓</fg=green> {$key}: {$value}");
-            }
-        }
+        return $fields;
     }
 }

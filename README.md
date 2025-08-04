@@ -87,6 +87,120 @@ Automatically handles foreign keys, model relationships, and form integration.
 
 ---
 
+## 📚 Documentation & Examples
+
+> **📖 Complete documentation and examples have been moved to the [GitHub Wiki](https://github.com/Grazulex/laravel-turbomaker/wiki)**
+
+### Quick Links:
+
+| Section | Description |
+|---------|-------------|
+| **[🚀 Getting Started](https://github.com/Grazulex/laravel-turbomaker/wiki/Getting-Started)** | Installation, setup and your first module |
+| **[📋 Command Reference](https://github.com/Grazulex/laravel-turbomaker/wiki/Commands)** | Complete command documentation |
+| **[🔗 Working with Relationships](https://github.com/Grazulex/laravel-turbomaker/wiki/Relationships)** | Model relationships guide |
+| **[🎨 Custom Templates](https://github.com/Grazulex/laravel-turbomaker/wiki/Custom-Templates)** | Customize generated code |
+| **[⚙️ Configuration](https://github.com/Grazulex/laravel-turbomaker/wiki/Configuration)** | Configure TurboMaker settings |
+| **[🏢 Advanced Usage](https://github.com/Grazulex/laravel-turbomaker/wiki/Advanced-Usage)** | Complex patterns and enterprise features |
+| **[💡 Real-World Examples](https://github.com/Grazulex/laravel-turbomaker/wiki/Examples)** | Blog, E-commerce, API projects |
+
+---
+
+## 🔧 Available Commands
+
+| Command | Purpose | Example |
+|---------|---------|---------|
+| `turbo:make` | Complete module generation | `turbo:make Post --tests --factory` |
+| `turbo:api` | API-only module | `turbo:api Product --policies` |
+| `turbo:schema` | Schema management | `turbo:schema create User --fields="name:string,email:email"` |
+
+**[➡️ See complete command reference](./docs/COMMANDS.md)**
+
+---
+
+## 🏭 Enterprise Features
+
+### ModelSchema Integration
+- **65+ Field Types** with automatic validation
+- **Fragment Architecture** for 95% faster generation
+- **Enterprise Validation** with diff and optimization tools
+- **Schema Templates** for common patterns (blog, ecommerce, etc.)
+
+### Advanced Generators
+- **13 Generator Types** - Models, Controllers, Tests, Policies, etc.
+- **Smart Relationships** - Automatic foreign keys and model relationships
+- **Custom Actions & Services** - Clean architecture patterns
+- **Validation Rules** - Custom validation with type-specific rules
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+
+### Development Setup
+```bash
+git clone https://github.com/grazulex/laravel-turbomaker.git
+cd laravel-turbomaker
+composer install
+./vendor/bin/pest
+```
+
+---
+
+## � License
+
+This package is open-sourced software licensed under the [MIT license](LICENSE.md).
+
+---
+
+## 🔗 Related Packages
+
+- **[Laravel ModelSchema](https://github.com/grazulex/laravel-modelschema)** - The enterprise engine powering TurboMaker
+- **[Schema Templates](./examples/schemas/)** - Pre-built schema examples
+
+---
+
+**Made with ❤️ for the Laravel community**
+
+### Generate Complete Module
+```bash
+php artisan turbo:make Post
+```
+
+**What's Generated:**
+- **Model**: `app/Models/Post.php` with relationships
+- **Controllers**: Web & API controllers with CRUD operations
+- **Migrations**: Database table with proper columns and indexes
+- **Form Requests**: Validation for Store/Update operations
+- **API Resources**: JSON transformations for API responses
+- **Views**: Complete CRUD views (index, create, edit, show)
+- **Routes**: Both web and API routes with correct naming
+- **Tests**: Feature and unit tests using Pest framework
+- **Factory**: Model factory for testing and seeding
+
+### Schema-Based Development
+```bash
+# Create a schema file
+php artisan turbo:schema create Product --fields="name:string,price:decimal,category_id:foreignId"
+
+# Generate from schema
+php artisan turbo:make Product --schema=Product
+```
+
+### API-First Development
+```bash
+php artisan turbo:api Product --tests --policies
+```
+Generates API-only components (no views) with authentication and authorization.
+
+### Add Relationships
+```bash
+php artisan turbo:make Comment --belongs-to=Post --belongs-to=User
+```
+Automatically handles foreign keys, model relationships, and form integration.
+
+---
+
 ## � Documentation & Examples
 
 > **📖 Complete documentation and examples have been moved to the [GitHub Wiki](https://github.com/Grazulex/laravel-turbomaker/wiki)**
@@ -105,7 +219,7 @@ Automatically handles foreign keys, model relationships, and form integration.
 
 ---
 
-## � 13 Enterprise Generators
+## 🏭 13 Enterprise Generators
 
 TurboMaker generates **13 different types of files** for complete module scaffolding:
 
@@ -127,7 +241,7 @@ TurboMaker generates **13 different types of files** for complete module scaffol
 
 ---
 
-## �🔍 Available Commands
+## 🔍 Available Commands
 
 | Command | Purpose | Example |
 |---------|---------|---------|

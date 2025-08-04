@@ -20,12 +20,16 @@ final class {{ test_unit_class }} extends TestCase
 
     public function test_{{ snake_name }}_can_be_created(): void
     {
-        ${{ model_variable }} = {{ class }}::factory()->create([
-            'name' => 'Test {{ studly_name }}',
-        ]);
+        $attributes = {{ class }}::factory()->make()->toArray();
+        ${{ model_variable }} = {{ class }}::factory()->create($attributes);
 
         $this->assertInstanceOf({{ class }}::class, ${{ model_variable }});
-        $this->assertEquals('Test {{ studly_name }}', ${{ model_variable }}->name);
+        
+        foreach ($attributes as $key => $value) {
+            if (${{ model_variable }}->isFillable($key)) {
+                $this->assertEquals($value, ${{ model_variable }}->getAttribute($key));
+            }
+        }
     }
 
     public function test_{{ snake_name }}_has_timestamps(): void

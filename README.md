@@ -26,7 +26,7 @@ With a single command, you can scaffold complete modules (models, migrations, co
 - **📦 Complete structure** – Models, controllers, migrations, requests, resources, views & tests
 - **🔒 Security ready** – Generates Policies and authentication hooks out of the box
 - **🧪 Built-in testing** – Pest tests automatically generated for each action
-- **🔌 Extensible field types** – 28+ built-in types + create custom field types
+- **🔌 Extensible field types** – 65+ built-in types + create custom field types
 - **⚙️ Advanced generators** – Actions, Services, Rules, Observers for clean architecture
 - **🎨 Custom templates** – Override stubs and templates to match your coding style
 - **🌐 API & Web ready** – Separate API Resources & Controllers when needed
@@ -105,7 +105,29 @@ Automatically handles foreign keys, model relationships, and form integration.
 
 ---
 
-## 🔍 Available Commands
+## � 13 Enterprise Generators
+
+TurboMaker generates **13 different types of files** for complete module scaffolding:
+
+| Generator | Files Generated | Purpose |
+|-----------|----------------|---------|
+| **Model** | `app/Models/{Name}.php` | Eloquent model with relationships |
+| **Migration** | `database/migrations/create_{table}_table.php` | Database schema |
+| **Controllers** | `app/Http/Controllers/{Name}Controller.php` | Web + API controllers |
+| **Requests** | `app/Http/Requests/{Name}/Store{Name}Request.php` | Form validation |
+| **Resources** | `app/Http/Resources/{Name}Resource.php` | API responses |
+| **Factory** | `database/factories/{Name}Factory.php` | Test data generation |
+| **Seeder** | `database/seeders/{Name}Seeder.php` | Database seeding |
+| **Tests** | `tests/Feature/{Name}Test.php` | Feature + Unit tests |
+| **Policies** | `app/Policies/{Name}Policy.php` | Authorization logic |
+| **Observers** | `app/Observers/{Name}Observer.php` | Model event handlers |
+| **Services** | `app/Services/{Name}Service.php` | Business logic layer |
+| **Actions** | `app/Actions/{Name}/` | CRUD action classes |
+| **Rules** | `app/Rules/{Name}/` | Custom validation rules |
+
+---
+
+## �🔍 Available Commands
 
 | Command | Purpose | Example |
 |---------|---------|---------|
@@ -155,14 +177,16 @@ See the [Configuration Wiki](https://github.com/Grazulex/laravel-turbomaker/wiki
 
 ## 🎯 Field Types & Extensibility
 
-TurboMaker includes **28+ built-in field types** and supports custom field type creation:
+TurboMaker includes **65+ built-in field types** and supports custom field type creation:
 
 ### Built-in Types
 **String Types**: `string`, `text`, `longText`, `mediumText`  
 **Integer Types**: `integer`, `bigInteger`, `unsignedBigInteger`, `tinyInteger`, `smallInteger`  
 **Numeric Types**: `decimal`, `float`, `double`, `boolean`  
 **Date/Time**: `date`, `dateTime`, `timestamp`, `time`  
-**Special Types**: `json`, `uuid`, `email`, `url`, `foreignId`, `morphs`, `binary`
+**Geometry**: `point`, `lineString`, `polygon`, `multiPoint`, `multiLineString`, `multiPolygon`, `geometryCollection`  
+**Advanced**: `json`, `uuid`, `email`, `foreignId`, `morphs`, `binary`, `enum`, `set`, `fullText`, `char`, `year`  
+**MongoDB**: `objectId`, `binaryUuid`
 
 ### Custom Field Types
 Create your own field types by extending `AbstractFieldType`:

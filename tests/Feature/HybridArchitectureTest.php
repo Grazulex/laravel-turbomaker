@@ -68,7 +68,7 @@ it('works with pure fragment architecture when write_files is false', function (
         'generate_factory' => true,
     ];
 
-    $results = $adapter->generateAllFragments('TestModel', $options);
+    $results = $adapter->generateAllFragments('FragmentModel', $options);
 
     // Verify that file paths are simulated (not real files)
     expect($results)->toBeArray();
@@ -77,7 +77,7 @@ it('works with pure fragment architecture when write_files is false', function (
 
     // Verify paths are returned but files don't exist
     $modelPath = $results['model'][0];
-    expect($modelPath)->toEndWith('TestModel.php');
+    expect($modelPath)->toEndWith('FragmentModel.php');
 
     // Check if files were actually created (they shouldn't be in fragment mode)
     $modelExists = file_exists($modelPath);

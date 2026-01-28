@@ -194,6 +194,9 @@ final class ModelSchemaGenerationAdapter
         if ($options['rules'] ?? false) {
             $generatorTypes[] = 'rules';
         }
+        if ($options['views'] ?? false) {
+            $generatorTypes[] = 'views';
+        }
 
         foreach ($generatorTypes as $type) {
             $results[$type] = [
@@ -289,6 +292,7 @@ final class ModelSchemaGenerationAdapter
             'services' => $turboOptions['generate_services'] ?? $turboOptions['services'] ?? false,
             'actions' => $turboOptions['generate_actions'] ?? $turboOptions['actions'] ?? false,
             'rules' => $turboOptions['generate_rules'] ?? $turboOptions['rules'] ?? false,
+            'views' => $turboOptions['generate_views'] ?? $turboOptions['views'] ?? false,
             'force' => $turboOptions['force'] ?? false,
             'enhanced' => true, // Use ModelSchema enterprise features
             'api_only' => $turboOptions['api_only'] ?? false,
@@ -511,6 +515,21 @@ final class ModelSchemaGenerationAdapter
                 $filePaths[] = $uniquePath;
                 break;
 
+            case 'views':
+                // Generate CRUD views (index, create, edit, show)
+                $viewFolder = Str::snake($modelName);
+                $viewBasePath = resource_path("views/{$viewFolder}");
+                $this->ensureDirectoryExists($viewBasePath);
+
+                $viewTypes = ['index', 'create', 'edit', 'show'];
+                foreach ($viewTypes as $viewType) {
+                    $viewPath = "{$viewBasePath}/{$viewType}.blade.php";
+                    $viewContent = $this->generateViewFromStub($modelName, $viewType);
+                    file_put_contents($viewPath, $viewContent);
+                    $filePaths[] = $viewPath;
+                }
+                break;
+
             default:
                 // For unknown types, generate basic PHP file
                 if (! empty($content)) {
@@ -630,6 +649,16 @@ final class ModelSchemaGenerationAdapter
                 return [
                     app_path("Rules/Exists{$modelName}Rule.php"),
                     app_path("Rules/Unique{$modelName}Rule.php"),
+                ];
+
+            case 'views':
+                $viewFolder = Str::snake($modelName);
+
+                return [
+                    resource_path("views/{$viewFolder}/index.blade.php"),
+                    resource_path("views/{$viewFolder}/create.blade.php"),
+                    resource_path("views/{$viewFolder}/edit.blade.php"),
+                    resource_path("views/{$viewFolder}/show.blade.php"),
                 ];
 
             default:
@@ -1167,6 +1196,8 @@ class {$modelName}Controller extends Controller
     {
         $storeRequest = "Store{$modelName}Request";
         $updateRequest = "Update{$modelName}Request";
+        $viewFolder = Str::snake($modelName);
+        $routePrefix = Str::kebab(Str::plural($modelName));
 
         return "<?php
 
@@ -1193,7 +1224,7 @@ class {$modelName}Controller extends Controller
     {
         \$models = {$modelName}::paginate();
 
-        return view('{$modelName}.index', compact('models'));
+        return view('{$viewFolder}.index', compact('models'));
     }
 
     /**
@@ -1201,7 +1232,7 @@ class {$modelName}Controller extends Controller
      */
     public function create(): View
     {
-        return view('{$modelName}.create');
+        return view('{$viewFolder}.create');
     }
 
     /**
@@ -1211,7 +1242,7 @@ class {$modelName}Controller extends Controller
     {
         \$model = {$modelName}::create(\$request->validated());
 
-        return redirect()->route('{$modelName}.show', \$model);
+        return redirect()->route('{$routePrefix}.show', \$model);
     }
 
     /**
@@ -1219,7 +1250,7 @@ class {$modelName}Controller extends Controller
      */
     public function show({$modelName} \$model): View
     {
-        return view('{$modelName}.show', compact('model'));
+        return view('{$viewFolder}.show', compact('model'));
     }
 
     /**
@@ -1227,7 +1258,7 @@ class {$modelName}Controller extends Controller
      */
     public function edit({$modelName} \$model): View
     {
-        return view('{$modelName}.edit', compact('model'));
+        return view('{$viewFolder}.edit', compact('model'));
     }
 
     /**
@@ -1237,7 +1268,7 @@ class {$modelName}Controller extends Controller
     {
         \$model->update(\$request->validated());
 
-        return redirect()->route('{$modelName}.show', \$model);
+        return redirect()->route('{$routePrefix}.show', \$model);
     }
 
     /**
@@ -1247,7 +1278,7 @@ class {$modelName}Controller extends Controller
     {
         \$model->delete();
 
-        return redirect()->route('{$modelName}.index');
+        return redirect()->route('{$routePrefix}.index');
     }
 }
 ";
@@ -2028,5 +2059,164 @@ declare(strict_types=1);
         ];
 
         return str_replace(array_keys($replacements), array_values($replacements), $stubContent);
+    }
+
+    /**
+     * Generate view content from stub file
+     */
+    private function generateViewFromStub(string $modelName, string $viewType): string
+    {
+        // Try to load the stub from the package
+        $stubPath = __DIR__.'/../../stubs/view.'.$viewType.'.stub';
+
+        if (! file_exists($stubPath)) {
+            // Fallback to a basic view if stub doesn't exist
+            return $this->generateBasicView($modelName, $viewType);
+        }
+
+        $stubContent = file_get_contents($stubPath);
+
+        return $this->processViewStub($stubContent, $modelName);
+    }
+
+    /**
+     * Process view stub with model data replacements
+     */
+    private function processViewStub(string $stubContent, string $modelName): string
+    {
+        $snakeName = Str::snake($modelName);
+        $kebabName = Str::kebab($modelName);
+        $studlyName = Str::studly($modelName);
+        $pluralKebab = Str::kebab(Str::plural($modelName));
+        $pluralStudly = Str::studly(Str::plural($modelName));
+        $pluralSnake = Str::snake(Str::plural($modelName));
+
+        // Replacements for view stubs
+        $replacements = [
+            '{{ studly_name }}' => $studlyName,
+            '{{studly_name}}' => $studlyName,
+            '{{ snake_name }}' => $snakeName,
+            '{{snake_name}}' => $snakeName,
+            '{{ kebab_name }}' => $kebabName,
+            '{{kebab_name}}' => $kebabName,
+            '{{ plural_kebab }}' => $pluralKebab,
+            '{{plural_kebab}}' => $pluralKebab,
+            '{{ plural_studly }}' => $pluralStudly,
+            '{{plural_studly}}' => $pluralStudly,
+            '{{ plural_snake }}' => $pluralSnake,
+            '{{plural_snake}}' => $pluralSnake,
+        ];
+
+        return str_replace(array_keys($replacements), array_values($replacements), $stubContent);
+    }
+
+    /**
+     * Generate a basic view as fallback when stub is not available
+     */
+    private function generateBasicView(string $modelName, string $viewType): string
+    {
+        $snakeName = Str::snake($modelName);
+        $studlyName = Str::studly($modelName);
+        $pluralKebab = Str::kebab(Str::plural($modelName));
+
+        switch ($viewType) {
+            case 'index':
+                return "@extends('layouts.app')
+
+@section('content')
+<div class=\"container\">
+    <h1>{$studlyName} List</h1>
+    <a href=\"{{ route('{$pluralKebab}.create') }}\" class=\"btn btn-primary\">Create New</a>
+    <table class=\"table mt-3\">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(\${$snakeName}s as \${$snakeName})
+            <tr>
+                <td>{{ \${$snakeName}->id }}</td>
+                <td>{{ \${$snakeName}->name }}</td>
+                <td>
+                    <a href=\"{{ route('{$pluralKebab}.show', \${$snakeName}) }}\">View</a>
+                    <a href=\"{{ route('{$pluralKebab}.edit', \${$snakeName}) }}\">Edit</a>
+                </td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
+    {{ \${$snakeName}s->links() }}
+</div>
+@endsection
+";
+
+            case 'create':
+                return "@extends('layouts.app')
+
+@section('content')
+<div class=\"container\">
+    <h1>Create {$studlyName}</h1>
+    <form method=\"POST\" action=\"{{ route('{$pluralKebab}.store') }}\">
+        @csrf
+        <div class=\"form-group\">
+            <label for=\"name\">Name</label>
+            <input type=\"text\" class=\"form-control\" id=\"name\" name=\"name\" value=\"{{ old('name') }}\" required>
+        </div>
+        <button type=\"submit\" class=\"btn btn-primary mt-3\">Create</button>
+        <a href=\"{{ route('{$pluralKebab}.index') }}\" class=\"btn btn-secondary mt-3\">Cancel</a>
+    </form>
+</div>
+@endsection
+";
+
+            case 'edit':
+                return "@extends('layouts.app')
+
+@section('content')
+<div class=\"container\">
+    <h1>Edit {$studlyName}</h1>
+    <form method=\"POST\" action=\"{{ route('{$pluralKebab}.update', \${$snakeName}) }}\">
+        @csrf
+        @method('PUT')
+        <div class=\"form-group\">
+            <label for=\"name\">Name</label>
+            <input type=\"text\" class=\"form-control\" id=\"name\" name=\"name\" value=\"{{ old('name', \${$snakeName}->name) }}\" required>
+        </div>
+        <button type=\"submit\" class=\"btn btn-primary mt-3\">Update</button>
+        <a href=\"{{ route('{$pluralKebab}.index') }}\" class=\"btn btn-secondary mt-3\">Cancel</a>
+    </form>
+</div>
+@endsection
+";
+
+            case 'show':
+                return "@extends('layouts.app')
+
+@section('content')
+<div class=\"container\">
+    <h1>{$studlyName} Details</h1>
+    <p><strong>ID:</strong> {{ \${$snakeName}->id }}</p>
+    <p><strong>Name:</strong> {{ \${$snakeName}->name }}</p>
+    <p><strong>Created:</strong> {{ \${$snakeName}->created_at }}</p>
+    <p><strong>Updated:</strong> {{ \${$snakeName}->updated_at }}</p>
+    <a href=\"{{ route('{$pluralKebab}.edit', \${$snakeName}) }}\" class=\"btn btn-warning\">Edit</a>
+    <a href=\"{{ route('{$pluralKebab}.index') }}\" class=\"btn btn-secondary\">Back</a>
+</div>
+@endsection
+";
+
+            default:
+                return "@extends('layouts.app')
+
+@section('content')
+<div class=\"container\">
+    <h1>{$studlyName}</h1>
+</div>
+@endsection
+";
+        }
     }
 }

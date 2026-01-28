@@ -134,6 +134,9 @@ final class ModuleGenerator
             'actions' => $options['generate_actions'] ?? $options['actions'] ?? false,
             'rules' => $options['generate_rules'] ?? $options['rules'] ?? false,
 
+            // Views generation
+            'views' => $options['generate_views'] ?? $options['views'] ?? false,
+
             // Enterprise features
             'force' => $options['force'] ?? false,
             'enhanced' => true, // Always use ModelSchema enterprise features

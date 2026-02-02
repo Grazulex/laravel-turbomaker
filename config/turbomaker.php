@@ -69,6 +69,23 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Views Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configure view file generation settings.
+    | The extension option allows you to use different view file extensions
+    | such as .vue, .svelte, .jsx, etc. instead of the default .blade.php.
+    |
+    | To customize view templates, publish stubs and modify them:
+    | php artisan vendor:publish --tag=turbomaker-stubs
+    |
+    */
+    'views' => [
+        'extension' => env('TURBOMAKER_VIEW_EXTENSION', '.blade.php'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Stub Templates
     |--------------------------------------------------------------------------
     |

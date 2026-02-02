@@ -521,9 +521,10 @@ final class ModelSchemaGenerationAdapter
                 $viewBasePath = resource_path("views/{$viewFolder}");
                 $this->ensureDirectoryExists($viewBasePath);
 
+                $viewExtension = $this->getViewExtension();
                 $viewTypes = ['index', 'create', 'edit', 'show'];
                 foreach ($viewTypes as $viewType) {
-                    $viewPath = "{$viewBasePath}/{$viewType}.blade.php";
+                    $viewPath = "{$viewBasePath}/{$viewType}{$viewExtension}";
                     $viewContent = $this->generateViewFromStub($modelName, $viewType);
                     file_put_contents($viewPath, $viewContent);
                     $filePaths[] = $viewPath;
@@ -653,12 +654,13 @@ final class ModelSchemaGenerationAdapter
 
             case 'views':
                 $viewFolder = Str::snake($modelName);
+                $viewExtension = $this->getViewExtension();
 
                 return [
-                    resource_path("views/{$viewFolder}/index.blade.php"),
-                    resource_path("views/{$viewFolder}/create.blade.php"),
-                    resource_path("views/{$viewFolder}/edit.blade.php"),
-                    resource_path("views/{$viewFolder}/show.blade.php"),
+                    resource_path("views/{$viewFolder}/index{$viewExtension}"),
+                    resource_path("views/{$viewFolder}/create{$viewExtension}"),
+                    resource_path("views/{$viewFolder}/edit{$viewExtension}"),
+                    resource_path("views/{$viewFolder}/show{$viewExtension}"),
                 ];
 
             default:
@@ -2059,6 +2061,23 @@ declare(strict_types=1);
         ];
 
         return str_replace(array_keys($replacements), array_values($replacements), $stubContent);
+    }
+
+    /**
+     * Get the configured view file extension
+     *
+     * @return string The view file extension (e.g., '.blade.php', '.vue', '.svelte')
+     */
+    private function getViewExtension(): string
+    {
+        $extension = config('turbomaker.views.extension', '.blade.php');
+
+        // Ensure the extension starts with a dot
+        if ($extension !== '' && ! str_starts_with($extension, '.')) {
+            $extension = '.'.$extension;
+        }
+
+        return $extension;
     }
 
     /**

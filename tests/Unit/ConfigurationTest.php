@@ -194,4 +194,22 @@ final class ConfigurationTest extends TestCase
         $this->assertEquals('controller.stub', $templates['controller']);
         $this->assertEquals('controller.api.stub', $templates['api_controller']);
     }
+
+    public function test_views_configuration(): void
+    {
+        $views = config('turbomaker.views');
+
+        $this->assertIsArray($views);
+        $this->assertArrayHasKey('extension', $views);
+
+        // Default extension should be .blade.php for backward compatibility
+        $this->assertEquals('.blade.php', $views['extension']);
+    }
+
+    public function test_views_extension_default_value(): void
+    {
+        // Ensure default is .blade.php when not configured
+        $extension = config('turbomaker.views.extension', '.blade.php');
+        $this->assertEquals('.blade.php', $extension);
+    }
 }

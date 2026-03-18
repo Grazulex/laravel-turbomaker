@@ -2085,7 +2085,13 @@ declare(strict_types=1);
      */
     private function generateViewFromStub(string $modelName, string $viewType): string
     {
-        // Try to load the stub from the package
+        // 1. First check for custom published stub
+        $customStub = $this->getCustomStub("view.{$viewType}");
+        if ($customStub !== null && $customStub !== '') {
+            return $this->processViewStub($customStub, $modelName);
+        }
+        
+        // 2. Fallbabck: Try to load the stub from the package
         $stubPath = __DIR__.'/../../stubs/view.'.$viewType.'.stub';
 
         if (! file_exists($stubPath)) {

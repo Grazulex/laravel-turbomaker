@@ -517,14 +517,16 @@ final class ModelSchemaGenerationAdapter
 
             case 'views':
                 // Generate CRUD views (index, create, edit, show)
-                $viewFolder = Str::snake($modelName);
-                $viewBasePath = resource_path("views/{$viewFolder}");
+                $viewFolder = Str::studly(Str::plural($modelName));
+                $configPath = config('turbomaker.paths.views', 'resources/views');
+                $viewBasePath = base_path("{$configPath}/{$viewFolder}");
                 $this->ensureDirectoryExists($viewBasePath);
 
                 $viewExtension = $this->getViewExtension();
                 $viewTypes = ['index', 'create', 'edit', 'show'];
                 foreach ($viewTypes as $viewType) {
-                    $viewPath = "{$viewBasePath}/{$viewType}{$viewExtension}";
+                    $viewFileName = Str::studly($viewType);
+                    $viewPath = "{$viewBasePath}/{$viewFileName}{$viewExtension}";
                     $viewContent = $this->generateViewFromStub($modelName, $viewType);
                     file_put_contents($viewPath, $viewContent);
                     $filePaths[] = $viewPath;
@@ -653,14 +655,15 @@ final class ModelSchemaGenerationAdapter
                 ];
 
             case 'views':
-                $viewFolder = Str::snake($modelName);
+                $viewFolder = Str::studly(Str::plural($modelName));
+                $configPath = config('turbomaker.paths.views', 'resources/views');
                 $viewExtension = $this->getViewExtension();
 
                 return [
-                    resource_path("views/{$viewFolder}/index{$viewExtension}"),
-                    resource_path("views/{$viewFolder}/create{$viewExtension}"),
-                    resource_path("views/{$viewFolder}/edit{$viewExtension}"),
-                    resource_path("views/{$viewFolder}/show{$viewExtension}"),
+                    base_path("{$configPath}/{$viewFolder}/Index{$viewExtension}"),
+                    base_path("{$configPath}/{$viewFolder}/Create{$viewExtension}"),
+                    base_path("{$configPath}/{$viewFolder}/Edit{$viewExtension}"),
+                    base_path("{$configPath}/{$viewFolder}/Show{$viewExtension}"),
                 ];
 
             default:
@@ -1613,7 +1616,7 @@ final class {$modelName}Service
     public function create(Store{$modelName}Request \$request): {$modelName}
     {
         \$data = \$request->validated();
-        
+
 {$relationshipFields}
         return {$modelName}::create(\$data);
     }
@@ -1624,7 +1627,7 @@ final class {$modelName}Service
     public function update({$modelName} \${$parameterName}, Update{$modelName}Request \$request): {$modelName}
     {
         \$data = \$request->validated();
-        
+
 {$relationshipFields}
         \${$parameterName}->update(\$data);
 
@@ -1677,7 +1680,7 @@ final class Create{$modelName}Action
     public function execute(Store{$modelName}Request \$request): {$modelName}
     {
         \$data = \$request->validated();
-        
+
 {$relationshipFields}
         return {$modelName}::create(\$data);
     }
@@ -2085,7 +2088,13 @@ declare(strict_types=1);
      */
     private function generateViewFromStub(string $modelName, string $viewType): string
     {
-        // Try to load the stub from the package
+        // 1. First check for custom published stub
+        $customStub = $this->getCustomStub("view.{$viewType}");
+        if ($customStub !== null && $customStub !== '') {
+            return $this->processViewStub($customStub, $modelName);
+        }
+
+        // 2. Fallback to package stub
         $stubPath = __DIR__.'/../../stubs/view.'.$viewType.'.stub';
 
         if (! file_exists($stubPath)) {

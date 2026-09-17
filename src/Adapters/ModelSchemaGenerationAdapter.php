@@ -244,9 +244,9 @@ final class ModelSchemaGenerationAdapter
                 'nullable' => $field->nullable,
                 'default' => $field->default,
                 'length' => $field->length,
-                'validation' => $field->validationRules ?? [],
-                'unique' => $field->unique ?? false,
-                'index' => $field->index ?? false,
+                'validation' => $field->validationRules,
+                'unique' => $field->unique,
+                'index' => $field->index,
             ];
         }
 

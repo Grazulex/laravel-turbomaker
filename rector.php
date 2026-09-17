@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Rector\Config\RectorConfig;
+use Rector\TypeDeclaration\Rector\ClassMethod\StrictArrayParamDimFetchRector;
 
 return RectorConfig::configure()
     ->withPaths([
@@ -16,5 +17,8 @@ return RectorConfig::configure()
         earlyReturn: true
     )
     ->withSkip([
-        //
+        // Yaml::parse() may return a scalar or null; keep the untyped parameter
+        StrictArrayParamDimFetchRector::class => [
+            __DIR__.'/src/Console/Commands/TurboSchemaCommand.php',
+        ],
     ]);

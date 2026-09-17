@@ -24,7 +24,7 @@ class TurboSchemaManager
     public function resolveSchema(?string $schemaInput, string $modelName): ?Schema
     {
         // No schema input provided
-        if ($schemaInput === null || $schemaInput === '' || $schemaInput === '0') {
+        if (in_array($schemaInput, [null, '', '0'], true)) {
             return $this->tryAutoDiscovery($modelName);
         }
 

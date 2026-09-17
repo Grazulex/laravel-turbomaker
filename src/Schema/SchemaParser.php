@@ -39,7 +39,7 @@ class SchemaParser
     {
         $filePath = $this->resolveFilePath($schemaInput);
 
-        if ($filePath === null || $filePath === '' || $filePath === '0' || ! File::exists($filePath)) {
+        if (in_array($filePath, [null, '', '0'], true) || ! File::exists($filePath)) {
             return null;
         }
 

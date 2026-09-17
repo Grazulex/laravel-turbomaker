@@ -675,7 +675,7 @@ final class ModelSchemaGenerationAdapter
     {
         // Check if custom stub exists and use it if available
         $customStub = $this->getCustomStub('model');
-        if ($customStub !== null && $customStub !== '' && $customStub !== '0') {
+        if (! in_array($customStub, [null, '', '0'], true)) {
             return $this->processCustomStub($customStub, $modelName, $result, $options);
         }
 
@@ -684,7 +684,7 @@ final class ModelSchemaGenerationAdapter
 
         // Generate fillable array from current schema
         $fillableFields = [];
-        if ($this->currentSchema && $this->currentSchema->fields !== []) {
+        if ($this->currentSchema instanceof Schema && $this->currentSchema->fields !== []) {
             foreach ($this->currentSchema->fields as $field) {
                 // Exclude timestamps and id fields from fillable
                 if (! in_array($field->name, ['id', 'created_at', 'updated_at', 'deleted_at'])) {
@@ -702,7 +702,7 @@ final class ModelSchemaGenerationAdapter
 
         // Generate casts array from current schema
         $casts = [];
-        if ($this->currentSchema && $this->currentSchema->fields !== []) {
+        if ($this->currentSchema instanceof Schema && $this->currentSchema->fields !== []) {
             foreach ($this->currentSchema->fields as $field) {
                 if ($field->type === 'boolean') {
                     $casts[] = "'{$field->name}' => 'boolean'";
@@ -826,7 +826,7 @@ final class {$modelName} extends Model
 
         // Generate field definitions from the current schema
         $fieldDefinitions = '';
-        if ($this->currentSchema && $this->currentSchema->fields !== []) {
+        if ($this->currentSchema instanceof Schema && $this->currentSchema->fields !== []) {
             foreach ($this->currentSchema->fields as $field) {
                 $fieldDefinitions .= "\n            \$table->{$field->getMigrationDefinition()}('{$field->name}'";
 
@@ -853,7 +853,7 @@ final class {$modelName} extends Model
         }
 
         // Generate relationship fields (foreign keys)
-        if ($this->currentSchema && $this->currentSchema->relationships !== []) {
+        if ($this->currentSchema instanceof Schema && $this->currentSchema->relationships !== []) {
             foreach ($this->currentSchema->relationships as $relationship) {
                 if ($relationship->type === 'belongsTo') {
                     // Generate foreignId for belongsTo relationships
@@ -1028,7 +1028,7 @@ class {$modelName}Resource extends JsonResource
     {
         // Generate factory definition array from current schema
         $factoryDefinitions = [];
-        if ($this->currentSchema && $this->currentSchema->fields !== []) {
+        if ($this->currentSchema instanceof Schema && $this->currentSchema->fields !== []) {
             foreach ($this->currentSchema->fields as $field) {
                 // Skip ID and timestamps as they're auto-generated
                 if (in_array($field->name, ['id', 'created_at', 'updated_at', 'deleted_at'])) {
@@ -1293,7 +1293,7 @@ class {$modelName}Controller extends Controller
     {
         // Check if custom test stub exists and use it if available
         $customStub = $this->getCustomStub('test.feature');
-        if ($customStub !== null && $customStub !== '' && $customStub !== '0') {
+        if (! in_array($customStub, [null, '', '0'], true)) {
             return $this->processTestStub($customStub, $modelName, $result);
         }
 
@@ -1364,7 +1364,7 @@ test('can delete {$modelName}', function () {
     {
         // Check if custom test stub exists and use it if available
         $customStub = $this->getCustomStub('test.unit');
-        if ($customStub !== null && $customStub !== '' && $customStub !== '0') {
+        if (! in_array($customStub, [null, '', '0'], true)) {
             return $this->processTestStub($customStub, $modelName, $result);
         }
 
@@ -2074,7 +2074,7 @@ declare(strict_types=1);
 
         // Ensure the extension starts with a dot
         if ($extension !== '' && ! str_starts_with($extension, '.')) {
-            $extension = '.'.$extension;
+            return '.'.$extension;
         }
 
         return $extension;

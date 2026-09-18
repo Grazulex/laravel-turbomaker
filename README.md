@@ -161,7 +161,7 @@ Laravel TurboMaker is free, open source and maintained on my own time. If it sav
 - 🐦 **Share it** with your team and network
 - 💖 **[Sponsor on GitHub](https://github.com/sponsors/Grazulex)**, **[buy me a coffee](https://buymeacoffee.com/grazulex)** or **[donate via PayPal](https://paypal.me/strauven)** — every contribution funds maintenance, new features and Laravel upgrades
 
-## � License
+## 📄 License
 
 This package is open-sourced software licensed under the [MIT license](LICENSE.md).
 
@@ -215,7 +215,7 @@ Automatically handles foreign keys, model relationships, and form integration.
 
 ---
 
-## � Documentation & Examples
+## 📚 Documentation & Examples
 
 > **📖 Complete documentation and examples have been moved to the [GitHub Wiki](https://github.com/Grazulex/laravel-turbomaker/wiki)**
 

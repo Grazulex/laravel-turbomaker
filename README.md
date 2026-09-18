@@ -2,6 +2,12 @@
 
 <img src="new_logo.png" alt="Laravel TurboMaker" width="200">
 
+> [!TIP]
+> **What Laravel TurboMaker does for you** — Scaffold a complete module — model, migration, controller, requests, resources, policy, factory, tests and views — with one command that follows Laravel conventions. Hours of boilerplate, done in seconds.
+>
+> **This package is free and maintained on my own time.** If it saves you hours, a small contribution helps me keep it going:
+> [💖 GitHub Sponsors](https://github.com/sponsors/Grazulex) · [☕ Buy Me a Coffee](https://buymeacoffee.com/grazulex) · [PayPal](https://paypal.me/strauven)
+
 Supercharge your Laravel development workflow with instant module scaffolding.
 
 [![Latest Version](https://img.shields.io/packagist/v/grazulex/laravel-turbomaker.svg?style=flat-square)](https://packagist.org/packages/grazulex/laravel-turbomaker)
@@ -146,6 +152,14 @@ composer install
 ```
 
 ---
+
+## 💖 Support This Package
+
+Laravel TurboMaker is free, open source and maintained on my own time. If it saves you hours, here is how you can give back:
+
+- ⭐ **Star the repository** — it helps other developers find it
+- 🐦 **Share it** with your team and network
+- 💖 **[Sponsor on GitHub](https://github.com/sponsors/Grazulex)**, **[buy me a coffee](https://buymeacoffee.com/grazulex)** or **[donate via PayPal](https://paypal.me/strauven)** — every contribution funds maintenance, new features and Laravel upgrades
 
 ## � License
 

@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v2.5.0] - 2026-10-08
+
 ### Changed
+- **Minimum PHP version is now 8.4**: PHP 8.3 is no longer supported (#28)
+- CI test matrix now runs PHP 8.4 and 8.5 (#28)
 - Applied Rector refactorings (`RepeatedOrEqualToInArrayRector`, `RepeatedAndNotEqualToNotInArrayRector`, `instanceof` checks, early return); no behaviour change.
 - Rector configuration: `StrictArrayParamDimFetchRector` skipped for `TurboSchemaCommand` (YAML input may be a scalar or null).
 - GitHub Actions: `actions/checkout` bumped to v5, `softprops/action-gh-release` bumped to v2.
@@ -57,6 +61,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release.
 
+[v2.5.0]: https://github.com/Grazulex/laravel-turbomaker/compare/v2.4.0...v2.5.0
 [v2.4.0]: https://github.com/Grazulex/laravel-turbomaker/compare/v2.3.0...v2.4.0
 [v2.3.0]: https://github.com/Grazulex/laravel-turbomaker/compare/V2.2.0...v2.3.0
 [v2.2.0]: https://github.com/Grazulex/laravel-turbomaker/compare/v2.1.0...V2.2.0

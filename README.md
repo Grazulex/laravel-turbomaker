@@ -47,7 +47,7 @@ composer require --dev grazulex/laravel-turbomaker
 ```
 
 **Requirements**:
-- PHP 8.3+
+- PHP 8.4+
 - Laravel 12.x | 13.x
 
 ---

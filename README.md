@@ -335,7 +335,8 @@ See the [Field Types Wiki](https://github.com/Grazulex/laravel-turbomaker/wiki/F
 
 | TurboMaker | PHP | Laravel |
 |------------|-----|---------|
-| 2.4+       | 8.3+ | 12.x \| 13.x |
+| 2.5+       | 8.4+ | 12.x \| 13.x |
+| 2.4        | 8.3+ | 12.x \| 13.x |
 | 2.0 – 2.3  | 8.3+ | 11.x \| 12.x |
 
 ---

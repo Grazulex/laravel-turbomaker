@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v2.5.1] - 2026-10-17
+
+### Fixed
+- `ModelSchemaGenerationAdapter::generateAll()` now calls the real ModelSchema `GenerationService` instead of returning simulated results, and fails when a generator returns no fragments (#30)
+
+### Changed
+- Require `grazulex/laravel-modelschema` `^1.3.1`, which reports generation success correctly
+
 ## [v2.5.0] - 2026-10-08
 
 ### Changed

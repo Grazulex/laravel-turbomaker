@@ -51,7 +51,7 @@ class SchemaParser
             $config = $this->loadAndParseFile($filePath);
 
             if ($this->shouldUseCache()) {
-                Cache::put($cacheKey, $config, now()->addHour());
+                Cache::put($cacheKey, $config, now()->addSeconds($this->cacheTtl()));
             }
         }
 
@@ -249,6 +249,22 @@ class SchemaParser
         $lastModified = File::lastModified($filePath);
 
         return 'turbomaker.schema.'.md5($filePath.$lastModified);
+    }
+
+    /**
+     * Lifetime of a cached schema, in seconds (turbomaker.performance.cache_ttl)
+     *
+     * Falls back to one hour when the value is missing or not a positive integer.
+     */
+    private function cacheTtl(): int
+    {
+        $ttl = config('turbomaker.performance.cache_ttl', 3600);
+
+        if (is_numeric($ttl) && (int) $ttl > 0) {
+            return (int) $ttl;
+        }
+
+        return 3600;
     }
 
     /**

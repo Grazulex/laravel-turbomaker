@@ -28,8 +28,10 @@ final class ConfigurationTest extends TestCase
         $this->assertIsArray($defaults);
         $this->assertArrayHasKey('format', $defaults);
         $this->assertArrayHasKey('include_metadata', $defaults);
-        $this->assertArrayHasKey('show_progress', $defaults);
-        $this->assertArrayHasKey('output_path', $defaults);
+
+        // Keys without any effect were removed from the shipped config
+        $this->assertArrayNotHasKey('show_progress', $defaults);
+        $this->assertArrayNotHasKey('output_path', $defaults);
 
         // Test generation defaults
         $this->assertArrayHasKey('generate_tests', $defaults);
@@ -44,8 +46,6 @@ final class ConfigurationTest extends TestCase
 
         $this->assertEquals('table', $defaults['format']);
         $this->assertTrue($defaults['include_metadata']);
-        $this->assertTrue($defaults['show_progress']);
-        $this->assertStringContainsString('turbomaker', $defaults['output_path']);
 
         // Test boolean defaults
         $this->assertTrue($defaults['generate_tests']);
@@ -103,11 +103,10 @@ final class ConfigurationTest extends TestCase
         $this->assertIsArray($performance);
         $this->assertArrayHasKey('cache_enabled', $performance);
         $this->assertArrayHasKey('cache_ttl', $performance);
-        $this->assertArrayHasKey('memory_limit', $performance);
+        $this->assertArrayNotHasKey('memory_limit', $performance);
 
         $this->assertTrue($performance['cache_enabled']);
         $this->assertEquals(3600, $performance['cache_ttl']);
-        $this->assertEquals('512M', $performance['memory_limit']);
     }
 
     public function test_export_configuration(): void

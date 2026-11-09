@@ -319,7 +319,7 @@ final class ModelSchemaGenerationAdapter
 
         switch ($type) {
             case 'model':
-                $path = app_path("Models/{$modelName}.php");
+                $path = $this->configuredPath('models', "{$modelName}.php");
                 $this->ensureDirectoryExists(dirname($path));
 
                 // Generate PHP content from fragment data
@@ -330,7 +330,7 @@ final class ModelSchemaGenerationAdapter
 
             case 'migration':
                 $timestamp = $this->extractTimestamp($result['metadata']) ?? date('Y_m_d_His');
-                $path = database_path("migrations/{$timestamp}_create_{$tableName}_table.php");
+                $path = $this->configuredPath('migrations', "{$timestamp}_create_{$tableName}_table.php");
                 $this->ensureDirectoryExists(dirname($path));
 
                 // Generate PHP content from fragment data
@@ -341,8 +341,8 @@ final class ModelSchemaGenerationAdapter
 
             case 'requests':
                 // Generate Store and Update requests
-                $storePath = app_path("Http/Requests/Store{$modelName}Request.php");
-                $updatePath = app_path("Http/Requests/Update{$modelName}Request.php");
+                $storePath = $this->configuredPath('requests', "Store{$modelName}Request.php");
+                $updatePath = $this->configuredPath('requests', "Update{$modelName}Request.php");
 
                 $this->ensureDirectoryExists(dirname($storePath));
 
@@ -357,7 +357,7 @@ final class ModelSchemaGenerationAdapter
                 break;
 
             case 'resources':
-                $path = app_path("Http/Resources/{$modelName}Resource.php");
+                $path = $this->configuredPath('resources', "{$modelName}Resource.php");
                 $this->ensureDirectoryExists(dirname($path));
 
                 $phpContent = $this->generateResourcePhpFromFragment($modelName);
@@ -366,7 +366,7 @@ final class ModelSchemaGenerationAdapter
                 break;
 
             case 'factory':
-                $path = database_path("factories/{$modelName}Factory.php");
+                $path = $this->configuredPath('factories', "{$modelName}Factory.php");
                 $this->ensureDirectoryExists(dirname($path));
 
                 $phpContent = $this->generateFactoryPhpFromFragment($modelName);
@@ -376,7 +376,7 @@ final class ModelSchemaGenerationAdapter
 
             case 'seeder':
                 // ModelSchema Enterprise generates seeder content, but we can override if needed
-                $path = database_path("seeders/{$modelName}Seeder.php");
+                $path = $this->configuredPath('seeders', "{$modelName}Seeder.php");
                 $this->ensureDirectoryExists(dirname($path));
 
                 $phpContent = $this->generateSeederPhpFromFragment($modelName);
@@ -386,7 +386,7 @@ final class ModelSchemaGenerationAdapter
 
             case 'controllers':
                 // Generate controllers based on api_only option
-                $apiPath = app_path("Http/Controllers/Api/{$modelName}Controller.php");
+                $apiPath = $this->configuredPath('api_controllers', "{$modelName}Controller.php");
 
                 $this->ensureDirectoryExists(dirname($apiPath));
                 $apiContent = $this->generateApiControllerPhpFromFragment($modelName);
@@ -395,7 +395,7 @@ final class ModelSchemaGenerationAdapter
 
                 // Only generate web controller if not api_only
                 if (! ($options['api_only'] ?? false)) {
-                    $webPath = app_path("Http/Controllers/{$modelName}Controller.php");
+                    $webPath = $this->configuredPath('controllers', "{$modelName}Controller.php");
                     $this->ensureDirectoryExists(dirname($webPath));
                     $webContent = $this->generateWebControllerPhpFromFragment($modelName);
                     $this->writeFile($options, $webPath, $webContent);
@@ -405,8 +405,8 @@ final class ModelSchemaGenerationAdapter
 
             case 'tests':
                 // Generate Feature and Unit tests
-                $featurePath = base_path("tests/Feature/{$modelName}Test.php");
-                $unitPath = base_path("tests/Unit/{$modelName}UnitTest.php");
+                $featurePath = $this->configuredPath('feature_tests', "{$modelName}Test.php");
+                $unitPath = $this->configuredPath('unit_tests', "{$modelName}UnitTest.php");
 
                 $this->ensureDirectoryExists(dirname($featurePath));
                 $this->ensureDirectoryExists(dirname($unitPath));
@@ -422,7 +422,7 @@ final class ModelSchemaGenerationAdapter
                 break;
 
             case 'policies':
-                $path = app_path("Policies/{$modelName}Policy.php");
+                $path = $this->configuredPath('policies', "{$modelName}Policy.php");
                 $this->ensureDirectoryExists(dirname($path));
 
                 $phpContent = $this->generatePolicyPhpFromFragment($modelName);
@@ -431,7 +431,7 @@ final class ModelSchemaGenerationAdapter
                 break;
 
             case 'observers':
-                $path = app_path("Observers/{$modelName}Observer.php");
+                $path = $this->configuredPath('observers', "{$modelName}Observer.php");
                 $this->ensureDirectoryExists(dirname($path));
 
                 $phpContent = $this->generateObserverPhpFromFragment($modelName);
@@ -440,7 +440,7 @@ final class ModelSchemaGenerationAdapter
                 break;
 
             case 'services':
-                $path = app_path("Services/{$modelName}Service.php");
+                $path = $this->configuredPath('services', "{$modelName}Service.php");
                 $this->ensureDirectoryExists(dirname($path));
 
                 $phpContent = $this->generateServicePhpFromFragment($modelName, $options);
@@ -450,10 +450,10 @@ final class ModelSchemaGenerationAdapter
 
             case 'actions':
                 // Generate CRUD actions
-                $createPath = app_path("Actions/Create{$modelName}Action.php");
-                $updatePath = app_path("Actions/Update{$modelName}Action.php");
-                $deletePath = app_path("Actions/Delete{$modelName}Action.php");
-                $getPath = app_path("Actions/Get{$modelName}Action.php");
+                $createPath = $this->configuredPath('actions', "Create{$modelName}Action.php");
+                $updatePath = $this->configuredPath('actions', "Update{$modelName}Action.php");
+                $deletePath = $this->configuredPath('actions', "Delete{$modelName}Action.php");
+                $getPath = $this->configuredPath('actions', "Get{$modelName}Action.php");
 
                 $this->ensureDirectoryExists(dirname($createPath));
 
@@ -475,8 +475,8 @@ final class ModelSchemaGenerationAdapter
 
             case 'rules':
                 // Generate validation rules
-                $existsPath = app_path("Rules/Exists{$modelName}Rule.php");
-                $uniquePath = app_path("Rules/Unique{$modelName}Rule.php");
+                $existsPath = $this->configuredPath('rules', "Exists{$modelName}Rule.php");
+                $uniquePath = $this->configuredPath('rules', "Unique{$modelName}Rule.php");
 
                 $this->ensureDirectoryExists(dirname($existsPath));
 
@@ -493,7 +493,7 @@ final class ModelSchemaGenerationAdapter
             case 'views':
                 // Generate CRUD views (index, create, edit, show)
                 $viewFolder = Str::snake($modelName);
-                $viewBasePath = resource_path("views/{$viewFolder}");
+                $viewBasePath = $this->configuredPath('views', $viewFolder);
                 $this->ensureDirectoryExists($viewBasePath);
 
                 $viewExtension = $this->getViewExtension();
@@ -520,6 +520,62 @@ final class ModelSchemaGenerationAdapter
         }
 
         return $filePaths;
+    }
+
+    /**
+     * Resolve the location of a generated file from the turbomaker.paths config
+     *
+     * Relative directories are resolved from the project root (base_path()),
+     * absolute ones are used as they are. When a key is missing or empty,
+     * the historical Laravel default location is used.
+     */
+    private function configuredPath(string $key, string $file): string
+    {
+        $directory = config("turbomaker.paths.{$key}");
+
+        if (! is_string($directory) || mb_trim($directory) === '') {
+            $directory = $this->defaultPath($key);
+        } elseif (! $this->isAbsolutePath($directory)) {
+            $directory = base_path(mb_trim($directory, '/\\'));
+        }
+
+        return mb_rtrim($directory, '/\\').'/'.$file;
+    }
+
+    /**
+     * Default directory for a turbomaker.paths key
+     */
+    private function defaultPath(string $key): string
+    {
+        return match ($key) {
+            'models' => app_path('Models'),
+            'controllers' => app_path('Http/Controllers'),
+            'api_controllers' => app_path('Http/Controllers/Api'),
+            'requests' => app_path('Http/Requests'),
+            'resources' => app_path('Http/Resources'),
+            'policies' => app_path('Policies'),
+            'actions' => app_path('Actions'),
+            'services' => app_path('Services'),
+            'rules' => app_path('Rules'),
+            'observers' => app_path('Observers'),
+            'migrations' => database_path('migrations'),
+            'factories' => database_path('factories'),
+            'seeders' => database_path('seeders'),
+            'views' => resource_path('views'),
+            'feature_tests' => base_path('tests/Feature'),
+            'unit_tests' => base_path('tests/Unit'),
+            default => base_path($key),
+        };
+    }
+
+    /**
+     * Whether a path is absolute (Unix or Windows style)
+     */
+    private function isAbsolutePath(string $path): bool
+    {
+        return str_starts_with($path, '/')
+            || str_starts_with($path, '\\')
+            || preg_match('/^[A-Za-z]:[\\\\\/]/', $path) === 1;
     }
 
     /**
@@ -651,64 +707,64 @@ final class ModelSchemaGenerationAdapter
 
         switch ($type) {
             case 'model':
-                return [app_path("Models/{$modelName}.php")];
+                return [$this->configuredPath('models', "{$modelName}.php")];
 
             case 'migration':
                 $timestamp = date('Y_m_d_His');
 
-                return [database_path("migrations/{$timestamp}_create_{$tableName}_table.php")];
+                return [$this->configuredPath('migrations', "{$timestamp}_create_{$tableName}_table.php")];
 
             case 'requests':
                 return [
-                    app_path("Http/Requests/Store{$modelName}Request.php"),
-                    app_path("Http/Requests/Update{$modelName}Request.php"),
+                    $this->configuredPath('requests', "Store{$modelName}Request.php"),
+                    $this->configuredPath('requests', "Update{$modelName}Request.php"),
                 ];
 
             case 'resources':
-                return [app_path("Http/Resources/{$modelName}Resource.php")];
+                return [$this->configuredPath('resources', "{$modelName}Resource.php")];
 
             case 'factory':
-                return [database_path("factories/{$modelName}Factory.php")];
+                return [$this->configuredPath('factories', "{$modelName}Factory.php")];
 
             case 'seeder':
-                return [database_path("seeders/{$modelName}Seeder.php")];
+                return [$this->configuredPath('seeders', "{$modelName}Seeder.php")];
 
             case 'controllers':
-                $paths = [app_path("Http/Controllers/Api/{$modelName}Controller.php")];
+                $paths = [$this->configuredPath('api_controllers', "{$modelName}Controller.php")];
                 // Only include web controller if not api_only
                 if (! ($options['api_only'] ?? false)) {
-                    $paths[] = app_path("Http/Controllers/{$modelName}Controller.php");
+                    $paths[] = $this->configuredPath('controllers', "{$modelName}Controller.php");
                 }
 
                 return $paths;
 
             case 'tests':
                 return [
-                    base_path("tests/Feature/{$modelName}Test.php"),
-                    base_path("tests/Unit/{$modelName}UnitTest.php"),
+                    $this->configuredPath('feature_tests', "{$modelName}Test.php"),
+                    $this->configuredPath('unit_tests', "{$modelName}UnitTest.php"),
                 ];
 
             case 'policies':
-                return [app_path("Policies/{$modelName}Policy.php")];
+                return [$this->configuredPath('policies', "{$modelName}Policy.php")];
 
             case 'observers':
-                return [app_path("Observers/{$modelName}Observer.php")];
+                return [$this->configuredPath('observers', "{$modelName}Observer.php")];
 
             case 'services':
-                return [app_path("Services/{$modelName}Service.php")];
+                return [$this->configuredPath('services', "{$modelName}Service.php")];
 
             case 'actions':
                 return [
-                    app_path("Actions/Create{$modelName}Action.php"),
-                    app_path("Actions/Update{$modelName}Action.php"),
-                    app_path("Actions/Delete{$modelName}Action.php"),
-                    app_path("Actions/Get{$modelName}Action.php"),
+                    $this->configuredPath('actions', "Create{$modelName}Action.php"),
+                    $this->configuredPath('actions', "Update{$modelName}Action.php"),
+                    $this->configuredPath('actions', "Delete{$modelName}Action.php"),
+                    $this->configuredPath('actions', "Get{$modelName}Action.php"),
                 ];
 
             case 'rules':
                 return [
-                    app_path("Rules/Exists{$modelName}Rule.php"),
-                    app_path("Rules/Unique{$modelName}Rule.php"),
+                    $this->configuredPath('rules', "Exists{$modelName}Rule.php"),
+                    $this->configuredPath('rules', "Unique{$modelName}Rule.php"),
                 ];
 
             case 'views':
@@ -716,10 +772,10 @@ final class ModelSchemaGenerationAdapter
                 $viewExtension = $this->getViewExtension();
 
                 return [
-                    resource_path("views/{$viewFolder}/index{$viewExtension}"),
-                    resource_path("views/{$viewFolder}/create{$viewExtension}"),
-                    resource_path("views/{$viewFolder}/edit{$viewExtension}"),
-                    resource_path("views/{$viewFolder}/show{$viewExtension}"),
+                    $this->configuredPath('views', "{$viewFolder}/index{$viewExtension}"),
+                    $this->configuredPath('views', "{$viewFolder}/create{$viewExtension}"),
+                    $this->configuredPath('views', "{$viewFolder}/edit{$viewExtension}"),
+                    $this->configuredPath('views', "{$viewFolder}/show{$viewExtension}"),
                 ];
 
             default:

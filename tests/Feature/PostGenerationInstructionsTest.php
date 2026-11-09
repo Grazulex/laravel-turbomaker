@@ -15,6 +15,7 @@ final class PostGenerationInstructionsTest extends TestCase
         $this->artisan('turbo:make', [
             'name' => 'Product',
             '--observers' => true,
+            '--force' => true,
         ])
             ->expectsOutputToContain('Register the ProductObserver in your AppServiceProvider boot() method')
             ->expectsOutputToContain('\\App\\Models\\Product::observe(\\App\\Observers\\ProductObserver::class);')
@@ -28,6 +29,7 @@ final class PostGenerationInstructionsTest extends TestCase
         $this->artisan('turbo:make', [
             'name' => 'Product',
             '--policies' => true,
+            '--force' => true,
         ])
             ->expectsOutputToContain('Register the ProductPolicy in your AuthServiceProvider')
             ->expectsOutputToContain('\\App\\Models\\Product::class => \\App\\Policies\\ProductPolicy::class,')
@@ -41,6 +43,7 @@ final class PostGenerationInstructionsTest extends TestCase
         $this->artisan('turbo:make', [
             'name' => 'Product',
             '--seeder' => true,
+            '--force' => true,
         ])
             ->expectsOutputToContain('Add ProductSeeder to your DatabaseSeeder')
             ->expectsOutputToContain('$this->call(ProductSeeder::class);')

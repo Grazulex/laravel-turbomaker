@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Grazulex\LaravelTurbomaker\Console\Commands;
 
 use Exception;
+use Grazulex\LaravelTurbomaker\Exceptions\FilesAlreadyExistException;
 use Grazulex\LaravelTurbomaker\Generators\ModuleGenerator;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
@@ -86,6 +87,16 @@ final class TurboMakeCommand extends Command
             $this->info("✅ Module '{$name}' generated successfully!");
 
             return Command::SUCCESS;
+        } catch (FilesAlreadyExistException $e) {
+            $this->error("❌ Module '{$name}' was not generated: some files already exist.");
+
+            foreach ($e->getPaths() as $path) {
+                $this->line('   - '.str_replace(base_path().'/', '', $path));
+            }
+
+            $this->line('Use --force to overwrite them.');
+
+            return Command::FAILURE;
         } catch (Exception $e) {
             $this->error("❌ Failed to generate module: {$e->getMessage()}");
 

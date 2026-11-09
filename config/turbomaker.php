@@ -26,8 +26,6 @@ return [
     'defaults' => [
         'format' => env('TURBOMAKER_DEFAULT_FORMAT', 'table'),
         'include_metadata' => env('TURBOMAKER_INCLUDE_METADATA', true),
-        'show_progress' => env('TURBOMAKER_SHOW_PROGRESS', true),
-        'output_path' => env('TURBOMAKER_OUTPUT_PATH', storage_path('turbomaker')),
         'generate_tests' => env('TURBOMAKER_GENERATE_TESTS', true),
         'generate_factory' => env('TURBOMAKER_GENERATE_FACTORY', true),
         'generate_seeder' => env('TURBOMAKER_GENERATE_SEEDER', false),
@@ -45,6 +43,9 @@ return [
     |--------------------------------------------------------------------------
     |
     | Configure where different types of files should be generated.
+    | Relative paths are resolved from the project root (base_path()),
+    | absolute paths are used as they are. Only the file location changes:
+    | the namespaces written in the generated classes stay the Laravel ones.
     |
     */
     'paths' => [
@@ -153,6 +154,7 @@ return [
         'auto_discovery' => env('TURBOMAKER_SCHEMA_AUTO_DISCOVERY', true),
         'cache_enabled' => env('TURBOMAKER_SCHEMA_CACHE', true),
         'validate_on_load' => env('TURBOMAKER_SCHEMA_VALIDATE', true),
+        // When turbo:make --force overwrites a file, keep a copy as "<file>.<timestamp>.bak"
         'backup_on_generate' => env('TURBOMAKER_SCHEMA_BACKUP', false),
     ],
 
@@ -189,8 +191,8 @@ return [
     */
     'performance' => [
         'cache_enabled' => env('TURBOMAKER_CACHE_ENABLED', true),
+        // Lifetime, in seconds, of parsed schemas kept in the cache (schemas.cache_enabled)
         'cache_ttl' => env('TURBOMAKER_CACHE_TTL', 3600), // 1 hour
-        'memory_limit' => env('TURBOMAKER_MEMORY_LIMIT', '512M'),
     ],
 
     /*

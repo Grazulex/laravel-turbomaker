@@ -153,6 +153,7 @@ return [
         'auto_discovery' => env('TURBOMAKER_SCHEMA_AUTO_DISCOVERY', true),
         'cache_enabled' => env('TURBOMAKER_SCHEMA_CACHE', true),
         'validate_on_load' => env('TURBOMAKER_SCHEMA_VALIDATE', true),
+        // When turbo:make --force overwrites a file, keep a copy as "<file>.<timestamp>.bak"
         'backup_on_generate' => env('TURBOMAKER_SCHEMA_BACKUP', false),
     ],
 

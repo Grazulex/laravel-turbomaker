@@ -281,7 +281,7 @@ TurboMaker generates **13 different types of files** for complete module scaffol
 | `--observers` | Generate model observers |
 | `--belongs-to=User` | Add belongs-to relationship |
 | `--has-many=Comment` | Add has-many relationship |
-| `--force` | Overwrite existing files |
+| `--force` | Overwrite existing files (without it, nothing is written when a file exists; `TURBOMAKER_SCHEMA_BACKUP=true` keeps a `.bak` copy) |
 
 ---
 

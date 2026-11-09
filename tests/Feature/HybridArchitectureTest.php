@@ -14,6 +14,7 @@ it('writes actual files when write_files option is enabled', function () {
         'generate_requests' => true,
         'generate_factory' => true,
         'api_only' => false,
+        'force' => true,
     ];
 
     $results = $generator->generateWithFiles('TestModel', $options);

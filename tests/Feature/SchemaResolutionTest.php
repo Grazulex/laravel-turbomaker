@@ -69,7 +69,7 @@ YAML;
 });
 
 it('shows clear error when schema is not found', function () {
-    $this->artisan('turbo:make Product --schema=NonExistentSchema')
+    $this->artisan('turbo:make Product --schema=NonExistentSchema --force')
         ->expectsOutputToContain('⚠️  Schema \'NonExistentSchema\' not found in any of these locations:')
         ->expectsOutputToContain('Using default generation instead.')
         ->assertExitCode(0);

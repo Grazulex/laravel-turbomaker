@@ -7,6 +7,7 @@ namespace Grazulex\LaravelTurbomaker\Adapters;
 use Exception;
 use Grazulex\LaravelModelschema\Schema\ModelSchema;
 use Grazulex\LaravelModelschema\Services\Generation\GenerationService;
+use Grazulex\LaravelTurbomaker\Exceptions\FilesAlreadyExistException;
 use Grazulex\LaravelTurbomaker\Schema\Schema;
 use Illuminate\Support\Str;
 
@@ -53,6 +54,8 @@ final class ModelSchemaGenerationAdapter
 
             return $convertedResults;
 
+        } catch (FilesAlreadyExistException $e) {
+            throw $e;
         } catch (Exception $e) {
             throw new Exception("ModelSchema generation failed: {$e->getMessage()}", 0, $e);
         }
@@ -120,6 +123,8 @@ final class ModelSchemaGenerationAdapter
     /**
      * Generate all files with actual file writing for test compatibility
      * This enables the hybrid approach: Fragment Architecture + File Generation
+     *
+     * Existing files are only overwritten when $options['force'] is true.
      */
     public function generateAllWithFiles(string $name, array $options = [], ?Schema $turboSchema = null): array
     {
@@ -277,6 +282,11 @@ final class ModelSchemaGenerationAdapter
     {
         $turboResults = [];
 
+        // Refuse to overwrite anything before a single file is written
+        if (($originalOptions['write_files'] ?? false) && ! ($originalOptions['force'] ?? false)) {
+            $this->assertNoExistingFiles($modelSchemaResults, $originalOptions);
+        }
+
         // ModelSchema returns fragment data, we can either simulate OR write real files
         foreach ($modelSchemaResults as $type => $result) {
             if (isset($result['metadata']) && $result['metadata']['generator']) {
@@ -314,7 +324,7 @@ final class ModelSchemaGenerationAdapter
 
                 // Generate PHP content from fragment data
                 $phpContent = $this->generateModelPhpFromFragment($result, $modelName, $options);
-                file_put_contents($path, $phpContent);
+                $this->writeFile($options, $path, $phpContent);
                 $filePaths[] = $path;
                 break;
 
@@ -325,7 +335,7 @@ final class ModelSchemaGenerationAdapter
 
                 // Generate PHP content from fragment data
                 $phpContent = $this->generateMigrationPhpFromFragment($tableName, $options);
-                file_put_contents($path, $phpContent);
+                $this->writeFile($options, $path, $phpContent);
                 $filePaths[] = $path;
                 break;
 
@@ -339,8 +349,8 @@ final class ModelSchemaGenerationAdapter
                 $storeContent = $this->generateStoreRequestPhpFromFragment($modelName);
                 $updateContent = $this->generateUpdateRequestPhpFromFragment($modelName);
 
-                file_put_contents($storePath, $storeContent);
-                file_put_contents($updatePath, $updateContent);
+                $this->writeFile($options, $storePath, $storeContent);
+                $this->writeFile($options, $updatePath, $updateContent);
 
                 $filePaths[] = $storePath;
                 $filePaths[] = $updatePath;
@@ -351,7 +361,7 @@ final class ModelSchemaGenerationAdapter
                 $this->ensureDirectoryExists(dirname($path));
 
                 $phpContent = $this->generateResourcePhpFromFragment($modelName);
-                file_put_contents($path, $phpContent);
+                $this->writeFile($options, $path, $phpContent);
                 $filePaths[] = $path;
                 break;
 
@@ -360,7 +370,7 @@ final class ModelSchemaGenerationAdapter
                 $this->ensureDirectoryExists(dirname($path));
 
                 $phpContent = $this->generateFactoryPhpFromFragment($modelName);
-                file_put_contents($path, $phpContent);
+                $this->writeFile($options, $path, $phpContent);
                 $filePaths[] = $path;
                 break;
 
@@ -370,7 +380,7 @@ final class ModelSchemaGenerationAdapter
                 $this->ensureDirectoryExists(dirname($path));
 
                 $phpContent = $this->generateSeederPhpFromFragment($modelName);
-                file_put_contents($path, $phpContent);
+                $this->writeFile($options, $path, $phpContent);
                 $filePaths[] = $path;
                 break;
 
@@ -380,7 +390,7 @@ final class ModelSchemaGenerationAdapter
 
                 $this->ensureDirectoryExists(dirname($apiPath));
                 $apiContent = $this->generateApiControllerPhpFromFragment($modelName);
-                file_put_contents($apiPath, $apiContent);
+                $this->writeFile($options, $apiPath, $apiContent);
                 $filePaths[] = $apiPath;
 
                 // Only generate web controller if not api_only
@@ -388,7 +398,7 @@ final class ModelSchemaGenerationAdapter
                     $webPath = app_path("Http/Controllers/{$modelName}Controller.php");
                     $this->ensureDirectoryExists(dirname($webPath));
                     $webContent = $this->generateWebControllerPhpFromFragment($modelName);
-                    file_put_contents($webPath, $webContent);
+                    $this->writeFile($options, $webPath, $webContent);
                     $filePaths[] = $webPath;
                 }
                 break;
@@ -404,8 +414,8 @@ final class ModelSchemaGenerationAdapter
                 $featureContent = $this->generateFeatureTestPhpFromFragment($modelName, $result);
                 $unitContent = $this->generateUnitTestPhpFromFragment($result, $modelName);
 
-                file_put_contents($featurePath, $featureContent);
-                file_put_contents($unitPath, $unitContent);
+                $this->writeFile($options, $featurePath, $featureContent);
+                $this->writeFile($options, $unitPath, $unitContent);
 
                 $filePaths[] = $featurePath;
                 $filePaths[] = $unitPath;
@@ -416,7 +426,7 @@ final class ModelSchemaGenerationAdapter
                 $this->ensureDirectoryExists(dirname($path));
 
                 $phpContent = $this->generatePolicyPhpFromFragment($modelName);
-                file_put_contents($path, $phpContent);
+                $this->writeFile($options, $path, $phpContent);
                 $filePaths[] = $path;
                 break;
 
@@ -425,7 +435,7 @@ final class ModelSchemaGenerationAdapter
                 $this->ensureDirectoryExists(dirname($path));
 
                 $phpContent = $this->generateObserverPhpFromFragment($modelName);
-                file_put_contents($path, $phpContent);
+                $this->writeFile($options, $path, $phpContent);
                 $filePaths[] = $path;
                 break;
 
@@ -434,7 +444,7 @@ final class ModelSchemaGenerationAdapter
                 $this->ensureDirectoryExists(dirname($path));
 
                 $phpContent = $this->generateServicePhpFromFragment($modelName, $options);
-                file_put_contents($path, $phpContent);
+                $this->writeFile($options, $path, $phpContent);
                 $filePaths[] = $path;
                 break;
 
@@ -452,10 +462,10 @@ final class ModelSchemaGenerationAdapter
                 $deleteContent = $this->generateDeleteActionPhpFromFragment($modelName);
                 $getContent = $this->generateGetActionPhpFromFragment($modelName);
 
-                file_put_contents($createPath, $createContent);
-                file_put_contents($updatePath, $updateContent);
-                file_put_contents($deletePath, $deleteContent);
-                file_put_contents($getPath, $getContent);
+                $this->writeFile($options, $createPath, $createContent);
+                $this->writeFile($options, $updatePath, $updateContent);
+                $this->writeFile($options, $deletePath, $deleteContent);
+                $this->writeFile($options, $getPath, $getContent);
 
                 $filePaths[] = $createPath;
                 $filePaths[] = $updatePath;
@@ -473,8 +483,8 @@ final class ModelSchemaGenerationAdapter
                 $existsContent = $this->generateExistsRulePhpFromFragment($modelName);
                 $uniqueContent = $this->generateUniqueRulePhpFromFragment($modelName);
 
-                file_put_contents($existsPath, $existsContent);
-                file_put_contents($uniquePath, $uniqueContent);
+                $this->writeFile($options, $existsPath, $existsContent);
+                $this->writeFile($options, $uniquePath, $uniqueContent);
 
                 $filePaths[] = $existsPath;
                 $filePaths[] = $uniquePath;
@@ -491,7 +501,7 @@ final class ModelSchemaGenerationAdapter
                 foreach ($viewTypes as $viewType) {
                     $viewPath = "{$viewBasePath}/{$viewType}{$viewExtension}";
                     $viewContent = $this->generateViewFromStub($modelName, $viewType);
-                    file_put_contents($viewPath, $viewContent);
+                    $this->writeFile($options, $viewPath, $viewContent);
                     $filePaths[] = $viewPath;
                 }
                 break;
@@ -503,7 +513,7 @@ final class ModelSchemaGenerationAdapter
                     $this->ensureDirectoryExists(dirname($path));
 
                     $phpContent = $this->generateGenericPhpFromFragment($result, $modelName, $type);
-                    file_put_contents($path, $phpContent);
+                    $this->writeFile($options, $path, $phpContent);
                     $filePaths[] = $path;
                 }
                 break;
@@ -519,6 +529,90 @@ final class ModelSchemaGenerationAdapter
     {
         if (! is_dir($directory)) {
             mkdir($directory, 0755, true);
+        }
+    }
+
+    /**
+     * Throw when any file the generation would write already exists
+     *
+     * Migrations are skipped: their file name is timestamped, so they never overwrite a file.
+     *
+     * @throws FilesAlreadyExistException
+     */
+    private function assertNoExistingFiles(array $modelSchemaResults, array $options): void
+    {
+        $existing = [];
+
+        foreach ($modelSchemaResults as $type => $result) {
+            if (! isset($result['metadata']) || ! $result['metadata']['generator'] || $type === 'migration') {
+                continue;
+            }
+
+            foreach ($this->targetPathsForWrite($result, $type, $options) as $path) {
+                if (file_exists($path)) {
+                    $existing[] = $path;
+                }
+            }
+        }
+
+        if ($existing !== []) {
+            throw new FilesAlreadyExistException($existing);
+        }
+    }
+
+    /**
+     * Paths written by writeFilesFromFragmentsWithOptions() for a given type
+     */
+    private function targetPathsForWrite(array $result, string $type, array $options): array
+    {
+        $paths = $this->simulateFilePaths($result, $type, $options);
+
+        if ($paths === [] && ! empty($result['json'] ?? $result['yaml'] ?? '')) {
+            $modelName = $result['metadata']['model_name'] ?? 'Model';
+            $paths = [base_path("generated/{$type}/{$modelName}.php")];
+        }
+
+        return $paths;
+    }
+
+    /**
+     * Write a generated file, refusing to overwrite it without the force option
+     *
+     * When an existing file is overwritten and turbomaker.schemas.backup_on_generate
+     * is enabled, the previous content is first copied to "<file>.<timestamp>.bak".
+     *
+     * @throws FilesAlreadyExistException
+     */
+    private function writeFile(array $options, string $path, string $content): void
+    {
+        if (file_exists($path)) {
+            if (! ($options['force'] ?? false)) {
+                throw new FilesAlreadyExistException([$path]);
+            }
+
+            if ((bool) config('turbomaker.schemas.backup_on_generate', false)) {
+                $this->backupFile($path);
+            }
+        }
+
+        file_put_contents($path, $content);
+    }
+
+    /**
+     * Copy an existing file next to itself before it is overwritten
+     */
+    private function backupFile(string $path): void
+    {
+        $backupPath = $path.'.'.date('Ymd_His').'.bak';
+        $suffix = 1;
+
+        while (file_exists($backupPath)) {
+            $backupPath = $path.'.'.date('Ymd_His').'_'.$suffix.'.bak';
+            $suffix++;
+        }
+
+        if (! copy($path, $backupPath)) {
+            throw new Exception("Unable to back up {$path} before overwriting it");
         }
     }
 

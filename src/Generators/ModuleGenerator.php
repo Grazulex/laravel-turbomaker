@@ -40,6 +40,10 @@ final class ModuleGenerator
     /**
      * Generate module with actual file writing (for test compatibility)
      * This enables the hybrid approach when needed
+     *
+     * Existing files are never overwritten unless $options['force'] is true; a
+     * FilesAlreadyExistException listing them is thrown before anything is written.
+     * With 'force', turbomaker.schemas.backup_on_generate keeps a copy of each overwritten file.
      */
     public function generateWithFiles(string $name, array $options = [], ?Schema $schema = null): array
     {

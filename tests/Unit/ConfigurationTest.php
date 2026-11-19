@@ -119,9 +119,8 @@ final class ConfigurationTest extends TestCase
         $this->assertArrayHasKey('compress_output', $export);
 
         $this->assertIsArray($export['formats']);
+        $this->assertContains('openapi', $export['formats']);
         $this->assertContains('json', $export['formats']);
-        $this->assertContains('csv', $export['formats']);
-        $this->assertContains('html', $export['formats']);
 
         $this->assertTrue($export['include_timestamps']);
         $this->assertFalse($export['compress_output']);

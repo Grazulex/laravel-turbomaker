@@ -12,15 +12,21 @@ use InvalidArgumentException;
 
 final class TurboSchemaCommand extends Command
 {
+    /**
+     * Formats produced by the export action.
+     */
+    private const EXPORT_FORMATS = ['openapi', 'json'];
+
     protected $signature = 'turbo:schema 
-                            {action : Action to perform (list|create|show|validate|diff|optimize|clear-cache)}
-                            {name? : Schema name (required for create, show, validate, diff)}
+                            {action : Action to perform (list|create|show|validate|diff|optimize|export|clear-cache)}
+                            {name? : Schema name (required for create, show, validate, diff, export)}
                             {target? : Target schema for diff comparison}
                             {--fields= : Field definitions for create action}
                             {--template= : Use a template (basic|ecommerce|blog)}
-                            {--force : Overwrite existing schema file}
+                            {--force : Overwrite existing schema file (or export file)}
                             {--strategy= : Optimization strategy (standard|lazy|streaming)}
-                            {--format= : Output format for diff (text|json|yaml)}';
+                            {--format= : Output format for diff (text|json|yaml) or export (openapi|json)}
+                            {--output= : File to write the export to (printed to the console when omitted)}';
 
     protected $description = 'Manage TurboMaker schemas with ModelSchema enterprise features';
 
@@ -45,6 +51,7 @@ final class TurboSchemaCommand extends Command
             'validate' => $this->validateSchema(),
             'diff' => $this->diffSchemas(),
             'optimize' => $this->optimizeSchema(),
+            'export' => $this->exportSchema(),
             'clear-cache' => $this->clearCache(),
             default => $this->invalidAction($action),
         };
@@ -278,9 +285,133 @@ final class TurboSchemaCommand extends Command
     private function invalidAction(string $action): int
     {
         $this->error("Invalid action: {$action}");
-        $this->line('Available actions: list, create, show, validate, diff, optimize, clear-cache');
+        $this->line('Available actions: list, create, show, validate, diff, optimize, export, clear-cache');
 
         return Command::FAILURE;
+    }
+
+    /**
+     * Export a schema as an OpenAPI document (or as plain JSON)
+     */
+    private function exportSchema(): int
+    {
+        $name = $this->argument('name');
+
+        if (! $name) {
+            $this->error('Schema name is required for export action');
+
+            return Command::FAILURE;
+        }
+
+        $format = mb_strtolower((string) ($this->option('format') ?: 'openapi'));
+
+        if (! in_array($format, self::EXPORT_FORMATS, true)) {
+            $this->error("Unsupported export format '{$format}'. Supported formats: ".implode(', ', self::EXPORT_FORMATS));
+
+            return Command::FAILURE;
+        }
+
+        $enabledFormats = config('turbomaker.export.formats');
+        if (is_array($enabledFormats) && ! in_array($format, array_map(static fn ($value): string => mb_strtolower((string) $value), $enabledFormats), true)) {
+            $this->error("Export format '{$format}' is disabled. Add it to the 'turbomaker.export.formats' configuration.");
+
+            return Command::FAILURE;
+        }
+
+        $filePath = $this->findSchemaFile($name);
+
+        if ($filePath === null) {
+            $this->error("Schema '{$name}' not found");
+
+            return Command::FAILURE;
+        }
+
+        try {
+            $yamlData = \Symfony\Component\Yaml\Yaml::parse((string) file_get_contents($filePath));
+
+            if (! is_array($yamlData)) {
+                throw new InvalidArgumentException('Schema file is empty or invalid');
+            }
+
+            $data = $format === 'openapi'
+                ? (new \Grazulex\LaravelTurbomaker\Export\OpenApiExporter())->export($name, $yamlData, [
+                    'server_url' => $this->apiServerUrl(),
+                ])
+                : $yamlData;
+
+            $content = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+        } catch (Exception $e) {
+            $this->error("Failed to export schema: {$e->getMessage()}");
+
+            return Command::FAILURE;
+        }
+
+        $output = $this->option('output');
+
+        if (! is_string($output) || $output === '') {
+            $this->output->writeln($content, \Symfony\Component\Console\Output\OutputInterface::OUTPUT_RAW);
+
+            return Command::SUCCESS;
+        }
+
+        $outputPath = $this->resolveOutputPath($output);
+
+        if (file_exists($outputPath) && ! $this->option('force')) {
+            $this->error("File '{$outputPath}' already exists. Use --force to overwrite.");
+
+            return Command::FAILURE;
+        }
+
+        $directory = dirname($outputPath);
+        if (! is_dir($directory)) {
+            mkdir($directory, 0755, true);
+        }
+
+        file_put_contents($outputPath, $content.PHP_EOL);
+
+        $this->info("✅ Schema '{$name}' exported as {$format}");
+        $this->line("📄 File: {$outputPath}");
+
+        return Command::SUCCESS;
+    }
+
+    /**
+     * Locate a schema file from a name given as "BlogPost", "blog_post" or "blog-post"
+     */
+    private function findSchemaFile(string $name): ?string
+    {
+        $schemaPath = config('turbomaker.schemas.path', resource_path('schemas'));
+        $extension = config('turbomaker.schemas.extension', '.schema.yml');
+
+        $candidates = array_unique([
+            \Illuminate\Support\Str::snake(str_replace('-', '_', $name)),
+            str_replace(['_', '-'], '_', mb_strtolower($name)),
+        ]);
+
+        foreach ($candidates as $candidate) {
+            $filePath = $schemaPath.'/'.$candidate.$extension;
+            if (file_exists($filePath)) {
+                return $filePath;
+            }
+        }
+
+        return null;
+    }
+
+    private function apiServerUrl(): string
+    {
+        $appUrl = config('app.url');
+
+        return is_string($appUrl) && $appUrl !== '' ? mb_rtrim($appUrl, '/').'/api' : '/api';
+    }
+
+    private function resolveOutputPath(string $output): string
+    {
+        if (str_starts_with($output, '/') || str_starts_with($output, '\\') || preg_match('/^[A-Za-z]:[\\\\\/]/', $output) === 1) {
+            return $output;
+        }
+
+        return base_path($output);
     }
 
     private function buildFields(): array

@@ -200,11 +200,13 @@ return [
     | Export Configuration
     |--------------------------------------------------------------------------
     |
-    | Configuration for exporting scan results to various formats.
+    | Formats enabled for "php artisan turbo:schema export {name} --format=".
+    | Available formats: openapi (OpenAPI 3.0 document of the generated
+    | REST API) and json (the schema file as JSON).
     |
     */
     'export' => [
-        'formats' => ['json', 'csv', 'html'],
+        'formats' => ['openapi', 'json'],
         'include_timestamps' => true,
         'compress_output' => false,
     ],
